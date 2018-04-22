@@ -1,0 +1,114 @@
+<!-- 
+ *  
+ * REMEDIATE THE FLAG
+ * Copyright 2018 - Andrea Scaduto 
+ * remediatetheflag@gmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Remediate The Flag">
+<meta name="author" content="sk4ddy">
+<title>Remediate the Flag - Page Not Found</title>
+<link rel="icon" type="image/png" sizes="32x32"
+	href="/assets/img/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96"
+	href="/assets/img/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16"
+	href="/assets/img/favicon-16x16.png">
+<link href="/assets/css/lib.css" rel="stylesheet">
+<link href="/assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+	<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="index.html">RTF.</a>
+			</div>
+		</div>
+	</div>
+	<div id="service">
+		<div class="container serviceContainer">
+			<div class="row centered serviceInnerContainer col-md-12">
+				<div class="col-md-6 col-md-offset-3">
+					<h1>404 - Page Not Found</h1>
+					<h4>Oops! The page you requested was not found.</h4>
+					<h5>
+						Back to <a href="/">homepage</a>.
+					</h5>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- *****************************************************************************************************************
+	 FOOTER
+	 ***************************************************************************************************************** -->
+	<div id="footerwrap">
+			<div class="container">
+			<p class="center">RTF - 2017</p>
+				<!-- <div class="row">
+					<div class="col-lg-8">
+						<h4>About</h4>
+						<div class="hline-w"></div>
+						<p>RTF is an open source platform to teach developers about
+							application security topics.</p>
+					</div>
+					<div class="col-lg-4">
+						<h4>Contacts</h4>
+						<div class="hline-w"></div>
+						<a class="emailContact"
+							href="mailto:support@remediatetheflag.com ">
+							support@remediatetheflag.com </a>
+					</div>
+				</div>-->
+			</div>
+		</div>
+	<script src="/assets/js/jquery.min.js"></script>
+ <script>
+    $(document).ready(function(){
+        function responsiveView() {
+            var win = $(window).height();
+            var n = parseInt($('.navbar').css('height').replace('px',''))
+            var f = parseInt($('#footerwrap').css('height').replace('px',''))
+            $('.serviceContainer').css('height',(win - n - f + 10)+"px");
+        }
+        responsiveView();
+        $(window).on('load', responsiveView);
+        $(window).on('resize', responsiveView); 
+    })      
+    </script>
+	<!--	<script type="text/javascript">
+		var _paq = _paq || [];
+		_paq.push([ 'trackPageView' ]);
+		_paq.push([ 'enableLinkTracking' ]);
+		(function() {
+			var u = "https://analytics.remediatetheflag.com/piwik/";
+			_paq.push([ 'setTrackerUrl', u + 'piwik.php' ]);
+			_paq.push([ 'setSiteId', '1' ]);
+			var d = document, g = d.createElement('script'), s = d
+					.getElementsByTagName('script')[0];
+			g.type = 'text/javascript';
+			g.async = true;
+			g.defer = true;
+			g.src = u + 'piwik.js';
+			s.parentNode.insertBefore(g, s);
+		})();
+	</script> -->
+</body>
+</html>

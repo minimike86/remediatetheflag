@@ -1,0 +1,202 @@
+<!-- 
+ *  
+ * REMEDIATE THE FLAG
+ * Copyright 2018 - Andrea Scaduto 
+ * remediatetheflag@gmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Remediate The Flag">
+<meta name="author" content="sk4ddy">
+<title>Remediate the Flag - Signup</title>
+<link rel="icon" type="image/png" sizes="32x32"
+	href="/assets/img/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96"
+	href="/assets/img/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16"
+	href="/assets/img/favicon-16x16.png">
+<link href="/assets/css/lib.css" rel="stylesheet">
+<link href="/assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+	<div ng-app="rtfNg-signup">
+		<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+			<div class="container">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="index.html">RTF.</a>
+				</div>
+			</div>
+		</div>
+		<div id="service">
+			<div class="container serviceContainer">
+				<div class="row centered serviceInnerContainer col-md-12">
+					<div class="standalone ng-cloak" ng-controller="signup">
+						<div class="container">
+							<div class="row centered">
+								<h2 class="eblue left">Signup</h2>
+								<form class="left" name="userSignupForm" novalidate>
+									<div ng-show="phase1">
+										<div class="row">
+											<div class="col-md-4">
+												<h5>Organization Invitation Code</h5>
+												<input required name="organizationCode" p class="fInput"
+													type="text" ng-model="signup.orgInvitationCode">
+													
+													
+													<button type="button"
+												ng-disabled="!userSignupForm.organizationCode.$valid"
+												ng-click="validateInviteCode()"
+												class="btn btn-lg btn-success marginTop30">Continue</button>
+												<p class="red" ng-show="codeIsWrong">The code you entered is not correct</p>
+											</div>
+											</div>
+											
+
+										
+									</div>
+									<div ng-show="phase2">
+
+										<div class="row ">
+											<div class="col-md-3">
+												<h5>Username</h5>
+													<input ng-change="isUsernameAvailable()" class="fInput" required type="text"
+												ng-model="signup.username">
+											</div>
+											<div class="col-md-3">
+											<h5>&nbsp;</h5>
+											<p class="lead red" ng-show="!usernameAvailable">Username not available</p>
+										</div>
+										</div>
+										<div class="row marginTop10">
+											<div class="col-md-3">
+												<h5>First Name</h5>
+												<input required name="firstName" placeholder="Amelia"
+													class="fInput" type="text" ng-model="signup.firstName">
+											</div>
+											<div class="col-md-3">
+												<h5>Last Name</h5>
+												<input required name="lastName" placeholder="Smith"
+													class="fInput" type="text" ng-model="signup.lastName">
+											</div>
+											<div class="col-md-3">
+												<h5>Email</h5>
+												<input required name="email" placeholder="amelia@smith.com"
+													class="fInput" type="email" ng-model="signup.email">
+											</div>
+										</div>
+										<div class="row marginTop10">
+											<div class="col-md-3">
+												<h5>Country</h5>
+												<ol class="nya-bs-select" required
+													ng-model="signup.selectedCountry" data-size="20"
+													data-live-search="true">
+													<li nya-bs-option="ct in countries | orderBy:'name'"><a>
+															{{ct.name}} <span
+															class="glyphicon glyphicon-ok check-mark"></span>
+													</a></li>
+												</ol>
+											</div>
+
+										</div>
+										<div class="row marginTop10">
+											<div class="col-md-3">
+												<h5>Password</h5>
+												<input complex-password name="password" required
+													class="fInput" type="password" ng-model="signup.password"
+													placeholder="">
+												<div
+													ng-show="!userSignupForm.$pristine && !userSignupForm.password.$valid">Use
+													at least 8 characters including three of four groups in:
+													numbers, symbols, capital letters, and lower-case letters.</div>
+											</div>
+											<div class="col-md-3">
+												<h5>Repeat Password</h5>
+												<input required name="repeatPassword" class="fInput"
+													type="password" compare-to="signup.password"
+													ng-model="signup.repeatPassword">
+												<div
+													ng-show="!userSignupForm.$pristine && !userSignupForm.repeatPassword.$valid">These
+													password don't match. Try again?</div>
+											</div>
+										</div>
+										<div class="row marginTop10">
+											<div class="col-md-3">
+												<button type="button"
+													ng-disabled="!usernameAvailable || userSignupForm.$error.required || !userSignupForm.repeatPassword.$valid || !userSignupForm.password.$valid"
+													ng-click="signup()" class="btn btn-lg btn-success">Signup</button>
+											</div>
+										</div>
+									</div>
+								</form>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- *****************************************************************************************************************
+	 FOOTER
+	 ***************************************************************************************************************** -->
+	<div id="footerwrap">
+			<div class="container">
+			<p class="center">RTF - 2017</p>
+				<!-- <div class="row">
+					<div class="col-lg-8">
+						<h4>About</h4>
+						<div class="hline-w"></div>
+						<p>RTF is an open source platform to teach developers about
+							application security topics.</p>
+					</div>
+					<div class="col-lg-4">
+						<h4>Contacts</h4>
+						<div class="hline-w"></div>
+						<a class="emailContact"
+							href="mailto:support@remediatetheflag.com ">
+							support@remediatetheflag.com </a>
+					</div>
+				</div>-->
+			</div>
+		</div>
+	</div>
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/bootstrap.min.js"></script>
+	<script src="/assets/js/angular.min.js"></script>
+	<script src="/assets/js/nya-bs-select.min.js"></script>
+	<script src="/assets/js/signup.js"></script>
+<!-- <script type="text/javascript">
+		var _paq = _paq || [];
+		_paq.push([ 'trackPageView' ]);
+		_paq.push([ 'enableLinkTracking' ]);
+		(function() {
+			var u = "https://analytics.remediatetheflag.com/piwik/";
+			_paq.push([ 'setTrackerUrl', u + 'piwik.php' ]);
+			_paq.push([ 'setSiteId', '1' ]);
+			var d = document, g = d.createElement('script'), s = d
+					.getElementsByTagName('script')[0];
+			g.type = 'text/javascript';
+			g.async = true;
+			g.defer = true;
+			g.src = u + 'piwik.js';
+			s.parentNode.insertBefore(g, s);
+		})();
+	</script> -->
+</body>
+</html>

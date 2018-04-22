@@ -1,0 +1,2339 @@
+<!-- 
+ *  
+ * REMEDIATE THE FLAG
+ * Copyright 2018 - Andrea Scaduto 
+ * remediatetheflag@gmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ -->
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="de	scription" content="Remediate The Flag">
+<meta name="author" content="sk4ddy">
+<title>Remediate the Flag - Management</title>
+<link rel="icon" type="image/png" sizes="32x32"
+	href="/assets/img/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96"
+	href="/assets/img/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16"
+	href="/assets/img/favicon-16x16.png">
+<link href="/assets/css/lib.css" rel="stylesheet">
+<link href="/assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+	<div ng-app="rtfNg">
+		<div ng-controller="navigation">
+			<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+				<div class="container">
+
+					<div class="navbar-collapse collapse">
+						<ul class="nav navbar-nav">
+							<li class="pull-left"><a class="navbar-brand navbarI"
+								href="index.html">RTF.</a></li>
+							<li><a class="browseAsUser navbarA" href="/user/index.html">Browse
+									as User</a>
+							<li ng-class="{'active' : visibility.home }"><a
+								class="navbarA" href="#home">HOME</a></li>
+							<li ng-class="{'active' : visibility.organizations }"
+								ng-show="user.r == 0"><a class="navbarA"
+								href="#organizations">ORGS</a></li>
+							<li ng-show="user.r<=1 || user.r==4" class="ng-cloak"
+								ng-class="{'active' : visibility.users }"><a
+								class="navbarA" href="#users">USERS</a></li>
+							<li class="ng-cloak" ng-class="{'active' : visibility.teams }"><a
+								class="navbarA" href="#teams">TEAMS</a></li>
+							<li ng-class="{'active' : visibility.availableExercises }"
+								class="ng-cloak" ng-show="user.r <= 3"><a class="navbarA"
+								href="#available-exercises">EXERCISES</a></li>
+							<li ng-class="{'active' : visibility.challenges }"
+								class="ng-cloak"><a class="navbarA" href="#challenges">CHALLENGES</a></li>
+							<li class="ng-cloak" ng-show="user.r <= 3"
+								ng-class="{'active' : visibility.review }"><a id="revLink"
+								href="#review" class="navbarA"><notification-icon
+										animation="grow" count="masterPendingReviews.length">PENDING
+									REVIEWS</notification-icon></a></li>
+							<li class="ng-cloak" ng-show="user.r <= 3"
+								ng-class="{'active' : visibility.exercises }"><a
+								class="navbarA" href="#exercises">COMPLETED REVIEWS</a></li>
+							<li ng-show="user.r<=1 || user.r==4"
+								ng-class="{'active' : visibility.stats }" class="ng-cloak"><a
+								class="navbarA" href="#stats">STATS</a></li>
+							<li ng-show="user.r==0"
+								ng-class="{'active' : visibility.gateways }" class="ng-cloak"><a
+								class="navbarA" href="#gateways">REGIONS & GATEWAYS</a></li>
+							<li class="pull-right"><a class="navbarI" href=""
+								ng-click="logout()"><i class="fa fa-sign-out fa-lg"
+									aria-hidden="true"></i></a></li>
+							<li class="pull-right"
+								ng-class="{'active' : visibility.settings }"><a
+								class="navbarI" href="#settings"><i class="fa fa-cogs fa-lg"
+									aria-hidden="true"></i></a></li>
+
+							<li class="pull-right"><a
+								class="navbarI btn notificationcentre dropdown-toggle" href=""
+								id="dropdownMenuLink" data-toggle="dropdown"
+								aria-haspopup="true" aria-expanded="false" href=""><notification-icon
+										animation="grow" count="notifications.length">
+									<i class="fa fa-envelope-o fa-lg"></i></notification-icon></a>
+								<div
+									class="notificationcentre notificationCentreDropdown dropdown-menu"
+									aria-labelledby="dropdownMenuLink">
+									<a ng-show="notifications.length <= 0" class="dropdown-item"
+										href="">
+										<div class="">
+											<span class="notificationText">No unread notifications</span>
+										</div>
+									</a> <a ng-repeat="n in notifications" class="dropdown-item"
+										href="">
+										<div ng-click="goTo(n.link)" class="notificationHoverable">
+											<i ng-click="goTo(n.link)" class="fa fa-bell"
+												aria-hidden="true"></i> <span class="notificationText">{{n.text}}</span>
+										</div>
+
+										<div ng-click="markNotificationRead(n.id)"
+											class="dismissNotification ">
+											<i class="fa fa-times dismissNotificationIcon"
+												aria-hidden="true"><span
+												ng-click="markNotificationRead(n.id)"
+												class="dismissNotificationSpan">Dismiss</span></i>
+										</div>
+									</a>
+								</div></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<!-- *****************************************************************************************************************
+	 HEADERWRAP
+	 ***************************************************************************************************************** -->
+			<div id="headerwrap" ng-show="visibility.welcome"
+				ng-controller="welcome">
+				<div class="container">
+					<div class="row">
+						<div class="col-lg-8 col-lg-offset-2">
+							<h3 class="ng-cloak">Hi {{user.firstName}}, welcome to</h3>
+							<h1>Remediate the Flag</h1>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- *****************************************************************************************************************
+	 SERVICE LOGOS
+	 ***************************************************************************************************************** -->
+			<div id="service" ng-show="visibility.home" ng-controller="home">
+				<div class="container serviceContainer">
+					<div class="row centered serviceInnerContainer col-md-12">
+						<div class="col-md-4 ">
+							<a href="#available-exercises"><i class="fa fa-flask"></i></a>
+							<h4>
+								<a href="#available-exercises">Exercises</a>
+							</h4>
+							<p>Manage available exercises.</p>
+						</div>
+						<div ng-show="user.r <= 3" class="col-md-4 ">
+							<a href="#review"><i class="fa fa-history"></i></a>
+							<h4>
+								<a href="#review">Review</a>
+							</h4>
+							<p>Review and Score completed exercises.</p>
+						</div>
+						<div class="col-md-4" ng-show="user.r <= 2 || user.r == 4">
+							<a href="#stats"><i class="fa fa-trophy "></i></a>
+							<h4>
+								<a href="#stats">Stats & Score</a>
+							</h4>
+							<p>Look at overall stats and scores.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="standalone ng-cloak" id="organizations"
+				ng-show="visibility.organizations" ng-controller="organizations">
+				<div class="container">
+					<div class="row ">
+						<button ng-click="addOrganizationModal()"
+							class="backToOrgs btn btn-info btn-lg">Add Organization</button>
+						<h2 class="eblue centered">Organizations</h2>
+						<div ng-show="masterOrganizations.length>0">
+							<div class="tableFilter">
+
+								<p class="lead inlineBlock">Filter:</p>
+								<input placeholder="Type to filter..."
+									ng-change="updateFilteredList()" ng-model="query"
+									class="queryInput">
+							</div>
+							<table at-table at-paginated at-list="filteredOrganizationsList"
+								at-config="organizationstableconfig" class="table table-hover">
+								<thead>
+								</thead>
+								<tbody>
+									<tr ng-class="{active: $index===selectedOrganizationRow}">
+										<tdat-initial-sorting ="desc" at-attribute="id" at-sortable
+											at-title="Id">{{item.id}}
+										</td>
+										<td at-attribute="name" at-sortable at-title="Name">{{item.name}}</td>
+										<td at-attribute="status" at-sortable at-title="Status">{{item.status}}</td>
+										<td at-attribute="maxUsers" at-sortable at-title="Max Users">{{item.maxUsers}}</td>
+										<td at-attribute="dateJoined" at-sortable
+											at-title="Date Joined">{{item.dateJoined}}</td>
+										<td at-attribute="dateExpiration" at-sortable
+											at-title="Date Expiration">{{item.dateExpiration}}</td>
+										<td></td>
+									</tr>
+								</tbody>
+							</table>
+							<at-pagination class="inlineBlock"
+								at-list="filteredOrganizationsList"
+								at-config="organizationstableconfig"></at-pagination>
+							<p class="lead tableFilterResultsPending">Showing
+								{{filteredOrganizationsList.length}} out of
+								{{masterOrganizations.length}} {{ masterOrganizations.length==1
+								&& 'organization' || 'organizations'}}.</p>
+						</div>
+						<div class="centered" ng-show="masterOrganizations.length<=0">
+							<p>There are no organizations.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="modal fade" id="addOrgModal" tabindex="-1" role="dialog"
+					aria-labelledby="myModalLabel">
+					<div class="modal-dialog width1000" role="document">
+						<div class="modal-content">
+							<form class="left" name="orgAddForm" novalidate
+								autocomplete="off">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal"
+										aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+									<h3 class="modal-title modalHeader">Add Organization</h3>
+								</div>
+								<div class="modal-body">
+
+									<div class="row">
+										<div class="col-md-3">
+											<h5>Name</h5>
+											<input ng-change="isOrgNameAvailable()" class="fInput"
+												required type="text" ng-model="newOrg.name">
+										</div>
+										<div class="col-md-3">
+											<h5>&nbsp;</h5>
+											<p class="lead red" ng-show="!orgNameAvailable">Name not
+												available</p>
+										</div>
+
+									</div>
+									<div class="row">
+										<div class="col-md-3">
+											<h5>Contact Name</h5>
+											<input class="fInput" required type="text"
+												ng-model="newOrg.contactName">
+										</div>
+										<div class="col-md-3">
+											<h5>Contact Telephone</h5>
+											<input class="fInput" required type="text"
+												ng-model="newOrg.contactTelephone">
+										</div>
+										<div class="col-md-3">
+											<h5>Contact Email</h5>
+											<input class="fInput" required type="email"
+												ng-model="newOrg.contactEmail">
+										</div>
+									</div>
+									<div class="row marginTop15">
+										<div class="col-md-3">
+											<h5>Max Users</h5>
+											<input class="fInput right" required type="number"
+												ng-model="newOrg.maxUsers">
+
+										</div>
+										<div class="col-md-6">
+											<h5>Email domains allowed for signup (comma separated)</h5>
+											<textarea class="domainTextearea"
+												placeholder="remediatetheflag.com, rtf.com"
+												ng-model="newOrg.allowedDomains"></textarea>
+										</div>
+
+
+									</div>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Close</button>
+									<button type="button"
+										ng-disabled="!orgNameAvailable || orgAddForm.$error.required"
+										ng-click="addOrganization()" class="btn btn-success">Add
+										Organization</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<!-- REVIEW ************************************************************************************************************* -->
+			<div class="standalone ng-cloak" id="review"
+				ng-show="visibility.review" ng-controller="review">
+				<div class="container">
+					<div class="row ">
+						<h2 class="eblue centered">Pending Reviews</h2>
+						<div ng-show="masterPendingReviews.length>0">
+							<div class="tableFilter">
+								<p class="lead inlineBlock">Filter:</p>
+								<input placeholder="Type to filter..."
+									ng-change="updateFilteredList()" ng-model="query"
+									class="queryInput">
+							</div>
+							<table at-table at-paginated at-list="filteredPendingList"
+								at-config="pendingtableconfig" class="table table-hover">
+								<thead>
+								</thead>
+								<tbody>
+									<tr ng-class="{active: $index===selectedResultRow}">
+										<td at-attribute="id" at-sortable at-title="Id">RTF{{item.id}}</td>
+										<td at-attribute="exerciseName" at-sortable
+											at-title="Exercise">{{item.exerciseName}}</td>
+										<td at-attribute="exerciseTopic" at-sortable at-title="Topics">{{item.exerciseTopic}}</td>
+										<td at-attribute="technology" at-sortable at-title="Tech.">{{item.technology}}</td>
+										<td at-initial-sorting="desc" at-attribute="st" at-sortable
+											at-title="Date/ Time">{{getDatesInterval(item.startTime,item.endTime)}}
+											({{getDurationInterval(item.startTime,item.endTime)}})</td>
+										<td at-attribute="duration" at-sortable
+											at-title="Actual Duration">{{getMinutesDuration(item.duration)}}</td>
+										<td width="100" at-attribute="user" at-sortable
+											at-title="User"><a href="#users/details/{{item.user}}">{{item.user}}</a></td>
+										<td at-attribute="organization.name" at-sortable
+											at-title="Organization">{{item.organization.name}}</td>
+										<td>
+											<button ng-click="showDetailsFor(item.id,$index)"
+												class="btn btn-primary outline">Review</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<at-pagination class="inlineBlock" at-list="filteredPendingList"
+								at-config="pendingtableconfig"></at-pagination>
+							<p class="lead tableFilterResultsPending">Showing
+								{{filteredPendingList.length}} out of
+								{{masterPendingReviews.length}} {{
+								masterPendingReviews.length==1 && 'pending review' || 'pending
+								reviews'}}.</p>
+						</div>
+						<div class="centered" ng-show="masterPendingReviews.length<=0">
+							<img class="emptyHistory" src="/assets/img/emptyHistory.png" />
+							<p>There aren't pending reviews.</p>
+						</div>
+					</div>
+					<div id="showResults" ng-show="showResults" class="row ">
+						<div id="infoArea" class="row">
+							<div class="col-md-12">
+								<div class="center"
+									ng-show="pendingItemDetails.type=='CHALLENGE'">
+									<h2 class="eblue centered">Challenge</h2>
+
+									<p class="lead">
+										<strong>This exercise is part of a challenge</strong>
+									</p>
+								</div>
+								<h2 class="eblue centered">Exercise Flags</h2>
+								<table class="table table-striped">
+									<thead>
+										<tr>
+											<th>Flag Name</th>
+											<th>Flag Type</th>
+											<th>Flag Description</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat-start="f in pendingItemDetails.exercise.flags">
+											<td rowspan="2">{{f.title}}</td>
+											<td>{{f.flagList[0].type}}</td>
+											<td>{{f.flagList[0].instructions}}</td>
+										</tr>
+										<tr ng-repeat-end>
+											<td>{{f.flagList[1].type}}</td>
+											<td>{{f.flagList[1].instructions}}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div ng-show="pendingItemDetails.usedHints.length>0" class="row">
+							<div class="col-md-12">
+								<h2 class="eblue centered">Used Hints</h2>
+								<table class="table">
+									<thead>
+										<tr>
+											<th>#</th>
+											<th>Hint</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="h in pendingItemDetails.usedHints">
+											<td>#{{$index +1}}</td>
+											<td>{{h.text}}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<h2 class="eblue centered">Exercise Results</h2>
+								<form name="reviewForm" autocomplete="off" novalidate>
+									<table class="table">
+										<thead>
+											<tr>
+												<th>Flag</th>
+												<th class="width12">Result</th>
+												<th class="width12">Assessor Verified Result</th>
+												<th>Score</th>
+												<th>Comment</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="r in pendingItemDetails.results">
+												<td>{{r.name}}</td>
+												<td ng-class="getStatusClass(r.status)">{{getStatusString(r.status)}}</td>
+												<td>
+													<ol ng-model="assessorStatus[r.name]" class="nya-bs-select"
+														data-size="5" data-live-search="false">
+														<li required
+															nya-bs-option="st in vulnerabilityStatus | orderBy:'id'"><a>
+																{{st.name}} <span
+																class="glyphicon glyphicon-ok check-mark"></span>
+														</a></li>
+													</ol>
+												</td>
+												<td><input name="i{{r.name}}"
+													ng-model="partialScores[r.name]" class="fInput scoreArea"
+													ng-required="true" min="0" type="number" /></td>
+												<td><textarea name="t{{r.name}}"
+														ng-model="assessorComments[r.name]" ng-required="true"
+														class="commentTextarea fInput"></textarea></td>
+											</tr>
+										</tbody>
+									</table>
+									<hr>
+									<div class="row">
+										<div class="col-md-3 centered">
+											<h3 class="eblue centered">Summary</h3>
+											<h5 class="eblue centered">Total Score:</h5>
+											<div class="well well-sm">{{assessorScore}}/{{pendingItemDetails.score.total}}</div>
+											<h5 class="eblue centered">Used Hints:</h5>
+											<div class="well well-sm">{{pendingItemDetails.usedHints.length}}</div>
+										</div>
+										<div class="col-md-3 centered">
+											<h3 class="eblue centered">Trophy</h3>
+											<div class="card-deck">
+												<div class="card borderRadius10">
+													<div class="card-block">
+														<h4 class="card-title">{{pendingItemDetails.exercise.trophy.name}}</h4>
+														<p class="card-text">{{pendingItemDetails.exercise.trophy.description}}</p>
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-xs-12">
+													Would you like to award the trophy?<br>
+													<div class="toggleButton">
+														<toggle onstyle="btn-success" ng-model="awardTrophy"
+															on="Award </br> Trophy" off="Do Not Award </br> Trophy"></toggle>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-3 centered">
+											<h3 class="eblue centered">New Security Issues</h3>
+											<div class="row">
+												<div class="col-xs-12">
+													Have new issues been introduced? <br>
+													<div class="toggleButton">
+														<toggle onstyle="btn-warning"
+															ng-model="newIssuesIntroduced"
+															on="New Issue(s) </br> Introduced"
+															off="No New Issues </br> Introduced"></toggle>
+													</div>
+												</div>
+											</div>
+											<textarea ng-model="newIssuesIntroducedDetails"
+												placeholder="Please provide details about any new issue introduced by the candidate"
+												ng-disabled="!newIssuesIntroduced"
+												class="fInput newIssueTextarea"></textarea>
+										</div>
+										<div class="col-md-3 centered">
+											<button ng-click="submitReview()"
+												ng-disabled="reviewForm.$invalid || size(assessorStatus) < pendingItemDetails.results.length"
+												class="btn btn-block btn-success submitReviewButton">
+												Submit <br />Review
+											</button>
+											<button ng-click="markCancelled()"
+												class="btn btn-block btn-warning submitReviewButton">
+												Mark as <br />Cancelled
+											</button>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12 centered marginTop3">
+								<button ng-hide="zipError" id="viewDiffButton"
+									ng-click="toggleCodeDiff()"
+									class="btn btn-block btn-success outline historyButtons">
+									Show/Hide<br /> Source Code Diff
+								</button>
+								<button ng-hide="zipError" id="viewLogsButton"
+									ng-click="toggleInstanceLogs()"
+									class="btn btn-block btn-primary outline historyButtons">
+									Show/Hide <br />Instance Logs
+								</button>
+							</div>
+						</div>
+						<div id="diffDiv" class="row" ng-show="showCodeDiff">
+							<div class="col-md-12">
+								<h3 class="eblue">Source Code Diff:</h3>
+								<div ng-non-bindable id="targetDiv"></div>
+								<div ng-show="emptyDiff">Source code diff is not
+									available.</div>
+							</div>
+						</div>
+						<div id="logArea" class="row" ng-show="showLogs">
+							<div class="col-md-12">
+								<h3 class="eblue">Exercise Logs:</h3>
+								<div ng-show="emptyLog">Logs are not available.</div>
+								<div ng-non-bindable id="rtfLogText"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- CHALLENGES ***************************************************************************************************************** -->
+			<div class="standalone ng-cloak" id="challenges"
+				ng-show="visibility.challenges" ng-controller="challenges">
+				<div class="container" ng-show="showChallengesList">
+					<div class="row ">
+						<button ng-show="user.r<=3" ng-click=""
+							class="backToUsers btn btn-info btn-lg marginTop15">Add
+							Challenge</button>
+						<h2 class="eblue centered">Challenges</h2>
+						<div class="tableFilter">
+							<p class="lead inlineBlock">Filter:</p>
+							<input placeholder="Type to filter..."
+								ng-change="updateChallengesFilteredList()"
+								ng-model="queryChallenges" class="queryInput">
+						</div>
+						<table class="table table-hover" at-table at-paginated
+							at-list="filteredChallengesList"
+							at-config="challengestableconfig">
+							<thead>
+							</thead>
+							<tbody>
+								<tr>
+									<td at-attribute="name" at-sortable at-title="Title">{{item.name}}</td>
+									<td at-attribute="startDate" at-sortable at-title="Start Date">{{item.startDate}}</td>
+									<td at-attribute="endDate" at-sortable at-title="End Date">{{item.endDate}}</td>
+									<td at-attribute="status" at-sortable at-title="Status">{{getChallengeStatusString(item.status)}}</td>
+									<td at-attribute="completion" class="right" at-sortable
+										at-title="Completion">{{item.completion}}%</td>
+									<td at-initial-sorting="desc" at-attribute="lastActivity"
+										at-sortable at-title="Last Activity">{{item.lastActivity}}</td>
+
+									<td at-attribute="organization" at-sortable
+										at-title="Organization">{{item.organization.name}}</td>
+
+									<td class="center" at-title="">
+										<button ng-click="getChallengeDetails(item.id)" class="btn btn-primary outline">Details</button>
+
+										<button class="btn btn-info outline marginLeft10">Edit
+										</button>
+										<button class="marginLeft10 btn btn-danger outline">Delete
+										</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<at-pagination at-list="filteredChallengesList"
+							at-config="challengestableconfig"></at-pagination>
+						<p class="lead tableFilterResults">Showing
+							{{filteredChallengesList.length}} out of
+							{{masterChallengesList.length}} {{ masterChallengesList.length==1
+							&& 'challenge' || 'challenges'}}.</p>
+					</div>
+				</div>
+				<div ng-show="showChallengeDetails">
+
+					<div class="container centered">
+						<a ng-click="backToList()" class="backToUsers btn btn-info btn-lg">Back
+							to Challenges</a>
+						<h2>{{challengeDetails.name}}</h2>
+					</div>
+					<div class="container marginTop15">
+						<div class="col-md-10">
+							<div class="row">
+								<div class="col-md-2 marginRight20">
+									<p class="statsText">Total Issues</p>
+									<span class="badge statsBadge statsBadgeColor1">{{challengeDetails.flags.length}}</span>
+								</div>
+								<div class="col-md-2 marginRight20">
+									<p class="statsText">Total Users</p>
+									<span class="badge statsBadge statsBadgeColor1">{{challengeDetails.users.length}}</span>
+								</div>
+								<div class="col-md-2 marginRight20">
+									<p class="statsText">Exercises Run</p>
+									<span class="badge statsBadge statsBadgeColor1">{{challengeDetails.runExercises.length}}</span>
+								</div>
+								<div class="col-md-2 marginRight20">
+									<p class="statsText">Completion</p>
+									<span class="badge statsBadge statsBadgeColor1">{{challengeDetails.completion}}%</span>
+								</div>
+								<div class="col-md-2">
+									<p class="statsText">Remediation Rate</p>
+									<span class="badge statsBadge statsBadgeColor1">{{challengeDetails.remediation}}%</span>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-2 marginRight20">
+									<p class="statsText">Start Date</p>
+									<span class="badge  statsBadgeColor1">{{challengeDetails.startDate}}</span>
+								</div>
+								<div class="col-md-2 marginRight20">
+									<p class="statsText">End Date</p>
+									<span class="badge  statsBadgeColor1">{{challengeDetails.endDate}}</span>
+								</div>
+								<div class="col-md-2 marginRight20">
+									<p class="statsText">Last Activity</p>
+									<span class="badge  statsBadgeColor1">{{challengeDetails.lastActivity}}</span>
+								</div>
+								<div class="col-md-2 marginRight20">
+									<p class="statsText">Status</p>
+									<span class="badge  statsBadgeColor1">{{getChallengeStatusString(challengeDetails.status)}}</span>
+								</div>
+								<div class="col-md-2">
+									<p class="statsText">Organization</p>
+									<span class="badge  statsBadgeColor1">{{challengeDetails.organization.name}}</span>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<h4>Challenge Exercises</h4>
+							<ul>
+								<li ng-repeat="e in challengeDetails.exercises"><a
+									href="#/available-exercises/details/{{e.id}}">{{e.title}}</a></span>
+							</ul>
+						</div>
+					</div>
+					</br>
+					<div class="container marginTop30">
+						<h4 class="center">Challenge Table</h4>
+						<div class="col-md-8 col-md-offset-2">
+							<table class="table table-hover" at-table
+								at-list="challengeDetails.users"
+								at-config="challengeTableConfig">
+								<thead>
+								
+								</thead>
+								<tbody>
+									<tr>
+										<td at-attribute="user" at-sortable at-title="User"><a
+											href="#/users/details/{{item.user}}">{{item.user}}</a></td>
+										<td at-initial-sorting="desc"
+											at-attribute="score" at-sortable at-title="Score">{{item.score}}</td>
+										<td at-attribute="runExercises" at-sortable
+											at-title="Exercises Run">{{(item.runExercises)}}</td>
+										<td at-attribute="team.name" at-sortable at-title="Team"><a
+											href="#/teams/details/{{item.team.name}}">{{item.team.name}}</a></td>
+										<td at-attribute="defaultOrganization.name" at-sortable
+											at-title="Organization">{{item.defaultOrganization.name}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<br />
+					<div class="container marginTop30">
+						<h4>Challenge Results</h4>
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>User</th>
+
+									<th class="width185 centered"
+										ng-repeat="t in challengeDetails.theads">{{t.name}}</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="u in challengeDetails.users">
+									<td><a href="#/users/details/{{u.user}}">{{u.user}}</a></td>
+
+									<td class="centered"
+										ng-class="getClassForChallengeResult(u.user,f.name)"
+										ng-repeat="f in challengeDetails.theads"><span
+										ng-show="getChallengeResultFor(u.user,f.name)==='Not Started'">{{getChallengeResultFor(u.user,f.name)}}</span><a
+										ng-show="getChallengeResultFor(u.user,f.name)!=='Not Started'"
+										href="#/exercises/details/{{getExerciseIdForFlag(f.name)}}">{{getChallengeResultFor(u.user,f.name)}}</a></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- AVAILABLE EXERCISES ***************************************************************************************************************** -->
+			<div class="standalone ng-cloak" id="available-exercises"
+				ng-show="visibility.availableExercises"
+				ng-controller="availableExercises">
+				<div class="container" ng-show="showExerciseList">
+					<div class="row ">
+						<button ng-show="user.r==0" ng-click=""
+							class="backToUsers btn btn-info btn-lg marginTop15">Add
+							Exercise</button>
+						<h2 class="eblue centered">Exercises</h2>
+						<div class="tableFilter">
+							<p class="lead inlineBlock">Filter:</p>
+							<input placeholder="Type to filter..."
+								ng-change="updateAvailalbleExercisesFilteredList()"
+								ng-model="queryAvailableExercises" class="queryInput">
+						</div>
+						<table class="table table-hover" at-table at-paginated
+							at-list="filteredAvailableExercisesList"
+							at-config="availableExercisestableconfig">
+							<thead>
+							</thead>
+							<tbody>
+								<tr>
+									<td at-attribute="title" at-sortable at-title="Title">{{item.title}}</td>
+									<td at-attribute="technology" at-sortable at-title="Technology">{{item.technology}}</td>
+									<td at-attribute="difficulty" at-sortable at-title="Difficulty">{{item.difficulty}}</td>
+									<td at-attribute="duration" width="70" class="right"
+										at-sortable at-title="Duration (min)">{{item.duration}}</td>
+									<td at-initial-sorting="asc" at-attribute="status" at-sortable
+										at-title="Status">{{getExerciseStatusString(item.status)}}</td>
+									<td class="center" at-title="">
+										<button ng-click="getExerciseDetails(item.id)"
+											class="btn btn-primary outline">Details</button>
+										<button ng-show="user.r==0" class="btn btn-info outline marginLeft10">Edit
+										</button>
+										<button ng-show="user.r==0" class="marginLeft10 btn btn-danger outline">Delete
+										</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<at-pagination at-list="filteredAvailableExercisesList"
+							at-config="availableExercisestableconfig"></at-pagination>
+						<p class="lead tableFilterResults">Showing
+							{{filteredAvailableExercisesList.length}} out of
+							{{masterAvailableExercisesList.length}} {{
+							masterAvailableExercisesList.length==1 && 'exercise' ||
+							'exercises'}}.</p>
+					</div>
+				</div>
+				<div ng-show="showExerciseDetails" class="container standalone">
+					<a ng-click="backToList()" class="backToUsers btn btn-info btn-lg">Back
+						to Exercises</a>
+					<h2 class="eblue">Exercise</h2>
+					<div class="card paddingBottom10">
+						<div class="card-header">{{exerciseDetails.technology}}</div>
+						<div class="row marginLeft0">
+							<div class="col-md-8">
+								<h4 class="card-title">{{exerciseDetails.title}}</h4>
+								<h6 class="card-subtitle text-muted">{{exerciseDetails.subtitle}}</h6>
+								<div class="">
+									<p class="card-text">{{exerciseDetails.description}}</p>
+									<p class="card-text">
+										<small class="text-muted">Duration:
+											{{exerciseDetails.duration}} minutes</small><small class="text-muted">
+											| Difficulty: {{exerciseDetails.difficulty}} </small>
+									</p>
+									<div ng-show="exerciseDetails.res.length>0">
+										<h5>Resources:</h5>
+										<p class="card-text">
+											<small ng-repeat="r in exerciseDetails.res">
+												{{r.name}} : <a target="_blank" href="{{r.url}}">Link</a><br />
+											</small>
+										</p>
+									</div>
+									<div>
+										<div class="col-md-2">
+											<h5>Exercise Reference</h5>
+											<img src="/assets/img/down.png"
+												class="downloadReferenceIconMgm">
+											<p class="inlineBlock">
+												<a ng-click="downloadAPIReference(exerciseDetails.id)"
+													href=""> Download</a>
+											</p>
+
+										</div>
+										<div class="col-md-2">
+											<h5>Exercise Solution</h5>
+											<img src="/assets/img/down.png"
+												class="downloadReferenceIconMgm">
+											<p class="inlineBlock">
+												<a ng-click="downloadSolutions(exerciseDetails.id)" href="">Download</a>
+											</p>
+										</div>
+										<div class="col-md-3">
+											<h5>Available in Regions:</h5>
+											<div class="marginTop34">
+												<p ng-repeat="r in availableRegions | orderBy">- {{r}}</p>
+												<p class="noResult" ng-show="availableRegions.length==0">No
+													regions enabled</p>
+												<button ng-show="user.r==0"
+													ng-click="manageTaskDefinitions(exerciseDetails.id)"
+													class="btn btn-sm  btn-block btn-info enableButtons">Add/Remove
+													Regions</button>
+											</div>
+										</div>
+										<div class="col-md-5">
+											<h5>Available for Organizations:</h5>
+											<div ng-repeat="org in user.organizations"
+												class="marginTop23">
+												<div class="col-md-8 paddingLeftRight0">
+													<p class="enableOrg">- {{org.name}}</p>
+													<small
+														ng-show="!getExerciseEnabledForOrgText(org.id,exerciseDetails.id)"
+														class="text-muted">&nbsp;(disabled)&nbsp;</small><small
+														ng-show="getExerciseEnabledForOrgText(org.id,exerciseDetails.id)"
+														class="text-muted">&nbsp;(enabled)&nbsp;</small>
+												</div>
+												<div class="col-md-4 paddingLeftRight0">
+													<div
+														ng-show="!getExerciseEnabledForOrgText(org.id,exerciseDetails.id) && user.r==0">
+														<button
+															ng-click="enableExerciseForOrg(exerciseDetails.id,org.id)"
+															class="btn btn-sm btn-success enableButtons">Enable</button>
+													</div>
+													<div
+														ng-show="getExerciseEnabledForOrgText(org.id,exerciseDetails.id) && user.r==0">
+														<button
+															ng-click="disableExerciseForOrg(exerciseDetails.id,org.id)"
+															class="btn btn-sm btn-warning enableButtons">Disable</button>
+													</div>
+												</div>
+												<br />
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="col-md-2 centered">
+								<h4>Score</h4>
+								<img class="awd100" ng-src="{{exerciseDetails.scoreImg}}">
+								<p class="card-text">
+									<small class="text-muted">gain up to
+										{{exerciseDetails.score}} points</small>
+								</p>
+							</div>
+							<div class="col-md-2 centered">
+								<h4>Trophy</h4>
+								<img class="awd100" ng-src="{{exerciseDetails.trophy.img}}">
+								<p class="card-text">
+									<small class="text-muted">{{exerciseDetails.trophy.name}}</small>
+								</p>
+							</div>
+						</div>
+						<div class="row marginLeft12"></div>
+					</div>
+					<div id="exerciseInfo">
+						<ul id="exerciseTabs" class="nav nav-tabs" role="tablist">
+							<li role="presentation" class="active"><a
+								data-target="#exercise-info"
+								href="#available-exercises/details/{{exerciseDetails.id}}/info"
+								aria-controls="available-exercises/details/{{exerciseDetails.id}}/info"
+								role="tab" data-toggle="tab">General Information</a></li>
+							<li role="presentation"><a data-target="#exercise-flags"
+								href="#available-exercises/details/{{exerciseDetails.id}}/flags"
+								aria-controls="available-exercises/details/{{exerciseDetails.id}}/flags"
+								role="tab" data-toggle="tab">Exercise Flags</a></li>
+
+						</ul>
+						<div class="tab-content">
+							<div role="tabpanel" class="tab-pane active" id="exercise-info">
+								<div ng-repeat="topic in exerciseDetails.info"
+									class="panel panel-default">
+									<div class="panel-heading">
+										<h4 class="panel-title">
+											<a data-toggle="collapse" data-target="#{{topic.id}}" href=""
+												class="collapsed"> {{topic.title}} </a>
+										</h4>
+									</div>
+									<div id="{{topic.id}}" class="panel-collapse collapse in">
+										<div class="panel-body">
+											<div class="row" ng-repeat="i in topic.text">
+												<div class="col-md-12">
+													<p>{{i.description}}</p>
+													<img class="pictureH320" ng-src="{{i.img}}">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+							</div>
+							<div role="tabpanel" class="tab-pane" id="exercise-flags">
+								<div class="panel-group" id="accordion">
+									<div ng-repeat="flag in exerciseDetails.flags"
+										class="panel panel-default">
+										<div class="panel-heading">
+											<h4 class="panel-title">
+												<a data-toggle="collapse" data-target="#{{flag.id}}" href="">
+													{{flag.title}} </a>
+											</h4>
+										</div>
+										<div id="{{flag.id}}" class="panel-collapse collapse in">
+											<div class="panel-body">
+												<table>
+													<thead class="theadSpace">
+														<tr>
+															<th>Flag Id</th>
+															<th>Flag Type</th>
+															<th>Flag Instructions</th>
+															<th>Flag Required</th>
+															<th>Hint Available</th>
+															<th>Auto-Checker Available</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr ng-repeat="f in flag.flagList" class="spaceUnder">
+															<td>{{f.type| limitTo:1}}00{{f.id}}</td>
+															<td>{{f.type}}</td>
+															<td class="w50">{{f.instructions}}</td>
+															<td>{{f.type=='EXPLOITATION' && "Optional" ||
+																"Required"}}</td>
+															<td>{{f.hintAvailable && 'Yes' || 'No'}}</td>
+															<td>{{f.selfCheckName && 'Yes' || 'No'}}</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>
+								</div>
+
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- USERS ***************************************************************************************************************** -->
+			<div class="standalone ng-cloak" id="users"
+				ng-show="visibility.users" ng-controller="users">
+				<div class="container">
+					<div class="row">
+						<div ng-show="showUserList">
+							<button ng-show="user.r<=1" ng-click="addUserModal()"
+								class="backToUsers btn btn-info btn-lg">Add User</button>
+							<h2 class="eblue centered">Users</h2>
+							<div class="tableFilter">
+								<p class="lead inlineBlock">Filter:</p>
+								<input placeholder="Type to filter..."
+									ng-change="updateFilteredList()" ng-model="query"
+									class="queryInput">
+							</div>
+							<table class="table table-hover" at-table at-paginated
+								at-list="filteredUsersList" at-config="usertableconfig">
+								<thead>
+								</thead>
+								<tbody>
+									<tr>
+										<td at-attribute="user" at-sortable at-title="User">{{item.user}}</td>
+										<td at-attribute="country.name" at-sortable at-title="Country">{{item.country.name}}</td>
+										<td at-attribute="team.name" at-sortable at-title="Team"><a
+											href="#teams/details/{{item.team.name}}">{{item.team.name}}</a></td>
+										<td at-initial-sorting="desc" at-attribute="score" at-sortable
+											at-title="Score">{{item.score}}</td>
+										<td at-attribute="status" at-sortable at-title="Status">{{item.status
+											| capitalize}}</td>
+										<td at-attribute="defaultOrganization" at-sortable
+											at-title="Organization">{{item.defaultOrganization.name}}</td>
+										<td at-title="" class="center">
+											<button ng-click="getUserDetails(item.user)"
+												class="btn btn-primary outline">Details</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<at-pagination at-list="filteredUsersList"
+								at-config="usertableconfig"></at-pagination>
+							<p class="lead tableFilterResults">Showing
+								{{filteredUsersList.length}} out of {{masterUsersList.length}}
+								{{ masterUsersList.length==1 && 'user' || 'users'}}.</p>
+
+						</div>
+						<div ng-show="showUserDetails">
+							<button ng-click="sendNotificationModal()"
+								class="btn btn-lg btn-primary outline floatLeft">Send
+								Message</button>
+							<a ng-show="user.r==4 || user.r<=2" ng-click="displayUserList()"
+								class="backToUsers btn btn-info btn-lg">Back to Users</a> <a
+								ng-show="user.r==3" ng-click="back()"
+								class="backToUsers btn btn-info btn-lg">Back</a>
+							<div class="centered">
+								<h2 class="eblue ">
+									{{selectedUser}}
+									</h4>
+							</div>
+							<h4 class="centered marginBottom15">Details</h4>
+							<div class="row">
+								<div class="col-md-3">
+									<h5>First Name</h5>
+									{{userDetails.firstName}}
+								</div>
+								<div class="col-md-3">
+									<h5>Last Name</h5>
+									{{userDetails.lastName}}
+								</div>
+								<div class="col-md-3">
+									<h5>Email</h5>
+									{{userDetails.email}}
+								</div>
+								<div class="col-md-3">
+									<h4>Score</h4>
+									<span class="badge scoreBadgeMgmt">{{score}}</span>
+								</div>
+							</div>
+							<div class="row paddingBottom10">
+								<div class="col-md-3">
+									<h5>Country</h5>
+									{{userDetails.country.name}}
+								</div>
+								<!-- <div class="col-md-3">
+									<h5>Time Zone</h5>
+									{{userDetails.timeZone.name}}
+								</div> -->
+								<div class="col-md-3">
+									<h5>Date Joined</h5>
+									{{getDateFormat(userDetails.joinedDateTime)}}
+								</div>
+								<div class="col-md-3">
+									<h5>Role</h5>
+									{{userDetails.role}}
+								</div>
+							</div>
+
+							<div class="row">
+
+								<div class="col-md-3">
+									<h5>Concurrent Exercises Limit</h5>
+									{{userDetails.instanceLimit}}
+								</div>
+								<div class="col-md-3">
+									<h5>Force Password Change</h5>
+									{{userDetails.forceChangePassword && 'True' || 'False'}}
+								</div>
+								<div class="col-md-3">
+									<h5>Email Verified</h5>
+									{{userDetails.emailVerified && 'True' || 'False'}}
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-3">
+									<h5>Status</h5>
+									{{userDetails.status | capitalize}}
+								</div>
+								<div class="col-md-3" ng-show="user.r<=1">
+									<h5>Unlock Account</h5>
+									<button ng-click="unlockAccount()" class="btn btn-warning">Unlock</button>
+								</div>
+								<div class="col-md-3" ng-show="user.r==0">
+									<h5>Password Reset</h5>
+									<input autocomplete="off" type="password"
+										ng-model="passwordResetValue" />
+									<button ng-disabled="passwordResetValue == ''"
+										ng-click="resetPassword()" class="btn btn-info">Reset</button>
+								</div>
+							</div>
+
+							<div ng-show="userDetails.team.name" class="row centered">
+
+								<h4 class="marginTop30 marginBottom20">Team</h4>
+
+								<p class="lead">{{userDetails.team.name}}</p>
+								<button ng-click="removeFromTeam()"
+									class="btn btn-danger outline" ng-show="user.r<=1">Remove
+									from Team</button>
+
+							</div>
+							<div class="row centered" ng-show="trophies.length>0">
+
+								<h4 class="marginTop30 marginBottom20">Trophies</h4>
+								<div ng-repeat="ta in trophies" class="card-deck-wrapper">
+									<div class="card-deck">
+										<div ng-repeat="t in ta"
+											ng-class="getTechnologyClass(t.technology)" class="card">
+											<div class="card-header">{{t.trophy.technology}}</div>
+											<div class="card-block">
+												<h4 class="card-title font14">{{t.trophy.name}}</h4>
+												<p class="card-text">
+													<small class="text-muted">{{t.date}}</small>
+												</p>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row" ng-show="scorePerExercises.data[0].length>0">
+
+								<h4 class="centered marginTop30 marginBottom20">Remediation
+									Rate and Duration by Issue</h4>
+								<div class="col-md-10 col-md-offset-1">
+									<canvas id="remediatedScoreHistory" class="chart chart-line"
+										chart-data="scorePerExercises.data"
+										chart-labels="scorePerExercises.labels"
+										chart-series="scorePerExercises.series"
+										chart-dataset-override="scorePerExercises.datasetOverride"
+										chart-options="scorePerExercises.options">
+							</canvas>
+								</div>
+							</div>
+							<div class="row" ng-show="remediationRatePerCategory.length>0">
+								<h4 class="centered marginTop30 marginBottom20">Issue
+									Category Remediation Rate Breakdown</h4>
+								<div class="col-md-3 marginBottom10"
+									ng-repeat="c in remediationRatePerCategory">
+									<canvas width="250%" height="310%" class="chart chart-doughnut"
+										chart-data="c.data" chart-options="c.options"
+										chart-labels="c.labels">
+									</canvas>
+								</div>
+							</div>
+							<div class="row" ng-show="remediatedPerCategory.data[0].length>0">
+								<h4 class="centered marginTop30 marginBottom20">Duration by
+									Issue Category</h4>
+								<div class="col-md-10 col-md-offset-1">
+									<canvas id="remediatedPerCategory" class="chart chart-bar"
+										chart-data="remediatedPerCategory.data"
+										chart-series="remediatedPerCategory.series"
+										chart-options="remediatedPerCategory.options"
+										chart-labels="remediatedPerCategory.labels">
+								</canvas>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+
+
+				<div class="modal fade" id="addUserModal" tabindex="-1"
+					role="dialog" aria-labelledby="myModalLabel">
+					<div class="modal-dialog width1000" role="document">
+						<div class="modal-content">
+							<form class="left" name="userAddForm" novalidate
+								autocomplete="off">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal"
+										aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+									<h3 class="modal-title modalHeader">Add User</h3>
+								</div>
+								<div class="modal-body">
+
+									<div class="row">
+										<div class="col-md-3">
+											<h5>Username</h5>
+											<input ng-change="isUsernameAvailable()" class="fInput"
+												required type="text" ng-model="newUser.username">
+										</div>
+										<div class="col-md-3">
+											<h5>&nbsp;</h5>
+											<p class="lead red" ng-show="!usernameAvailable">Username
+												not available</p>
+										</div>
+
+									</div>
+									<div class="row">
+										<div class="col-md-3">
+											<h5>First Name</h5>
+											<input class="fInput" required type="text"
+												ng-model="newUser.firstName">
+										</div>
+										<div class="col-md-3">
+											<h5>Last Name</h5>
+											<input class="fInput" required type="text"
+												ng-model="newUser.lastName">
+										</div>
+										<div class="col-md-3">
+											<h5>Email</h5>
+											<input class="fInput" required type="email"
+												ng-model="newUser.email">
+										</div>
+										<div class="col-md-3">
+											<h5>Country</h5>
+											<ol class="nya-bs-select" required ng-model="newUser.country"
+												data-size="20" data-live-search="true">
+												<li nya-bs-option="ct in countries | orderBy:'name'"><a>
+														{{ct.name}} <span
+														class="glyphicon glyphicon-ok check-mark"></span>
+												</a></li>
+											</ol>
+										</div>
+									</div>
+									<div class="row marginTop15">
+										<div class="col-md-3">
+											<h5>Role</h5>
+											<ol class="nya-bs-select" required ng-model="newUser.role">
+												<li nya-bs-option="r in availableUserRoles | orderBy:'-id'"><a>
+														{{r.name}} <span class="glyphicon glyphicon-ok check-mark"></span>
+												</a></li>
+											</ol>
+										</div>
+										<div class="col-md-3">
+											<h5>Organization</h5>
+											<ol class="nya-bs-select" required
+												ng-change="isUsernameAvailable()"
+												ng-model="newUser.organization">
+												<li nya-bs-option="o in user.organizations | orderBy:'name'"><a>
+														{{o.name}} <span class="glyphicon glyphicon-ok check-mark"></span>
+												</a></li>
+											</ol>
+										</div>
+										<div class="col-md-3">
+											<h5>Concurrent Exercises Limit</h5>
+											<input name="concurrentExercisesLimit" class="fInput"
+												required type="number"
+												ng-model="newUser.concurrentExercisesLimit">
+
+										</div>
+									</div>
+
+									<div class="row marginTop15">
+
+										<div class="col-md-3">
+											<h5>Password</h5>
+											<input autocomplete="off" complex-password name="password"
+												class="fInput" required type="password"
+												ng-model="newUser.password">
+											<div
+												ng-show="!userAddForm.$pristine && !userAddForm.password.$valid">Use
+												at least 8 characters including three of four groups in:
+												numbers, symbols, capital letters, and lower-case letters.</div>
+										</div>
+										<div class="col-md-3">
+											<h5>Repeat Password</h5>
+											<input autocomplete="off" class="fInput" type="password"
+												name="passwordRepeat" ng-model="newUser.passwordRepeat"
+												required compare-to="newUser.password" />
+
+											<div
+												ng-show="!userAddForm.$pristine && !userAddForm.passwordRepeat.$valid">These
+												password don't match. Try again?</div>
+										</div>
+									</div>
+									<div class="row marginTop15">
+
+										<div class="col-md-3">
+											<h5>Email Verified</h5>
+											<input ng-model="newUser.emailVerified" type="checkbox"
+												name="emailVerified"> <label for="emailVerified">Mark
+												as verified</label>
+										</div>
+										<div class="col-md-3">
+											<h5>Force Password Change</h5>
+											<input ng-model="newUser.forcePasswordChange" type="checkbox"
+												name="forcePasswordChange"> <label
+												for="forcePasswordChange">Force change</label>
+										</div>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Close</button>
+									<button type="button"
+										ng-disabled="!usernameAvailable || userAddForm.$error.required || !userAddForm.$valid"
+										ng-click="addUser()" class="btn btn-success">Add User</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<div class="modal fade" id="sendNotificationModal" tabindex="-1"
+					role="dialog" aria-labelledby="myModalLabel">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h3 class="modal-title modalHeader">Send Message</h3>
+							</div>
+							<div class="modal-body">
+								<form name="sendNotificationForm">
+									<div class="row">
+										<div class="col-md-4">
+											<h4>User</h4>
+											<p>{{selectedUser}}</p>
+										</div>
+										<div class="col-md-8">
+											<h4>Text</h4>
+											<textarea required ng-model="newNotificationText"
+												class="notificationTextarea" type="text"></textarea>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+								<button type="button"
+									ng-disabled="sendNotificationForm.$error.required"
+									ng-click="sendNotification()" class="btn btn-primary">Send</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- TEAMS ***************************************************************************************************************** -->
+			<div class="standalone ng-cloak" id="teams"
+				ng-show="visibility.teams" ng-controller="teams">
+				<div class="container">
+					<div class="row ">
+						<div ng-show="showTeamList">
+							<button ng-show="user.r<=2" ng-click="addNewTeamModal()"
+								class="backToUsers btn btn-info btn-lg">Add Team</button>
+							<h2 class="eblue centered">Teams</h2>
+							<div class="tableFilter">
+								<p class="lead inlineBlock">Filter:</p>
+								<input placeholder="Type to filter..."
+									ng-change="updateTeamsFilteredList()" ng-model="queryTeams"
+									class="queryInput">
+							</div>
+							<table class="table table-hover" at-table at-paginated
+								at-list="filteredTeamsList" at-config="teamstableconfig">
+								<thead>
+								</thead>
+								<tbody>
+									<tr>
+										<td at-attribute="name" at-sortable at-title="Name">{{item.name}}</td>
+										<td at-initial-sorting="desc" at-attribute="organization.name"
+											at-sortable at-title="Organization">{{item.organization.name}}</td>
+										<td class="center" at-title="">
+											<button ng-click="getTeamMembers(item.name)"
+												class="btn btn-primary outline">Team Details</button>
+											<button ng-show="user.r<=3"
+												ng-click="renameTeamModal(item.id,item.name)"
+												class="btn btn-info outline marginLeft10">Rename
+												Team</button>
+											<button ng-show="user.r==0"
+												ng-click="deleteTeamModal(item.id,item.name)"
+												class="marginLeft10 btn btn-danger outline">Delete
+												Team</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<at-pagination at-list="filteredTeamsList"
+								at-config="teamstableconfig"></at-pagination>
+							<p class="lead tableFilterResults">Showing
+								{{filteredTeamsList.length}} out of {{masterTeamsList.length}}
+								{{ masterTeamsList.length==1 && 'team' || 'teams'}}.</p>
+						</div>
+						<div ng-show="showTeamMembers">
+							<div class="right">
+								<button ng-click="displayTeamList()"
+									class=" btn btn-info btn-lg">Back to Teams</button>
+
+							</div>
+							<div class="row">
+								<h2 class="eblue centered">{{selectedTeam}}</h2>
+							</div>
+							<div class="row">
+								<h4 class="eblue centered">Members</h4>
+							</div>
+							<div class="row">
+								<button ng-click="addToTeamModal()" ng-show="user.r<=3"
+									class="backToTeams btn btn-success outline btn-lg">Add
+									Users to Team</button>
+								<div ng-show="masterMembersList.length>0"
+									class="marginLeft14 tableFilter">
+									<p class="lead inlineBlock">Filter:</p>
+									<input placeholder="Type to filter..."
+										ng-change="updateMembersFilteredList()"
+										ng-model="queryMembers" class="queryInput">
+								</div>
+							</div>
+							<div class="marginTop20 centered"
+								ng-show="masterMembersList.length<=0">
+								<p class="lead">This team does not have members.</p>
+							</div>
+							<div ng-show="masterMembersList.length>0">
+								<table at-table at-paginated at-list="filteredMembersList"
+									at-config="teamMemberstableconfig"
+									class="table table-striped leaderboardTable" ts-wrapper>
+									<thead>
+									</thead>
+									<tbody>
+										<tr>
+											<td at-attribute="user" at-sortable at-title="User"><a
+												ng-show="user.r<=2" href="#users/details/{{item.user}}">{{item.user}}</a><span
+												ng-show="user.r>2">{{item.user}}</span></td>
+											<td at-attribute="country.name" at-sortable
+												at-title="Country">{{item.country.name}}</td>
+											<td at-initial-sorting="desc" at-attribute="score"
+												at-sortable at-title="Score">{{item.score}}</td>
+											<td at-attribute="" at-title="Manager">{{isTeamManager(item.idUser)
+												&& "Yes" || "No"}}</td>
+											<td at-attribute="" at-title=""><a
+												href="#users/details/{{item.user}}"
+												class="btn btn-primary outline marginRight5">User
+													details </a>
+												<button ng-show="user.r<=3 && !isTeamManager(item.idUser)"
+													ng-click="makeTeamManager(item.team.id, item.user)"
+													class="btn btn-info outline marginRight5">Make
+													team manager</button>
+												<button ng-show="user.r==0 && isTeamManager(item.idUser)"
+													ng-click="removeTeamManagerModal(item.team.id, item.user)"
+													class="btn btn-warning outline marginRight5">Remove
+													team manager</button>
+												<button ng-show="user.r<=3"
+													ng-click="removeFromTeamModal(item.team, item.user)"
+													class="btn btn-danger outline">Remove from team</button></td>
+										</tr>
+									</tbody>
+								</table>
+								<at-pagination at-list="filteredMembersList"
+									at-config="teamMemberstableconfig"></at-pagination>
+								<p class="lead tableFilterResults">Showing
+									{{filteredMembersList.length}} out of
+									{{masterMembersList.length}} {{ masterMembersList.length==1 &&
+									'member' || 'members'}}.</p>
+								<div class="row" ng-show="remediationRatePerIssue.length>0">
+									<h4 class="eblue centered">Stats</h4>
+									<h4 class="centered marginTop30 marginBottom20">{{selectedTeam}}
+										Remediation Rate by Issue</h4>
+									<canvas id="remediatedPerIssue" class="chart chart-radar"
+										chart-data="remediatedPerIssue.data"
+										chart-series="remediatedPerIssue.series"
+										chart-options="remediatedPerIssue.options"
+										chart-labels="remediatedPerIssue.labels">
+								</canvas>
+								</div>
+								<div class="row" ng-show="remediationRatePerCategory.length>0">
+									<h4 class="centered marginTop30 marginBottom20">{{selectedTeam}}
+										Remediation Rate, Average/Total Duration by Issue Category</h4>
+									<div class="col-md-10 col-md-offset-1">
+										<canvas id="remediatedPerCategory" class="chart chart-bar"
+											chart-data="remediatedPerCategory.data"
+											chart-series="remediatedPerCategory.series"
+											chart-options="remediatedPerCategory.options"
+											chart-labels="remediatedPerCategory.labels"
+											chart-dataset-override="remediatedPerCategory.datasetOverride">
+										</canvas>
+									</div>
+								</div>
+								<div class="row" ng-show="remediationRatePerIssue.length>0">
+									<h4 class="centered marginTop30 marginBottom20">{{selectedTeam}}
+										Individual Issue Remediation Rate Breakdown</h4>
+									<div class="col-md-3 marginBottom10"
+										ng-repeat="c in remediationRatePerIssue">
+										<canvas width="250%" height="310%"
+											class="chart chart-doughnut" chart-data="c.data"
+											chart-options="c.options" chart-labels="c.labels">
+									</canvas>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
+
+
+				</div>
+				<div class="modal fade" id="renameTeamModal" tabindex="-1"
+					role="dialog" aria-labelledby="myModalLabel">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h3 class="modal-title modalHeader">Rename Team</h3>
+							</div>
+							<div class="modal-body">
+								<form name="renameTeamForm">
+									<div class="row">
+										<div class="col-md-6">
+											<h4>Current team Name</h4>
+											<p>{{teamToRename.name}}</p>
+										</div>
+										<div class="col-md-6">
+											<h4>New Team Name</h4>
+											<input ng-change="isRenamedTeamNameAvailable()" required
+												ng-model="renamedTeamName" class="inputFieldForm"
+												type="text">
+										</div>
+									</div>
+									<div class="row" ng-show="!teamNameAvailable">
+
+
+
+										<p class="lead red">Name not available</p>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+								<button type="button"
+									ng-disabled="renameTeamForm.$error.required"
+									ng-click="renameTeam(teamToRename.id)" class="btn btn-primary">Rename</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="deleteTeamModal" tabindex="-1"
+					role="dialog" aria-labelledby="myModalLabel">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h3 class="modal-title modalHeader">Delete Team</h3>
+							</div>
+							<div class="modal-body">
+								<div class="row">
+									<div class="col-md-12">
+										<h4>Confirm deletion of team:</h4>
+										<li class="lead">{{teamToDelete.name}}</li>
+									</div>
+
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+								<button type="button" ng-click="deleteTeam(teamToDelete.id)"
+									class="btn btn-primary">Delete</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="deleteTeamManagerModal" tabindex="-1"
+					role="dialog" aria-labelledby="myModalLabel">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h3 class="modal-title modalHeader">Remove Team Manager</h3>
+							</div>
+							<div class="modal-body">
+								<div class="row">
+									<div class="col-md-12">
+										<h4>Confirm removal from team managers of user:</h4>
+										<li class="lead">{{userToRemove.username}}</li>
+									</div>
+
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+								<button type="button"
+									ng-click="removeTeamManager(userToRemove.teamId,userToRemove.username)"
+									class="btn btn-primary">Remove</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="removeFromTeamModal" tabindex="-1"
+					role="dialog" aria-labelledby="myModalLabel">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h3 class="modal-title modalHeader">Remove User from Team</h3>
+							</div>
+							<div class="modal-body">
+								<div class="row">
+									<div class="col-md-12">
+										<h4>
+											Confirm removal from "{{userToRemove.teamName}}" of user:</strong>
+										</h4>
+										<li class="lead">{{userToRemove.username}}</li>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+								<button type="button"
+									ng-click="removeFromTeam(userToRemove.teamId,userToRemove.username)"
+									class="btn btn-primary">Remove</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="newTeamModal" tabindex="-1"
+					role="dialog" aria-labelledby="myModalLabel">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h3 class="modal-title modalHeader">Add Team</h3>
+							</div>
+							<div class="modal-body">
+								<form name="addTeamForm">
+									<div class="row">
+										<div class="col-md-6">
+											<h4>Team Name</h4>
+											<input ng-change="isTeamNameAvailable()" required
+												ng-model="newTeamName" class="inputFieldForm" type="text">
+										</div>
+										<div class="col-md-6">
+											<h4>&nbsp;</h4>
+											<p class="lead red" ng-show="!teamNameAvailable">Name not
+												available</p>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<h4>Organization</h4>
+											<select required ng-model="newTeamOrganization"
+												ng-model="newTeamOrganization" class="selectpicker">
+												<option ng-repeat="o in user.organizations" value="{{o.id}}">{{o.name}}</option>
+											</select>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+								<button type="button"
+									ng-disabled="addTeamForm.$error.required || !teamNameAvailable"
+									ng-click="saveNewTeam()" class="btn btn-primary">Add
+									Team</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="addUsersToTeamModal" tabindex="-1"
+					role="dialog" aria-labelledby="myModalLabel">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h3 class="modal-title modalHeader">Add Users to Team</h3>
+							</div>
+							<div class="modal-body">
+								<form name="addUsersToTeamForm">
+									<div class="row">
+										<div class="col-md-8 scrollableUserList">
+											<table class="table table-hover" at-table at-paginated
+												at-list="availableUsersList" at-config="teamstableconfig">
+												<thead>
+												</thead>
+												<tbody>
+													<tr>
+														<td at-title=""><input class="form-check-input"
+															type="checkbox" ng-model="userObj[item.user]"
+															ng-change="userCheckToggle(item.user)" value=""></td>
+														<td at-attribute="name" at-sortable at-title="Username">{{item.user}}</td>
+														<td at-attribute="organization.name" at-sortable
+															at-title="Country">{{item.country.name}}</td>
+
+													</tr>
+												</tbody>
+											</table>
+
+										</div>
+										<div class="col-md-4">
+											<p class="lead">Selected:</p>
+											<p ng-repeat="s in selectedUsersList">{{s}}</p>
+										</div>
+									</div>
+									<div class="row centered"
+										ng-show="availableUsersList.length<=0">
+										<p class="lead">No users can be added to this team.</p>
+									</div>
+
+								</form>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+								<button type="button"
+									ng-disabled="addUsersToTeamForm.$error.required"
+									ng-click="addUsersToTeam()" class="btn btn-primary">Add
+									Users</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		<!-- COMPLETED ************************************************************************************************************* -->
+		<div class="standalone ng-cloak" id="exercises"
+			ng-show="visibility.exercises" ng-controller="completedExercises">
+			<div class="container">
+				<div class="row ">
+					<h2 class="eblue centered">Completed Reviews</h2>
+					<div class="tableFilter">
+						<p class="lead inlineBlock">Filter:</p>
+						<input placeholder="Type to filter..."
+							ng-change="updateFilteredList()" ng-model="query"
+							class="queryInput">
+					</div>
+					<div ng-show="masterCompletedReviews.length>0"
+						class="centered toggleHideCancelled">
+						<toggle onstyle="btn-primary" ng-model="hideCancelled"
+							on="Hide Cancelled" off="Show Cancelled"></toggle>
+					</div>
+					<div ng-show="masterCompletedReviews.length>0">
+
+						<table at-table at-paginated at-list="filteredCompletedList"
+							at-config="completedtableconfig" class="table table-hover">
+							<thead>
+							</thead>
+							<tbody>
+								<tr ng-class="{active: $index===selectedCompletedRow}">
+									<td at-attribute="id" at-sortable at-title="Id">RTF{{item.id}}</td>
+									<td at-attribute="exerciseName" at-sortable at-title="Exercise">{{item.exerciseName}}</td>
+									<!-- <td at-attribute="exerciseTopic" at-sortable at-title="Topics">{{item.exerciseTopic}}</td> -->
+									<td at-attribute="technology" at-sortable at-title="Tech.">{{item.technology}}</td>
+									<td width="130" at-initial-sorting="desc" at-attribute="st"
+										at-sortable at-title="Date/ Time">{{getDatesInterval(item.startTime,item.endTime)}}
+										({{getDurationInterval(item.startTime,item.endTime)}})</td>
+									<td at-attribute="duration" at-sortable
+										at-title="Actual Duration">{{getMinutesDuration(item.duration)}}</td>
+									<td width="100" at-attribute="user" at-sortable at-title="User"><a
+										href="#users/details/{{item.user}}">{{item.user}}</a></td>
+									<td at-attribute="organization.name" at-sortable
+										at-title="Organization">{{item.organization.name}}</td>
+									<td at-title="Status" at-sortable at-attribute="status"
+										ng-class="getStatusClass(item.status)">{{item.status}}</td>
+									<td at-title="Score" at-sortable at-attribute="score"
+										class="right">{{item.score}}</td>
+									<td at-title="Trophy" at-sortable at-attribute="trophyAwarded"
+										class="center">{{item.trophyAwarded && 'Yes' || 'No'}}</td>
+									<td at-title="New Issues" at-sortable
+										at-attribute="newIssuesIntroduced" class="center">{{item.newIssuesIntroduced
+										&& 'Yes' || 'No'}}</td>
+									<td at-title="Feedback" at-sortable at-attribute="feedback">{{item.feedback
+										&& 'Yes' || 'No'}}</td>
+									<td at-title="Reviewed" at-sortable at-attribute="date">{{getReviewedDate(item.dateReviewed)}}</td>
+									<td class="center"><button
+											ng-click="showCompletedDetailsFor(item.id,item.feedback,$index)"
+											class="btn btn-primary outline">Details</button></td>
+								</tr>
+							</tbody>
+						</table>
+						<at-pagination class="inlineBlock" at-list="filteredCompletedList"
+							at-config="completedtableconfig"></at-pagination>
+						<p class="lead tableFilterResultsCompleted">Showing
+							{{filteredCompletedList.length}} out of
+							{{masterCompletedReviews.length}} {{
+							masterCompletedReviews.length==1 && 'completed review' ||
+							'completed reviews'}}.</p>
+					</div>
+					<div class="centered" ng-show="completedReviews.length<=0">
+						<img class="emptyHistory" src="/assets/img/emptyHistory.png" />
+						<p>There aren't completed exercises.</p>
+					</div>
+				</div>
+				<div id="showCompletedResults" ng-show="showCompletedResult"
+					class="row ">
+					<div class="row">
+						<div class="col-md-12">
+							<h2 class="eblue centered">Exercise Flags</h2>
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>Flag Name</th>
+										<th>Flag Type</th>
+										<th>Flag Description</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat-start="f in completedItemDetails.exercise.flags">
+										<td rowspan="2">{{f.title}}</td>
+										<td>{{f.flagList[0].type}}</td>
+										<td>{{f.flagList[0].instructions}}</td>
+									</tr>
+									<tr ng-repeat-end>
+										<td>{{f.flagList[1].type}}</td>
+										<td>{{f.flagList[1].instructions}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div ng-show="completedItemDetails.usedHints.length>0" class="row">
+						<div class="col-md-12">
+							<h2 class="eblue centered">Used Hints</h2>
+							<table class="table">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Hint</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="h in completedItemDetails.usedHints">
+										<td>#{{$index +1}}</td>
+										<td>{{h.text}}</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<h2 class="eblue centered">Exercise Results</h2>
+							<form name="reviewFormReviewed" autocomplete="off" novalidate>
+								<table class="table">
+									<thead>
+										<tr>
+											<th>Flag</th>
+											<th>Result</th>
+											<th class="right">Score</th>
+											<th>Comment</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="r in completedItemDetails.results">
+											<td>{{r.name}}</td>
+											<td ng-class="getRemediationClass(r.status)">{{getStatusString(r.status)}}</td>
+											<td class="right">{{r.score}}</td>
+											<td>{{r.comment}}</td>
+										</tr>
+									</tbody>
+								</table>
+								<hr>
+								<div class="row">
+									<div class="col-md-3 centered">
+										<h3 class="eblue centered">Summary</h3>
+										<h5 class="eblue centered">Total Score:</h5>
+										<div class="well well-sm">{{completedItemDetails.score.result}}</div>
+										<h5 class="eblue centered">Used Hints:</h5>
+										<div class="well well-sm">{{completedItemDetails.usedHints.length}}</div>
+									</div>
+									<div class="col-md-3 centered">
+										<h3 class="eblue centered">Trophy</h3>
+										<div class="card-deck">
+											<div class="card borderRadius10">
+												<div class="card-block">
+													<p class="card-text">{{completedItemDetails.exercise.trophy.name}}</p>
+													<p class="card-text">{{completedItemDetails.exercise.trophy.description}}</p>
+												</div>
+												<h5 ng-show="completedItemDetails.trophyAwarded"
+													class="card-title">Trophy was awarded.</h5>
+												<h5 ng-show="!completedItemDetails.trophyAwarded"
+													class="card-title">Trophy was not awarded.</h5>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3 centered">
+										<h3 class="eblue centered">New Security Issues</h3>
+										<div class="card-deck">
+											<div class="card borderRadius10">
+												<div class="card-block">
+													<div ng-show="completedItemDetails.newIssuesIntroduced">
+														<h5 class="card-title">Candidate introduced new
+															security issues:</h5>
+														<p class="card-text">{{completedItemDetails.newIssuesIntroducedText}}</p>
+													</div>
+													<div ng-show="!completedItemDetails.newIssuesIntroduced">
+														<h5 class="card-text">Candidate did not introduce new
+															security issues.</h5>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-3 centered">
+										<h3 class="eblue centered">Feedback</h3>
+										<div class="card-deck">
+											<div class="card borderRadius10">
+												<div class="card-block">
+													<div ng-show="completedItemDetails.feedback">
+														<h5 class="card-title">Candidate left a feedback:</h5>
+														<p class="card-text">{{userFeedback}}</p>
+													</div>
+													<div ng-show="!completedItemDetails.feedback">
+														<h5 class="card-text">Candidate did not leave a
+															feedback.</h5>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12 centered marginTop3">
+							<button id="viewCompletedDiffButton" ng-hide="completedZipError"
+								ng-click="toggleCompletedCodeDiff()"
+								class="btn btn-block btn-success outline historyButtons">
+								Show/Hide<br /> Source Code Diff
+							</button>
+							<button id="viewCompletedLogsButton" ng-hide="completedZipError"
+								ng-click="toggleCompletedInstanceLogs()"
+								class="btn btn-block btn-primary outline historyButtons">
+								Show/Hide <br />Instance Logs
+							</button>
+						</div>
+					</div>
+					<div id="completedDiffDiv" class="row"
+						ng-show="showCompletedCodeDiff">
+						<div class="col-md-12">
+							<h3 class="eblue">Source Code Diff:</h3>
+							<div ng-show="completedEmptyDiff">Source code diff is not
+								available.</div>
+							<div ng-non-bindable id="completedTargetDiv"></div>
+						</div>
+					</div>
+					<div id="completedLogArea" class="row" ng-show="showCompletedLogs">
+						<div class="col-md-12">
+							<h3 class="eblue">Exercise Logs:</h3>
+							<div ng-show="completedEmptyLog">Logs are not available.</div>
+							<div ng-non-bindable id="completedRtfLogText"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="standalone ng-cloak" id="stats" ng-show="visibility.stats"
+			ng-controller="stats">
+			<div class="container">
+				<div class="row centered">
+					<div class="col-md-2">
+						<div class="statsMenu">
+							<div class="filterByOrg" ng-show="user.organizations.length>1">
+								<h5 class="eblue">Filter by Organization:</h5>
+								<div ng-repeat="o in orgFilter" class="pretty curvy left">
+									<input ng-change="refreshStatsFilter()" id="{{o.name}}"
+										ng-model="o.checked" type="checkbox"> <label
+										class="orgFilterText"><i class="fa fa-check"></i>
+										{{o.name}}</label>
+								</div>
+							</div>
+
+							<ul class="nav nav-pills nav-stacked marginTop20">
+								<li class="statsMenuItem"
+									ng-class="{'active' : charts.dashboard == true}"
+									role="presentation" ng-click="showStats('dashboard')"><a
+									href="">Stats <br /> <strong>Dashboard</strong></a></li>
+
+								<li class="statsMenuItem"
+									ng-class="{'active' : charts.remediationRateIssue == true }"
+									role="presentation"><a
+									ng-click="showStats('remediationRateIssue')" href=""> Stats
+										by <br /> <strong> Issue</strong>
+								</a></li>
+								<li class="statsMenuItem"
+									ng-class="{'active' : charts.remediationRateCategory == true }"
+									role="presentation"><a
+									ng-click="showStats('remediationRateCategory')" href="">Stats
+										by <br /> <strong> Issue Category</strong>
+								</a></li>
+								<li class="statsMenuItem"
+									ng-class="{'active' : charts.remediationRateRegion == true }"
+									role="presentation"><a
+									ng-click="showStats('remediationRateRegion')" href="">Stats
+										by <br /> <strong> Region</strong>
+								</a></li>
+								<li class="statsMenuItem"
+									ng-class="{'active' : charts.remediationRateTeam == true }"
+									role="presentation"><a
+									ng-click="showStats('remediationRateTeam')" href=""> Stats
+										by <br /> <strong> Team</strong>
+								</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="col-md-10">
+						<div class="statContainer ng-cloak" ng-show="charts.dashboard"
+							id="dashboard">
+							<h2 class="eblue">Stats Dashboard</h2>
+							<div class="row ng-cloak marginTop30">
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor1">{{statsObj.totalUsers}}</span>
+									<p class="statsText">Total Users</p>
+								</div>
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor1">{{statsObj.loggedUsers}}</span>
+									<p class="statsText">Logged Users</p>
+								</div>
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor1">{{statsObj.totalExercisesRun}}</span>
+									<p class="statsText">Total Exercises Run</p>
+								</div>
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor1">{{statsObj.exercisesRunning}}</span>
+									<p class="statsText">Running Exercises</p>
+								</div>
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor1">{{statsObj.minutes}}</span>
+									<p class="statsText">Total Minutes</p>
+								</div>
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor1">{{statsObj.avgExerciseDuration}}</span>
+									<p class="statsText">Avg. Exercise Duration</p>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-2 col-md-offset-1">
+									<span class="badge statsBadge statsBadgeColor2">{{statsObj.availableExercises}}</span>
+									<p class="statsText">Available Exercises</p>
+								</div>
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor2">{{statsObj.issues}}</span>
+									<p class="statsText">Total Issues</p>
+								</div>
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor2">{{statsObj.issueCategories}}</span>
+									<p class="statsText">Total Issue Categories</p>
+								</div>
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor2">{{statsObj.technologies}}</span>
+									<p class="statsText">Technologies</p>
+								</div>
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor2">{{statsObj.teams}}</span>
+									<p class="statsText">Teams</p>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor3">{{statsObj.submittedReviews}}</span>
+									<p class="statsText">Submitted Reviews</p>
+								</div>
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor3">{{statsObj.pendingReviews}}</span>
+									<p class="statsText">Pending Reviews</p>
+								</div>
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor3">{{statsObj.cancelledReviews}}</span>
+									<p class="statsText">Cancelled Reviews</p>
+								</div>
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor3">{{statsObj.awardedTrophies}}</span>
+									<p class="statsText">Awarded Trophies Reviews</p>
+								</div>
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor3">{{statsObj.newIssuesIntroduced}}</span>
+									<p class="statsText">New Issues Introduced</p>
+								</div>
+								<div class="col-md-2">
+									<span class="badge statsBadge statsBadgeColor3">{{statsObj.totalFeedback}}</span>
+									<p class="statsText">Feedback Received</p>
+								</div>
+							</div>
+
+
+						</div>
+
+						<div class="statContainer" ng-show="charts.remediationRateIssue"
+							id="remediationRateIssue">
+							<h2 class="eblue">Stats by Issue</h2>
+							<h4 class="marginTop30 marginBottom20">Global Remediation
+								Rate by Issue</h4>
+							<canvas id="remediatedPerIssue" class="chart chart-radar"
+								chart-data="remediatedPerIssue.data"
+								chart-series="remediatedPerIssue.series"
+								chart-options="remediatedPerIssue.options"
+								chart-labels="remediatedPerIssue.labels">
+								</canvas>
+							<h4 class="marginTop30 marginBottom20">Individual Issue
+								Remediation Rate Breakdown</h4>
+							<div class="col-md-4 marginBottom10"
+								ng-repeat="c in remediationRatePerIssue">
+								<canvas width="250%" height="310%" class="chart chart-doughnut"
+									chart-data="c.data" chart-options="c.options"
+									chart-labels="c.labels">
+									</canvas>
+
+							</div>
+						</div>
+						<div class="statContainer"
+							ng-show="charts.remediationRateCategory"
+							id="remediationRateIssue">
+							<h2 class="eblue">Stats by Issue Category</h2>
+							<h4 class="marginTop30 marginBottom20">Global Remediation
+								Rate, Average/Total Duration by Issue Category</h4>
+							<canvas id="remediatedPerCategory" class="chart chart-bar"
+								chart-data="remediatedPerCategory.data"
+								chart-series="remediatedPerCategory.series"
+								chart-options="remediatedPerCategory.options"
+								chart-labels="remediatedPerCategory.labels"
+								chart-dataset-override="remediatedPerCategory.datasetOverride">
+								</canvas>
+							<h4 class="marginTop30 marginBottom20">Individual Issue
+								Category Remediation Rate Breakdown</h4>
+							<div class="col-md-4 marginBottom10"
+								ng-repeat="c in remediationRatePerCategory">
+								<canvas width="250%" height="310%" class="chart chart-doughnut"
+									chart-data="c.data" chart-options="c.options"
+									chart-labels="c.labels">
+									</canvas>
+								<!--<div class="donut-inner">
+									<h4>85%</h4>
+								</div>  -->
+							</div>
+						</div>
+						<div class="statContainer" ng-show="charts.remediationRateRegion"
+							id="remediationRateIssue">
+							<h2 class="eblue">Stats by Region</h2>
+							<h4 class="marginTop30 marginBottom20">Global Remediation
+								Rate, Average/Total Duration by Region</h4>
+							<canvas id="remediatedPerRegion" class="chart chart-bar"
+								chart-data="remediatedPerRegion.data"
+								chart-series="remediatedPerRegion.series"
+								chart-options="remediatedPerRegion.options"
+								chart-labels="remediatedPerRegion.labels">
+								</canvas>
+							<h4 class="marginTop30 marginBottom20">Individual Region
+								Remediation Rate Breakdown</h4>
+							<div class="col-md-4 marginBottom10"
+								ng-repeat="c in remediationRatePerRegion">
+								<canvas width="250%" height="310%" class="chart chart-doughnut"
+									chart-data="c.data" chart-options="c.options"
+									chart-labels="c.labels">
+									</canvas>
+							</div>
+						</div>
+						<div class="statContainer" ng-show="charts.remediationRateTeam"
+							id="remediationRateTeam">
+							<h2 class="eblue">Stats by Team</h2>
+							<h4 class="marginTop30 marginBottom20">Global Remediation
+								Rate, Average/Total Duration by Team</h4>
+							<canvas id="remediatedPerTeam" class="chart chart-bar"
+								chart-data="remediatedPerTeam.data"
+								chart-series="remediatedPerTeam.series"
+								chart-options="remediatedPerTeam.options"
+								chart-labels="remediatedPerTeam.labels">
+								</canvas>
+							<h4 class="marginTop30 marginBottom20">Individual Team
+								Remediation Rate Breakdown</h4>
+							<div class="col-md-4 marginBottom10"
+								ng-repeat="c in remediationRatePerTeam">
+								<canvas width="250%" height="310%" class="chart chart-doughnut"
+									chart-data="c.data" chart-options="c.options"
+									chart-labels="c.labels">
+									</canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="standalone ng-cloak" id="settings"
+			ng-show="visibility.settings" ng-controller="settings">
+			<div class="container">
+				<div class="row centered">
+					<h2 class="eblue">Settings</h2>
+					<form class="left" name="userProfileForm" novalidate
+						autocomplete="off">
+						<div class="row">
+							<div class="col-md-3">
+								<h4>User Profile</h4>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-3">
+								<h5>First Name</h5>
+								<input class="fInput" required type="text"
+									ng-model="user.firstName">
+							</div>
+							<div class="col-md-3">
+								<h5>Last Name</h5>
+								<input class="fInput" required type="text"
+									ng-model="user.lastName">
+							</div>
+							<div class="col-md-3">
+								<h5>Email</h5>
+								<input class="fInput" required type="email"
+									ng-model="user.email">
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-3">
+								<h5>Country</h5>
+								<ol class="nya-bs-select" required ng-model="user.country"
+									data-size="20" data-live-search="true">
+									<li nya-bs-option="ct in countries | orderBy:'name'"><a>
+											{{ct.name}} <span class="glyphicon glyphicon-ok check-mark"></span>
+									</a></li>
+								</ol>
+							</div>
+							<!-- 
+								<div class="col-md-3">
+									<h5>Time Zone</h5>
+									<ol class="nya-bs-select" required ng-model="user.timeZone"
+										data-size="20" data-live-search="true">
+										<li nya-bs-option="tz in timeZones | orderBy:'timeFromGMT'">
+											<a> {{tz.name}} (GMT {{number > 0 ? '+' :
+												''}}{{tz.timeFromGMT}}) <span
+												class="glyphicon glyphicon-ok check-mark"></span>
+										</a>
+										</li>
+									</ol>
+								</div> -->
+						</div>
+						<div class="row marginTop20">
+							<div class="col-md-3">
+								<button type="button"
+									ng-disabled="userProfileForm.$error.required && !userProfileForm.$valid"
+									ng-click="updateUserProfile()" class="btn btn-success">Save</button>
+							</div>
+						</div>
+					</form>
+					<form class="left" name="userPasswordForm" autocomplete="off"
+						novalidate>
+						<div class="row marginTop20">
+							<div class="col-md-3">
+								<h4>Change Password</h4>
+							</div>
+						</div>
+						<div class="row ">
+							<div class="col-md-3">
+								<h5>Old Password</h5>
+								<input autocomplete="off" class="fInput" name="oldPassword"
+									required ng-model="settings.oldPassword" type="password">
+							</div>
+							<div class="col-md-3">
+								<h5>New Password</h5>
+								<input autocomplete="off" complex-password name="newPassword"
+									class="fInput" required type="password"
+									ng-model="settings.newPassword">
+								<div
+									ng-show="!userPasswordForm.$pristine && !userPasswordForm.newPassword.$valid">Use
+									at least 8 characters including three of four groups in:
+									numbers, symbols, capital letters, and lower-case letters.</div>
+							</div>
+							<div class="col-md-3">
+								<h5>Repeat New Password</h5>
+								<input autocomplete="off" class="fInput" type="password"
+									name="newPasswordRepeat" ng-model="settings.newPasswordRepeat"
+									required compare-to="settings.newPassword" />
+								<div
+									ng-show="!userPasswordForm.$pristine && !userPasswordForm.newPasswordRepeat.$valid">These
+									password don't match. Try again?</div>
+							</div>
+						</div>
+						<div class="row marginTop20">
+							<div class="col-md-3">
+								<button type="button"
+									ng-disabled="userPasswordForm.$error.required || !userPasswordForm.newPasswordRepeat.$valid || !userPasswordForm.newPassword.$valid"
+									ng-click="updateUserPassword()" class="btn btn-primary">Change</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<!-- *****************************************************************************************************************
+	 FOOTER
+	 ***************************************************************************************************************** -->
+		<div id="footerwrap">
+			<div class="container">
+				<p class="center">RTF - 2018</p>
+				<!--<div class="row">
+						<div class="col-lg-8">
+							<h4>About</h4>
+							<div class="hline-w"></div>
+							<p>RTF is an open source platform to teach developers about
+								application security topics.</p>
+						</div>
+						<div class="col-lg-4">
+							<h4>Contacts</h4>
+							<div class="hline-w"></div>
+							<a class="emailContact"
+								href="mailto:support@remediatetheflag.com ">
+								support@remediatetheflag.com </a>
+						</div>
+
+					</div>  -->
+			</div>
+		</div>
+		<!-- <span us-spinner></span>-->
+		<div class="waitLoader"></div>
+	</div>
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/bootstrap.min.js"></script>
+	<script src="/assets/js/angular.min.js"></script>
+	<script src="/assets/js/angular-route.min.js"></script>
+	<script src="/assets/js/nya-bs-select.min.js"></script>
+	<script src="/assets/js/highlight.min.js"></script>
+	<script src="/assets/js/diff2html.min.js"></script>
+	<script src="/assets/js/diff2html-ui.min.js"></script>
+	<script src="/assets/js/jszip.min.js"></script>
+	<script src="/assets/js/jszip-utils.js"></script>
+	<script src="/assets/js/pnotify.js"></script>
+	<script src="/assets/js/pnotify.confirm.js"></script>
+	<script src="/assets/js/pnotify.buttons.js"></script>
+	<script src="/assets/js/angular-pnotify.js"></script>
+	<script src="/assets/js/moment.min.js"></script>
+	<script src="/assets/js/angular-bootstrap-toggle.min.js"></script>
+	<script src="/assets/js/chart.min.js"></script>
+	<script src="/assets/js/Chart.PieceLabel.min.js"></script>
+	<script src="/assets/js/angular-chart.min.js"></script>
+	<script src="/assets/js/angular-table.min.js"></script>
+	<script src="/assets/js/angular-spinner.min.js"></script>
+	<script src="/assets/js/angular-notification-icons.min.js"></script>
+	<script src="/assets/js/chart.min.js"></script>
+	<script src="/assets/js/Chart.PieceLabel.min.js"></script>
+	<script src="/assets/js/angular-chart.min.js"></script>
+	<script src="/management/js/management.js"></script>
+	<!-- <script type="text/javascript">
+		var _paq = _paq || [];
+		_paq.push([ 'trackPageView' ]);
+		_paq.push([ 'enableLinkTracking' ]);
+		(function() {
+			var u = "https://analytics.remediatetheflag.com/piwik/";
+			_paq.push([ 'setTrackerUrl', u + 'piwik.php' ]);
+			_paq.push([ 'setSiteId', '1' ]);
+			var d = document, g = d.createElement('script'), s = d
+					.getElementsByTagName('script')[0];
+			g.type = 'text/javascript';
+			g.async = true;
+			g.defer = true;
+			g.src = u + 'piwik.js';
+			s.parentNode.insertBefore(g, s);
+		})();
+	</script> -->
+</body>
+</html>

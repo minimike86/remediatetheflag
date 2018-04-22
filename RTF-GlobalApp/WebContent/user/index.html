@@ -1,0 +1,1185 @@
+<!-- 
+ *  
+ * REMEDIATE THE FLAG
+ * Copyright 2018 - Andrea Scaduto 
+ * remediatetheflag@gmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Remediate The Flag">
+<meta name="author" content="sk4ddy">
+<title>Remediate the Flag - Home</title>
+<link rel="icon" type="image/png" sizes="32x32"
+	href="/assets/img/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96"
+	href="/assets/img/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16"
+	href="/assets/img/favicon-16x16.png">
+<link href="/assets/css/lib.css" rel="stylesheet">
+<link href="/assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+	<div ng-app="rtfNg">
+		<div ng-controller="navigation">
+			<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+				<div class="container">
+
+					<div class="navbar-collapse collapse">
+						<ul class="nav navbar-nav">
+							<li class="pull-left"><a class="navbar-brand navbarI"
+								href="index.html">RTF.</a></li>
+							<li ng-class="{'active' : visibility.home }"><a
+								class="navbarA" href="#home">HOME</a></li>
+							<li ng-class="{'active' : visibility.assignedExercises }"><a
+								class="navbarA" href="#exercises">TRAINING EXERCISES</a></li>
+							<li ng-class="{'active' : visibility.challenges }"
+								class="ng-cloak"><a class="navbarA" href="#challenges">CHALLENGES</a></li>
+							<li ng-class="{'active' : visibility.runningExercises }"><a
+								class="navbarA" href="#running">RUNNING EXERCISES</a></li>
+							<li ng-class="{'active' : visibility.history }"><a
+								class="navbarA" href="#history">COMPLETED EXERCISES</a></li>
+							<li ng-class="{'active' : visibility.achievements }"><a
+								class="navbarA" href="#achievements">ACHIEVEMENTS & STATS</a></li>
+							<li ng-class="{'active' : visibility.leaderboard }"><a
+								class="navbarA" href="#leaderboard">TEAM LEADERBOARD</a></li>
+							<li class="pull-right"><a class="navbarI" href=""
+								ng-click="logout()"><i class="fa fa-sign-out fa-lg"
+									aria-hidden="true"></i></a></li>
+							<li class="pull-right"
+								ng-class="{'active' : visibility.settings }"><a
+								class="navbarI" href="#settings"><i class="fa fa-cogs fa-lg"
+									aria-hidden="true"></i></a></li>
+							<li class="pull-right"><a
+								class="navbarI btn notificationcentre dropdown-toggle" href=""
+								id="dropdownMenuLink" data-toggle="dropdown"
+								aria-haspopup="true" aria-expanded="false" href=""><notification-icon
+										animation="grow" count="notifications.length">
+									<i class="fa fa-envelope-o fa-lg"></i></notification-icon></a>
+								<div
+									class="notificationcentre notificationCentreDropdown dropdown-menu"
+									aria-labelledby="dropdownMenuLink">
+									<a ng-show="notifications.length <= 0" class="dropdown-item"
+										href="">
+										<div class="">
+											<span class="notificationText">No unread notifications</span>
+										</div>
+									</a> <a ng-repeat="n in notifications" class="dropdown-item"
+										href="">
+										<div ng-click="goTo(n.link)" class="notificationHoverable">
+											<i ng-click="goTo(n.link)" class="fa fa-bell"
+												aria-hidden="true"></i> <span class="notificationText">{{n.text}}</span>
+										</div>
+
+										<div ng-click="markNotificationRead(n.id)"
+											class="dismissNotification ">
+											<i class="fa fa-times dismissNotificationIcon"
+												aria-hidden="true"><span
+												ng-click="markNotificationRead(n.id)"
+												class="dismissNotificationSpan">Dismiss</span></i>
+										</div>
+									</a>
+								</div></li>
+						
+						</ul>
+					</div>
+				</div>
+			</div>
+			<!-- *****************************************************************************************************************
+	 HEADERWRAP
+	 ***************************************************************************************************************** -->
+			<div id="headerwrap" ng-show="visibility.welcome"
+				ng-controller="welcome">
+				<div class="container">
+					<div class="row">
+						<div class="col-lg-8 col-lg-offset-2">
+							<h3 class="ng-cloak">Hi {{user.firstName}}, welcome to</h3>
+							<h1>Remediate the Flag</h1>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- *****************************************************************************************************************
+	 USER MENU OPTIONS
+	 ***************************************************************************************************************** -->
+			<div id="service" ng-show="visibility.home" ng-controller="home">
+				<div class="container serviceContainer">
+					<div class="row centered serviceInnerContainer col-md-12">
+						<div class="col-md-4">
+							<a href="#exercises"><i class="fa fa-flask"></i></a>
+							<h4>
+								<a href="#exercises">Available Exercises</a>
+							</h4>
+							<p>Browse available exercises and start hacking.</p>
+						</div>
+						<div class="col-md-4">
+							<a href="#achievements"><i class="fa fa-trophy"></i></a>
+							<h4>
+								<a href="#achievements">Achievements & Stats</a>
+							</h4>
+							<p>Look at achievements, stats and score.</p>
+						</div>
+						<div class="col-md-4">
+							<a href="#history"><i class="fa fa-history"></i></a>
+							<h4>
+								<a href="#history">Completed Exercises</a>
+							</h4>
+							<p>Check results of completed exercises.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- *****************************************************************************************************************
+	 AVAILABLE EXERCISES
+	 ***************************************************************************************************************** -->
+			<div id="assignedExercises" class="ng-cloak"
+				ng-controller="exercises">
+				<div id="exercisesPanel" ng-show="visibility.assignedExercises"
+					class="container standalone">
+
+					<div class="row centered">
+						<h2 class="eblue">Training Exercises</h2>
+						<div ng-repeat="e in exercises" class="card-deck-wrapper">
+							<div class="card-deck">
+								<div ng-repeat="ex in e | orderBy:'active':true" class="card"
+									ng-class="getExerciseClass(ex.technology)">
+									<div class="paddingTop5 paddingBottom5 card-header">{{ex.technology}}</div>
+									<div class="card-block paddingTop5">
+										<div ng-show="didTakeExercise(ex.id)" class="taken">Completed</div>
+										<div ng-show="!didTakeExercise(ex.id)" class="notTaken">Not Completed</div>
+										<h4 class="card-title">{{ex.title}}</h4>
+										<h6 class="ellipsis card-subtitle text-muted">{{ex.subtitle}}</h6>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<h4 class="marginTop0 marginBottom5">Score</h4>
+											<img class="awd" ng-src="{{ex.scoreImg}}">
+											<p class="card-text marginTop5">
+												<small class="text-muted">gain up to {{ex.score}}
+													points</small>
+											</p>
+										</div>
+										<div class="col-md-6">
+											<h4 class="marginTop0">Trophy</h4>
+											<img class="awd" ng-src="{{ex.trophy.img}}">
+											<p class="card-text marginTop5">
+												<small class="text-muted">{{ex.trophy.name}}</small>
+											</p>
+										</div>
+									</div>
+									<div class="card-block paddingBottom10 paddingTop0">
+										<!--  <p class="card-text justify">{{ex.description}}</p>-->
+										<p class="card-text marginTop5 marginBottom5">
+											<small class="text-muted">Duration: {{ex.duration}}
+												minutes</small><small class="text-muted"> | Difficulty:
+												{{ex.difficulty}} </small>
+										</p>
+										<a ng-show="ex.status==0" ng-click="getExerciseDetails(ex.id)"
+											href="" class="btn btn-primary">Get Started</a> <a
+											ng-show="ex.status>0" href="" class="btn btn-info">{{getExerciseStatusString(ex.status)}}</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div ng-show="emptyExercises">
+							<img class="emptyExercises" src="/assets/img/emptyExercises.png" />
+							<p>There are no available exercises.</p>
+							<p>
+								Please try again later or email <a
+									href="mailto:support@remediatetheflag.com">support</a>
+							</p>
+						</div>
+					</div>
+				</div>
+				<div id="currentExercisePanel" ng-show="visibility.exerciseDetails"
+					class="container standalone">
+					<h2 class="eblue">Exercise</h2>
+					<div class="card paddingBottom10">
+						<div class="card-header">{{exerciseDetails.technology}}</div>
+						<div class="col-md-8">
+							<h4 class="card-title">{{exerciseDetails.title}}</h4>
+							<h6 class="card-subtitle text-muted">{{exerciseDetails.subtitle}}</h6>
+							<div class="">
+								<p class="card-text">{{exerciseDetails.description}}</p>
+								<p class="card-text">
+									<small class="text-muted">Duration:
+										{{exerciseDetails.duration}} minutes</small><small class="text-muted">
+										| Difficulty: {{exerciseDetails.difficulty}} </small>
+								</p>
+								<div ng-show="exerciseDetails.res.length>0">
+									<h5>Resources:</h5>
+									<p class="card-text">
+										<small ng-repeat="r in exerciseDetails.res">
+											{{r.name}} : <a target="_blank" href="{{r.url}}">Link</a><br />
+										</small>
+									</p>
+								</div>
+								<form novalidate autocomplete="off" name="selectExerciseRegion">
+									<div ng-show="!exerciseStarted">
+										<h5>Available Regions</h5>
+										<p>For the best RTF experience, please choose your region:</p>
+										<ol class="nya-bs-select" required ng-model="selectedRegion">
+											<li nya-bs-option="r in availableRegions | orderBy"><a>
+													{{r}} <span class="glyphicon glyphicon-ok check-mark"></span>
+											</a></li>
+										</ol>
+										<button ng-disabled="selectExerciseRegion.$error.required "
+											ng-click="startExerciseModal(exerciseDetails.id)"
+											class="btn btn-success btn-lg">Start Exercise</button>
+									</div>
+								</form>
+								<div ng-show="exerciseStarted">
+									<div class="well centered">
+										<div id="countdown"
+											ng-show="exerciseStarted && !environmentReady">
+											<p class="lead">We're setting up your exercise, your RTF
+												environment will be ready in:</p>
+											<span class="badge" id="cdown">{{countdown}}</span>
+											<p>Use this time to read the exercise's instructions.</p>
+										</div>
+										<div id="environmentReady"
+											ng-show="exerciseStarted && environmentReady">
+											<p class="lead">Your RTF environment is ready!</p>
+											<button id="launchEnvironment" ng-click="launchEnvironment()"
+												class="btn btn-success btn-lg">Launch Environment</button>
+											<button ng-click="stopExercise(exInstanceId)"
+												class="btn btn-lg btn-primary">
+												Mark Completed</a>
+										</div>
+										<div id="preload"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-2 centered">
+							<h4>Score</h4>
+							<img class="awd100" ng-src="{{exerciseDetails.scoreImg}}">
+							<p class="card-text">
+								<small class="text-muted">gain up to
+									{{exerciseDetails.score}} points</small>
+							</p>
+						</div>
+						<div class="col-md-2 centered">
+							<h4>Trophy</h4>
+							<img class="awd100" ng-src="{{exerciseDetails.trophy.img}}">
+							<p class="card-text">
+								<small class="text-muted">{{exerciseDetails.trophy.name}}</small>
+							</p>
+						</div>
+						<div class="row"></div>
+					</div>
+					<div id="exerciseInfo">
+						<ul id="exerciseTabs" class="nav nav-tabs" role="tablist">
+							<li role="presentation" class="active"><a
+								data-target="#exercise-info"
+								href="#exercises/details/{{exerciseDetails.id}}/info"
+								aria-controls="exercises/details/{{exerciseDetails.id}}/info"
+								role="tab" data-toggle="tab">General Information</a></li>
+							<li role="presentation"><a data-target="#exercise-flags"
+								href="#exercises/details/{{exerciseDetails.id}}/flags"
+								aria-controls="exercises/details/{{exerciseDetails.id}}/flags"
+								role="tab" data-toggle="tab">Exercise Flags</a></li>
+							<!-- <li role="presentation"><a data-target="#exercise-status"
+								href="#exercises/details/{{exerciseDetails.id}}/status"
+								aria-controls="exercises/details/{{exerciseDetails.id}}/status"
+								role="tab" data-toggle="tab">Exercise Results</a></li> -->
+						</ul>
+						<div class="tab-content">
+							<div role="tabpanel" class="tab-pane active" id="exercise-info">
+								<div ng-repeat="topic in exerciseDetails.info"
+									class="panel panel-default">
+									<div class="panel-heading">
+										<h4 class="panel-title">
+											<a data-toggle="collapse" data-target="#{{topic.id}}" href=""
+												class="collapsed"> {{topic.title}} </a>
+										</h4>
+									</div>
+									<div id="{{topic.id}}" class="panel-collapse collapse in">
+										<div class="panel-body">
+											<div class="row" ng-repeat="i in topic.text">
+												<div class="col-md-12">
+													<p>{{i.description}}</p>
+													<img class="pictureH320" ng-src="{{i.img}}">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="centered">
+									<img src="/assets/img/down.png" class="downloadReferenceIcon">
+									<p class="lead downloadReference">
+										Download Exercise's <a
+											ng-click="downloadAPIReference(exerciseDetails.id)" href="">
+											reference</a>
+									</p>
+								</div>
+							</div>
+							<div role="tabpanel" class="tab-pane" id="exercise-flags">
+								<div class="panel-group" id="accordion">
+									<div ng-repeat="flag in exerciseDetails.flags"
+										class="panel panel-default">
+										<div class="panel-heading">
+											<h4 class="panel-title">
+												<a data-toggle="collapse" data-target="#{{flag.id}}" href="">
+													{{flag.title}} </a>
+											</h4>
+										</div>
+										<div id="{{flag.id}}" class="panel-collapse collapse in">
+											<div class="panel-body">
+												<table>
+													<thead class="theadSpace">
+														<tr>
+															<th>Type</th>
+															<th>Instructions</th>
+															<th>Required</th>
+															<th class="center">Hint</th>
+															<th class="center">Check result</th>
+															<th></th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr ng-repeat="f in flag.flagList" class="spaceUnder">
+															<td>{{f.type}}</td>
+															<td class="w54">{{f.instructions}}</td>
+															<td>{{f.type=='EXPLOITATION' && "Optional" ||
+																"Required"}}</td>
+															<td class="center">
+																<button ng-show="f.hintAvailable"
+																	ng-disabled="!exerciseStarted"
+																	ng-click="getHintModal(f.id)"
+																	class="btn btn-sm btn-info outline">Show Hint</button>
+															</td>
+															<td ng-show="!f.selfCheckName"></td>
+															<td
+																ng-show="f.selfCheckName && !isAvailable(f.selfCheckStatus)" class="center">
+																<button ng-disabled="!exerciseStarted"
+																	ng-click="refreshResults(exerciseDetails.id)"
+																	class=" btn btn-sm btn-info outline refreshResults">Refresh Result</button>
+
+															</td>
+															<td
+																ng-class="isAvailable(f.selfCheckStatus) && getRemedationTableClassFromSelfCheckName(f.selfCheckStatus)"
+																ng-show="isAvailable(f.selfCheckStatus)">{{getSelfChekResult(f.selfCheckStatus)}}</td>
+															<td>
+																<button
+																	ng-show="isAvailable(f.selfCheckStatus)"
+																	ng-disabled="!exerciseStarted"
+																	ng-click="refreshResults(exerciseDetails.id)"
+																	class="btn btn-sm btn-info outline refreshResults">Refresh</button>
+															</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>
+								</div>
+	
+								<div class="centered">
+									<img src="/assets/img/down.png" class="downloadReferenceIcon">
+									<p class="lead downloadReference">
+										Download Exercise's <a
+											ng-click="downloadAPIReference(exerciseDetails.id)" href="">
+											reference</a>
+									</p>
+								</div>
+							</div>
+							<div role="tabpanel" class="tab-pane" id="exercise-status">
+								<div id="exerciseNotStarted"
+									ng-show="!exerciseStarted || !environmentReady">
+									<h4 class="lead alertPLead">When the exercise has started,
+										check this tab to verify the remediation status of each Flag.</h4>
+								</div>
+								<div id="exerciseStarted"
+									ng-show="exerciseStarted && environmentReady">
+									<table class="table" ng-hide="asNotStarted">
+										<thead>
+											<tr>
+												<th>Flag</th>
+												<th>Status</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="flag in resultStatusData">
+												<td>{{flag.name}}</td>
+												<td ng-class="getRemedationTableClass(flag.status)">{{flag.status
+													&& 'Vulnerable' || 'Not Vulnerable'}}</td>
+											</tr>
+										</tbody>
+									</table>
+									<div ng-show="flagIsVulnerable">
+										<p class="lead alertPLead">The code is vulnerable,
+											remediate the exposure in the IDE. Reference the 'Exercise
+											Flags' tab for instructions.</p>
+									</div>
+									<div ng-show="asNotStarted">
+										<p class="lead alertPLead">Start the Application Server in
+											the RTF instance to check remediation status. Reference the
+											'General Information' tab for instructions.</p>
+									</div>
+									<div class="centered">
+										<button ng-click="refreshResults(exerciseDetails.id)"
+											class="btn btn-lg btn-primary marginBottom10">Refresh
+											Results</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="hintReceivedModal" class="modal fade" tabindex="-1"
+					role="dialog">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h4 class="modal-title">Hint</h4>
+							</div>
+							<div class="modal-body">
+								<p class="lead">{{hintData.text}}</p>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="getHintModal" class="modal fade" tabindex="-1"
+					role="dialog">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h4 class="modal-title">Hint</h4>
+							</div>
+							<div class="modal-body">
+								<p class="lead">Each hint has an impact on the final score.</p>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+								<button type="button" ng-click="getHint()"
+									class="btn btn-primary">Get Hint</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="startExerciseModal" class="modal fade" tabindex="-1"
+					role="dialog">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+								<h4 class="modal-title">Start Exercise</h4>
+							</div>
+							<div class="modal-body modalStartExercise">
+								<p class="lead" ng-show="exerciseIsInChallenge">
+									<strong>This exercise is part of a challenge.</strong> Once started, it is
+									not possible to suspend the exercise.
+								</p>
+								<p class="lead">
+									The recommended duration of this exercise is
+									{{exerciseDetails.duration}} minutes.
+								</p>
+								<p class="lead" ng-show="!exerciseIsInChallenge">
+									Once started, it is 	not possible to suspend the exercise.
+								</p>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+								<button type="button"
+									ng-click="startInstance(exerciseDetails.id)"
+									class="btn btn-primary">Start Exercise</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- CHALLENGES ***************************************************************************************************************** -->
+			<div class="standalone ng-cloak" id="challenges"
+				ng-show="visibility.challenges" ng-controller="challenges">
+				<div class="container" ng-show="showChallengesList">
+					<div class="row ">
+						<h2 class="eblue centered">Challenges</h2>
+					</div>
+					<div class="row centered" ng-show="masterChallengesList.length > 0">
+						<div class="card-deck-wrapper">
+							<div class="card-deck challengeDeck"
+								ng-repeat="c in masterChallengesList">
+								<div class="container marginTop15">
+									<div class="row">
+										<div class="col-md-2">
+											<h3 class="">{{c.name}}</h3>
+										</div>
+										<div class="col-md-9">
+											<div class="row">
+
+												<div class="col-md-2">
+													<span class="badge challengeBadge statsBadgeColor1">{{c.flags.length}}</span>
+													<p class="statsText">Total Issues</p>
+												</div>
+												<div class="col-md-2">
+													<span class="badge challengeBadge statsBadgeColor1">{{c.users.length}}</span>
+													<p class="statsText">Total Users</p>
+												</div>
+												<div class="col-md-2">
+													<span class="badge challengeBadge statsBadgeColor1">{{c.completion}}%</span>
+													<p class="statsText">Completion</p>
+												</div>
+
+												<div class="col-md-2  ">
+													<span class="badge cardBadge statsBadgeColor1">{{getFormattedEnd(c.startDate)}}</span>
+													<p class="statsText">Start Date</p>
+												</div>
+												<div class="col-md-2 ">
+													<span class="badge cardBadge statsBadgeColor1">{{getFormattedEnd(c.endDate)}}</span>
+													<p class="statsText">End Date</p>
+												</div>
+												<div class="col-md-2 ">
+													<span class="badge cardBadge statsBadgeColor1">{{c.lastActivity}}</span>
+													<p class="statsText">Last Activity</p>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="row-centered">
+										<h4>Exercises</h4>
+										<div ng-repeat="ex in c.exercises" class="card cardChallenge"
+											ng-class="getExerciseClass(ex.technology)">
+											<div class="card-header paddingTop5 paddingBottom5">{{ex.technology}}</div>
+											<div class="card-block paddingTop0">
+												<h4 class="card-title">{{ex.title}}</h4>
+												<h6 class="card-subtitle text-muted">{{ex.subtitle}}</h6>
+											</div>
+											<div class="card-block paddingTop0 paddingBottom10">
+												<p class="card-text marginTop0 marginBottom5">
+													<small class="text-muted">Duration: {{ex.duration}}
+														minutes</small><small class="text-muted"> | Difficulty:
+														{{ex.difficulty}} </small>
+												</p>
+												<a href="#/exercises/details/{{ex.id}}"
+													class="btn btn-warning outline">Get Started</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- <div class="row center marginTop20">
+						<button class="btn btn-lg btn-primary outline btn-block">Challenge
+							a user!</button>
+					</div> -->
+				</div>
+				<div ng-show="showChallengeDetails">
+
+					<div class="container centered">
+						<a ng-click="backToList()" class="backToUsers btn btn-info btn-lg">Back
+							to Challenges</a>
+						<h2>{{challengeDetails.name}}</h2>
+					</div>
+
+					<div class="container marginTop30">
+						<h4>Challenge Results</h4>
+						<table class="table table-hover">
+							<thead>
+								<tr>
+									<th>User</th>
+									<th>Team</th>
+									<th>Org</th>
+									<th class="width185 centered"
+										ng-repeat="t in challengeDetails.theads">{{t.name}}</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="u in challengeDetails.users">
+									<td><a href="#/users/details/{{u.user}}">{{u.user}}</a></td>
+									<td><a href="#/teams/details/{{u.team.name}}">{{u.team.name}}</a></td>
+									<td>{{u.defaultOrganization.name}}</td>
+									<td class="centered"
+										ng-class="getClassForChallengeResult(u.user,f.name)"
+										ng-repeat="f in challengeDetails.theads"><span
+										ng-show="getChallengeResultFor(u.user,f.name)==='Not Started'">{{getChallengeResultFor(u.user,f.name)}}</span><a
+										ng-show="getChallengeResultFor(u.user,f.name)!=='Not Started'"
+										href="#/exercises">{{getChallengeResultFor(u.user,f.name)}}</a>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<!-- *****************************************************************************************************************
+	 RUNNING EXERCISES
+	 ***************************************************************************************************************** -->
+			<div class="standalone ng-cloak" id="running"
+				ng-show="visibility.runningExercises" ng-controller="running">
+				<div class="container">
+					<div class="row centered">
+						<h2 class="eblue">Running Exercises</h2>
+						<span class="badge scoreBadge">{{runningInstances.length}}</span>
+						<div class="card-deck-wrapper marginTop20">
+							<div class="card-deck">
+								<div ng-repeat="ex in runningInstances" class="card"
+									ng-class="getExerciseClass(ex.technology)">
+									<div class="card-header">{{ex.technology}}</div>
+									<div class="card-block">
+										<h4 class="card-title">{{ex.title}}</h4>
+										<h5 class="card-subtitle">
+											{{ex.exercise.subtitle}}
+											<h5>
+												<p class="card-text">
+													Start time: <small class="text-muted">{{ex.startTime}}</small>
+													| End time: <small class="text-muted">{{ex.endTime}}</small>
+												</p>
+												<a ng-click="resumeExercise(ex.id,ex.exercise.id)" href=""
+													class="btn btn-sm btn-success">Resume Exercise</a> <a
+													ng-click="stopExercise(ex.id)" href=""
+													class="btn btn-sm btn-primary">Mark Completed</a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div ng-show="runningInstances.length == 0">
+							<img class="emptyExercises" src="/assets/img/emptyExercises.png" />
+							<p>You don't have any running exercise.</p>
+							<p>
+								Browse available <a href="#exercises">exercises</a>.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- *****************************************************************************************************************
+	LEADERBOARD
+	 ***************************************************************************************************************** -->
+			<div class="standalone ng-cloak" id="leaderboard"
+				ng-show="visibility.leaderboard" ng-controller="leaderboard">
+				<div class="container">
+					<div class="row centered">
+						<h2 class="eblue">Team Leaderboard</h2>
+						<div ng-show="user.team.name">
+							<span class="teamBadge marginTop20 badge inlineBlock">{{user.team.name}}</span>
+							<table at-table at-paginated at-list="leaderboardData"
+								at-config="leaderboardtableconfig"
+								class="table marginTop20 table-striped leaderboardTable">
+								<thead>
+								</thead>
+								<tbody>
+									<tr>
+										<td at-attribute="user" at-sortable at-title="User">{{item.user}}</td>
+										<td at-attribute="country.name" at-sortable at-title="Country">{{item.country.name}}</td>
+										<td at-initial-sorting="desc" at-attribute="score" at-sortable
+											at-title="Score">{{item.score}}</td>
+										<td at-initial-sorting="desc" at-attribute="exercisesRun" at-sortable
+											at-title="Run Exercises">{{item.exercisesRun}}</td>
+									</tr>
+								</tbody>
+							</table>
+							<at-pagination at-list="leaderboardData"
+								at-config="leaderboardtableconfig"></at-pagination>
+						</div>
+						<div ng-show="!user.team.name">
+							<img class="emptyTeam" src="/assets/img/emptyTeam.png" />
+							<p>You are not part of a team.</p>
+							<p>
+								If you think this is not correct, please contact <a
+									href="mailto:support@remediatetheflag.com">support</a>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- *****************************************************************************************************************
+    HISTORY
+	 ***************************************************************************************************************** -->
+			<div class="standalone ng-cloak" id="history"
+				ng-show="visibility.history" ng-controller="history">
+				<div class="container">
+					<div class="row ">
+						<h2 class="eblue centered">Completed Exercises</h2>
+						<div ng-show="masterCompletedReviews.length>0">
+							<div class="tableFilter">
+								<p class="lead inlineBlock">Filter:</p>
+								<input placeholder="Type to filter..."
+									ng-change="updateFilteredList()" ng-model="query"
+									class="queryInput">
+							</div>
+							<div ng-show="cancelledExercisesInHistory" class="centered toggleHideCancelled">
+								<toggle onstyle="btn-primary" ng-model="hideCancelled"
+									on="Hide Cancelled" off="Show Cancelled"></toggle>
+							</div>
+							<table at-table at-paginated at-list="filteredCompletedList"
+								at-config="tableconfig" class="table table-hover">
+								<thead>
+									<tr>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-class="{active: $index===selectedResultRow}">
+										<td at-initial-sorting="desc" width="65" at-title=" # "
+											at-sortable at-implicit at-attribute="id"></td>
+										<td at-title="Exercise" at-sortable at-implicit
+											at-attribute="title"></td>
+										<td at-title="Topics" at-sortable at-implicit
+											at-attribute="exercise.subtitle"></td>
+										<td at-title="Tech." class="centered" at-sortable at-implicit
+											at-attribute="technology"></td>
+										<td at-attribute="startTime" at-title="Date / Duration">{{getDateFormat(item.startTime)}}
+											({{getDurationInterval(item.startTime,item.endTime,item.duration)}})</td>
+										<td at-attribute="score.result" at-title="Score" class="right"
+											ng-class="getResultsScoreClass(item.score.result,item.score.total, item.status)">
+											{{item.score.result > -1 && item.score.result || ' ?
+											'}}/{{item.score.total}}</td>
+										<td at-title="Status" width="85" at-sortable
+											at-attribute="status">{{getExerciseStatusString(item.status)}}</td>
+										<td>
+											<button ng-click="showResultsFor(item.id,$index)"
+												class="btn btn-primary outline">View Results</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<at-pagination at-list="filteredCompletedList"
+								at-config="tableconfig"></at-pagination>
+							<p class="lead tableFilterResults">Showing
+								{{filteredCompletedList.length}} out of
+								{{masterCompletedReviews.length}} {{
+								masterCompletedReviews.length==1 && 'result' || 'results'}}.</p>
+						</div>
+						<div class="centered" ng-show="masterCompletedReviews.length<=0">
+							<img class="emptyHistory" src="/assets/img/emptyHistory.png" />
+							<p>You don't have any results.</p>
+							<p>
+								Complete an <a href="#exercises">exercise</a> to check your
+								results.
+							</p>
+						</div>
+					</div>
+					<div ng-show="showResults" class="row ">
+						<div id="showCompletedResults" class="row ">
+							<div class="row">
+								<div class="col-md-12">
+									<h2 class="eblue centered">Exercise Flags</h2>
+									<table class="table table-striped">
+										<thead>
+											<tr>
+												<th>Flag Name</th>
+												<th>Flag Type</th>
+												<th>Flag Description</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat-start="f in userHistoryDetails.exercise.flags">
+												<td rowspan="2">{{f.title}}</td>
+												<td>{{f.flagList[0].type}}</td>
+												<td>{{f.flagList[0].instructions}}</td>
+											</tr>
+											<tr ng-repeat-end>
+												<td>{{f.flagList[1].type}}</td>
+												<td>{{f.flagList[1].instructions}}</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div ng-show="userHistoryDetails.usedHints.length>0" class="row">
+								<div class="col-md-12">
+									<h2 class="eblue centered">Used Hints</h2>
+									<table class="table">
+										<thead>
+											<tr>
+												<th>#</th>
+												<th>Hint</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="h in userHistoryDetails.usedHints">
+												<td>#{{$index +1}}</td>
+												<td>{{h.text}}</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div id="infoArea" class="row">
+								<h2 class="eblue centered">Results</h2>
+
+								<div class="col-md-10">
+									<table id="resultTable" class="table">
+										<thead>
+											<tr>
+												<th>Flag</th>
+												<th class="width12">Result</th>
+												<th>Comment</th>
+												<th></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat-start="r in userHistoryDetails.results"
+												ng-if="$first" big>
+												<td>{{r.name}}</td>
+												<td class="width12" ng-class="getStatusClass(r.status)">{{getStatusString(r.status)}}</td>
+												<td>{{r.verified && r.comment || 'Pending Review'}}</td>
+												<td class="alignVH"
+													rowspan="{{userHistoryDetails.results.length}}"><button
+														ng-disabled="!r.verified"
+														ng-click="downloadSolutions(userHistoryDetails.id)"
+														class="btn btn-secondary">
+														Download <br /> Exercise Solution
+													</button></td>
+											</tr>
+											<tr ng-repeat-end ng-if="!$first">
+												<td>{{r.name}}</td>
+												<td class="width12" ng-class="getStatusClass(r.status)">{{getStatusString(r.status)}}</td>
+												<td>{{r.verified && r.comment || 'Pending Review'}}</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<div class="col-md-2 centered marginTop3">
+									<button ng-hide="zipError" id="viewDiffButton"
+										ng-click="toggleCodeDiff()"
+										class="btn btn-block btn-success outline historyButtons">
+										Show/Hide<br /> Source Code Diff
+									</button>
+									<button ng-hide="zipError" id="viewLogsButton"
+										ng-click="toggleInstanceLogs()"
+										class="btn btn-block btn-primary outline historyButtons">
+										Show/Hide <br />Instance Logs
+									</button>
+									<button ng-click="leaveFeedbackModal()"
+										class="btn btn-block btn-info outline historyButtons">
+										Leave<br /> Feedback
+									</button>
+								</div>
+							</div>
+							<div id="diffDiv" class="row" ng-show="showCodeDiff">
+								<div class="col-md-12">
+									<h3 class="eblue">Source Code Diff:</h3>
+									<div ng-show="emptyDiff">Source code diff is not
+										available.</div>
+									<div ng-non-bindable id="targetDiv"></div>
+								</div>
+							</div>
+							<div id="logArea" class="row" ng-show="showLogs">
+								<div class="col-md-12">
+									<h3 class="eblue">Exercise Logs:</h3>
+									<div ng-show="emptyLog">Logs are not available.</div>
+									<div ng-non-bindable id="rtfLogText"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div id="leaveFeedbackModal" class="modal fade" tabindex="-1"
+						role="dialog">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal"
+										aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+									<h4 class="modal-title">Feedback</h4>
+								</div>
+								<div class="modal-body">
+									<p class="lead">Leave feedback about the exercise.</p>
+									<textarea ng-model="feedbackMessage" class="feedbackTextArea"></textarea>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Close</button>
+									<button type="button" ng-click="doLeaveFeedback()"
+										class="btn btn-primary">Send</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- *****************************************************************************************************************
+	 ACHIEVEMENTS
+	 ***************************************************************************************************************** -->
+			<div class="standalone ng-cloak" id="achievements"
+				ng-show="visibility.achievements" ng-controller="achievements">
+			<div class="container">
+					<div class="row centered">
+						
+						<div class="inlineBlock marginRight40">
+						<h2 class="eblue">Total Score</h2>
+						<span class="badge scoreBadge">{{achievementsData.score}}</span>
+						</div>
+						<div class="inlineBlock marginLeft40">
+						<h2 class="eblue">Run Exercises</h2>
+						<span class="badge scoreBadge">{{achievementsData.exercisesRun}}</span>
+						</div>
+						<h2 class="eblue marginTop25">Trophies</h2>
+						<div ng-repeat="ta in trophies" class="card-deck-wrapper">
+							<div class="card-deck">
+								<div ng-repeat="t in ta"
+									ng-class="getTechnologyClass(t.technology)" class="card">
+									<div class="card-header">
+										{{t.trophy.technology}}
+									</div>
+									<img class="card-img-top height75" ng-src="{{t.trophy.img}}">
+									<div class="card-block">
+										<h4 class="card-title">{{t.trophy.name}}</h4>
+										<p class="card-text">{{t.trophy.description}}</p>
+										<p class="card-text">
+											<small class="text-muted">{{t.date}}</small>
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div ng-show="emptyTrophy">
+							<img class="emptyTrophy" src="/assets/img/emptyTrophy.png" />
+							<p>You don't have any trophies.</p>
+							<p>
+								Start an <a href="#exercises">exercise</a> and gain your first
+								throphy.
+							</p>
+						</div>
+						<div class="row" ng-show="scorePerExercises.data[0].length>0">
+							<h2 class="eblue marginTop25">Stats</h2>
+							<h4 class="centered marginTop30 marginBottom20">Remediation
+								Rate and Duration History by Issue</h4>
+							<div class="col-md-10 col-md-offset-1">
+								<canvas id="remediatedScoreHistory" class="chart chart-line"
+									chart-data="scorePerExercises.data"
+									chart-labels="scorePerExercises.labels"
+									chart-series="scorePerExercises.series"
+									chart-dataset-override="scorePerExercises.datasetOverride"
+									chart-options="scorePerExercises.options">
+							</canvas>
+							</div>
+						</div>
+						<div class="row" ng-show="remediationRatePerCategory.length>0">
+							<h4 class="centered marginTop30 marginBottom20">Issue
+								Category Remediation Rate Breakdown</h4>
+							<div class="col-md-3 marginBottom10"
+								ng-repeat="c in remediationRatePerCategory">
+								<canvas width="250%" height="310%" class="chart chart-doughnut"
+									chart-data="c.data" chart-options="c.options"
+									chart-labels="c.labels">
+									</canvas>
+							</div>
+						</div>
+						<div class="row" ng-show="remediatedPerCategory.data[0].length>0">
+							<h4 class="centered marginTop30 marginBottom20">Duration by
+								Issue Category</h4>
+							<div class="col-md-10 col-md-offset-1">
+								<canvas id="remediatedPerCategory" class="chart chart-bar"
+									chart-data="remediatedPerCategory.data"
+									chart-series="remediatedPerCategory.series"
+									chart-options="remediatedPerCategory.options"
+									chart-labels="remediatedPerCategory.labels">
+								</canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- *****************************************************************************************************************
+	 SETTINGS
+	 ***************************************************************************************************************** -->
+			<div class="standalone ng-cloak" id="settings"
+				ng-show="visibility.settings" ng-controller="settings">
+				<div class="container">
+					<div class="row centered">
+						<h2 class="eblue">Settings</h2>
+						<form class="left" name="userProfileForm" novalidate>
+							<div class="row">
+								<div class="col-md-3">
+									<h4>User Profile</h4>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-3">
+									<h5>First Name</h5>
+									<input class="fInput" required type="text"
+										ng-model="user.firstName">
+								</div>
+								<div class="col-md-3">
+									<h5>Last Name</h5>
+									<input class="fInput" required type="text"
+										ng-model="user.lastName">
+								</div>
+								<div class="col-md-3">
+									<h5>Email</h5>
+									<input class="fInput" required type="email"
+										ng-model="user.email">
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-3">
+									<h5>Country</h5>
+									<ol class="nya-bs-select" required ng-model="user.country"
+										data-size="20" data-live-search="true">
+										<li nya-bs-option="ct in countries | orderBy:'name'"><a>
+												{{ct.name}} <span class="glyphicon glyphicon-ok check-mark"></span>
+										</a></li>
+									</ol>
+								</div>
+								<!-- <div class="col-md-3">
+										<h5>Time Zone</h5>
+										<ol class="nya-bs-select" required ng-model="user.timeZone"
+											data-size="20" data-live-search="true">
+											<li nya-bs-option="tz in timeZones | orderBy:'timeFromGMT'">
+												<a> {{tz.name}} (GMT {{number > 0 ? '+' :
+													''}}{{tz.timeFromGMT}}) <span
+													class="glyphicon glyphicon-ok check-mark"></span>
+											</a>
+											</li>
+										</ol>
+									</div> -->
+							</div>
+							<div class="row marginTop20">
+								<div class="col-md-3">
+									<button type="button"
+										ng-disabled="userProfileForm.$error.required && !userProfileForm.$valid"
+										ng-click="updateUserProfile()" class="btn btn-success">Save</button>
+								</div>
+							</div>
+						</form>
+						<form autocomplete="off" class="left" name="userPasswordForm"
+							novalidate>
+							<div class="row marginTop20">
+								<div class="col-md-3">
+									<h4>Change Password</h4>
+								</div>
+							</div>
+							<div class="row ">
+								<div class="col-md-3">
+									<h5>Old Password</h5>
+									<input autocomplete="off" class="fInput" name="oldPassword"
+										required ng-model="settings.oldPassword" type="password">
+								</div>
+								<div class="col-md-3">
+									<h5>New Password</h5>
+									<input autocomplete="off" complex-password name="newPassword"
+										class="fInput" required type="password"
+										ng-model="settings.newPassword">
+									<div
+										ng-show="!userPasswordForm.$pristine && !userPasswordForm.newPassword.$valid">Use
+										at least 8 characters including three of four groups in:
+										numbers, symbols, capital letters, and lower-case letters.</div>
+								</div>
+								<div class="col-md-3">
+									<h5>Repeat New Password</h5>
+									<input autocomplete="off" class="fInput" type="password"
+										name="newPasswordRepeat" ng-model="settings.newPasswordRepeat"
+										required compare-to="settings.newPassword" />
+									<div
+										ng-show="!userPasswordForm.$pristine && !userPasswordForm.newPasswordRepeat.$valid">These
+										password don't match. Try again?</div>
+								</div>
+							</div>
+							<div class="row marginTop20">
+								<div class="col-md-3">
+									<button type="button"
+										ng-disabled="userPasswordForm.$error.required || !userPasswordForm.newPasswordRepeat.$valid || !userPasswordForm.newPassword.$valid"
+										ng-click="updateUserPassword()" class="btn btn-primary">Change</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!-- *****************************************************************************************************************
+	 CURRENT EXERCISE
+	 ***************************************************************************************************************** 
+-->
+		</div>
+		<!-- *****************************************************************************************************************
+	 FOOTER
+	 ***************************************************************************************************************** -->
+		<div id="footerwrap">
+			<div class="container">
+				<p class="center">RTF - 2018</p>
+				<!-- <div class="row">
+					<div class="col-lg-8">
+						<h4>About</h4>
+						<div class="hline-w"></div>
+						<p>RTF is an open source platform to teach developers about
+							application security topics.</p>
+					</div>
+					<div class="col-lg-4">
+						<h4>Contacts</h4>
+						<div class="hline-w"></div>
+						<a class="emailContact"
+							href="mailto:support@remediatetheflag.com ">
+							support@remediatetheflag.com </a>
+					</div>
+				</div>-->
+			</div>
+		</div>
+	</div>
+	<div class="waitLoader"></div>
+	<script src="/assets/js/jquery.min.js"></script>
+	<script src="/assets/js/bootstrap.min.js"></script>
+	<script src="/assets/js/angular.min.js"></script>
+	<script src="/assets/js/angular-route.min.js"></script>
+	<script src="/assets/js/nya-bs-select.min.js"></script>
+	<script src="/assets/js/highlight.min.js"></script>
+	<script src="/assets/js/diff2html.min.js"></script>
+	<script src="/assets/js/diff2html-ui.min.js"></script>
+	<script src="/assets/js/jszip.min.js"></script>
+	<script src="/assets/js/jszip-utils.js"></script>
+	<script src="/assets/js/pnotify.js"></script>
+	<script src="/assets/js/pnotify.confirm.js"></script>
+	<script src="/assets/js/pnotify.buttons.js"></script>
+	<script src="/assets/js/angular-pnotify.js"></script>
+	<script src="/assets/js/moment.min.js"></script>
+	<script src="/assets/js/angular-table.min.js"></script>
+	<script src="/assets/js/angular-bootstrap-toggle.min.js"></script>
+	<script src="/assets/js/angular-notification-icons.min.js"></script>
+	<script src="/assets/js/chart.min.js"></script>
+	<script src="/assets/js/Chart.PieceLabel.min.js"></script>
+	<script src="/assets/js/angular-chart.min.js"></script>
+	<script src="/user/js/user.js"></script>
+	<!-- 	<script type="text/javascript">
+			var _paq = _paq || [];
+			_paq.push([ 'trackPageView' ]);
+			_paq.push([ 'enableLinkTracking' ]);
+			(function() {
+				var u = "https://analytics.remediatetheflag.com/piwik/";
+				_paq.push([ 'setTrackerUrl', u + 'piwik.php' ]);
+				_paq.push([ 'setSiteId', '1' ]);
+				var d = document, g = d.createElement('script'), s = d
+						.getElementsByTagName('script')[0];
+				g.type = 'text/javascript';
+				g.async = true;
+				g.defer = true;
+				g.src = u + 'piwik.js';
+				s.parentNode.insertBefore(g, s);
+			})();
+		</script> -->
+</body>
+</html>
