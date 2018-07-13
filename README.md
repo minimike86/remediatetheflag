@@ -33,7 +33,7 @@ Candidates manually find, exploit, and manually remediate the code of a vulnerab
 ### AppSec Europe 2018 ###
 ![AppSecEU](docs/img/appseceu.png)
 
-Slides: COMING SOON! 
+Slides: [AppSecEU 2018 - Remediate The Flag](docs/AppSecEU18_RemediateTheFlag.pdf) 
 
 
 
