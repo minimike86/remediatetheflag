@@ -26,7 +26,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import com.google.gson.annotations.Expose;
@@ -65,8 +64,7 @@ public class ExerciseResult {
 
 	@SerializedName("comment")
 	@Expose
-	@Lob
-	@Column(name = "comment")
+	@Column(name = "comment", columnDefinition = "LONGTEXT")
 	private String comment;
 
 	@SerializedName("score")

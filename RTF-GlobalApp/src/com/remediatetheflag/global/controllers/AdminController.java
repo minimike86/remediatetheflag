@@ -62,6 +62,61 @@ public class AdminController extends ActionsController {
 			}
 					);
 		}});
+		type2action.put("updateExercise", com.remediatetheflag.global.actions.auth.management.admin.UpdateExerciseAction.class);
+		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.UpdateExerciseAction.class, new HashMap<String, Class[]>() {{
+			put(Constants.ACTION_PARAM_ID, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_TOPICS, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_DIFFICULTY, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_TITLE, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_TYPE, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_AUTHOR, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_DESCRIPTION, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_STATUS, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+			put(Constants.ACTION_PARAM_TECHNOLOGY, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_DURATION, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+			put(Constants.ACTION_PARAM_SCORE, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorInteger.class
+			}
+					);
+			put(Constants.ACTION_PARAM_TROPHY_TITLE, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_TROPHY_DESCRIPTION, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+		}});
 		type2action.put("addExercise", com.remediatetheflag.global.actions.auth.management.admin.AddExerciseAction.class);
 		type2fieldValidator.put(com.remediatetheflag.global.actions.auth.management.admin.AddExerciseAction.class, new HashMap<String, Class[]>() {{
 			put(Constants.ACTION_PARAM_TOPICS, new Class[]{
@@ -73,6 +128,14 @@ public class AdminController extends ActionsController {
 			}
 					);
 			put(Constants.ACTION_PARAM_TITLE, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_TYPE, new Class[]{
+					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
+			}
+					);
+			put(Constants.ACTION_PARAM_AUTHOR, new Class[]{
 					com.remediatetheflag.global.actions.validators.ValidatorStringNotEmpty.class
 			}
 					);

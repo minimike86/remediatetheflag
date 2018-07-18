@@ -44,7 +44,7 @@ public class GetAvailableExerciseDetailsAction extends IAction{
 		Integer idExercise = jsonElement.getAsInt();
 		AvailableExercise exercise =  hpc.getAvailableExerciseDetails(idExercise);
 		if(null!=exercise)
-			MessageGenerator.sendExerciseInfoMessage(exercise,response);
+			MessageGenerator.sendExerciseInfoMessageWithHints(exercise,response);
 		else{
 			MessageGenerator.sendErrorMessage("NotFound", response);
 			User user = (User) request.getSession().getAttribute(Constants.ATTRIBUTE_SECURITY_CONTEXT);

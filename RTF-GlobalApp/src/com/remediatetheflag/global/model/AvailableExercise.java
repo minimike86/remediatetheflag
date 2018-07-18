@@ -34,7 +34,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
@@ -73,11 +72,15 @@ public class AvailableExercise {
 	@SerializedName("subtitle")
 	@Expose
 	private String subtitle;
+	
+	@Column(name = "author")
+	@SerializedName("author")
+	@Expose
+	private String author;
 
-	@Column(name = "description")
+	@Column(name = "description", columnDefinition = "LONGTEXT")
 	@SerializedName("description")
 	@Expose
-	@Lob
 	private String description;
 
 	@Column(name = "score")
@@ -385,6 +388,14 @@ public class AvailableExercise {
 
 	public void setStatus(AvailableExerciseStatus status) {
 		this.status = status;
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
 	}
 
 }

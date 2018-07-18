@@ -26,7 +26,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import com.google.gson.annotations.Expose;
@@ -43,36 +42,29 @@ public class Notification {
 	@Expose
 	private Integer idNotification;
 
-	@Column(name="text")
+	@Column(name="text", columnDefinition = "LONGTEXT")
 	@SerializedName("text")
 	@Expose
-	@Lob
 	private String text;
 	
-	@Column(name="link")
+	@Column(name="link", columnDefinition = "LONGTEXT")
 	@SerializedName("link")
 	@Expose
-	@Lob
 	private String link;
 	
 	@Column(name = "idUser")
-	@SerializedName("idUser")
 	private Integer idUser;
 	
 	@Column(name = "userRead")
-	@SerializedName("userRead")
 	private Boolean userRead;
 
 	@Column(name = "dateStart")
-	@SerializedName("dateStart")
 	private Date dateStart;
 
 	@Column(name = "dateEnd")
-	@SerializedName("dateEnd")
 	private Date dateEnd;
 	
 	@Column(name = "dateRead")
-	@SerializedName("dateRead")
 	private Date dateRead;
 
 	public Integer getId() {

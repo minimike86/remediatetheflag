@@ -46,7 +46,7 @@ public enum AvailableExerciseType {
 		this.statusCode = statusCode;
 	}
 
-	public AvailableExerciseType getNameFromStatusCode(Integer statusCode){
+	public static AvailableExerciseType getNameFromStatusCode(Integer statusCode){
 		for (AvailableExerciseType status :AvailableExerciseType.values()) {
 			if (statusCode==status.getName()) {
 				return status;

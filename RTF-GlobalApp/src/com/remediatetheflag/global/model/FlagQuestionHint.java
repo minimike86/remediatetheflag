@@ -42,7 +42,7 @@ public class FlagQuestionHint {
 	
 	@SerializedName("text")
 	@Expose
-	@Column(name="text")
+	@Column(name="text", columnDefinition = "LONGTEXT")
 	private String text;
 
 	public String getText() {

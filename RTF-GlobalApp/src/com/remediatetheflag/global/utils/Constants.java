@@ -146,11 +146,11 @@ public class Constants {
 		public static final String ACTION_PARAM_INFO_LIST = "infoList";
 		public static final String ACTION_PARAM_RESOURCE_LIST = "resources";
 		public static final String ACTION_PARAM_CATEGORY = "category";
-		public static final String ACTION_PARAM_FLAG_QUESTIONS = "questions";
+		public static final String ACTION_PARAM_FLAG_QUESTIONS = "flagList";
 	
 		public static final String ACTION_PARAM_TYPE = "type";
 		public static final String ACTION_PARAM_SELF_CHECK_AVAILABLE = "selfCheckAvailable";
-		public static final String ACTION_PARAM_SELF_CHECK = "selfCheck";
+		public static final String ACTION_PARAM_SELF_CHECK = "selfCheckName";
 		public static final String ACTION_PARAM_INSTRUCTIONS = "instructions";
 		public static final String ACTION_PARAM_HINT_AVAILABLE = "hintAvailable";
 		public static final String ACTION_PARAM_HINT = "hint";
@@ -159,5 +159,6 @@ public class Constants {
 		public static final String ACTION_PARAM_URL = "url";
 		
 		public static final String CHARSET = "UTF-8";
+		public static final String ACTION_PARAM_AUTHOR = "author";
 
 }

@@ -241,6 +241,28 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		});
 
 	}
+	this.updateExercise = function(obj){
+
+		obj.action = 'updateExercise';
+
+		var req = {
+				method: 'POST',
+				url: '/management/admin/handler',
+				data: obj,
+		}
+		$http(req).then(function successCallback(response) {
+			if(response.data.result=="success"){
+				notificationService.success('Exercise updated.');
+				$rootScope.$broadcast('exerciseUpdated:updated',response.data);
+			}
+			else
+				notificationService.notice('Updated failed, please try again.');
+
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+
+	}
 
 	this.addOrganization = function(obj){
 
@@ -1845,7 +1867,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 
 			return;
 		}
-		
+
 		console.log('updating data...')
 
 		server.getTeams();
@@ -3215,20 +3237,25 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	$scope.tmpNewExercise.topics = "";
 	$scope.tmpNewExercise.title = "";
 	$scope.tmpNewExercise.score = ""; 
+	$scope.tmpNewExercise.author = ""; 
+	$scope.tmpNewExercise.type = ""; 
+
 	$scope.tmpNewExercise.trophyTitle = ""; 
 	$scope.tmpNewExercise.trophyDescription = ""; 
 	$scope.tmpNewExercise.resources = []
+	$scope.showSolutionFilePicker = true;
+	$scope.showReferenceFilePicker = true;
 
 	$scope.tmpResourceUrl = "";
 	$scope.tmpResourceTitle = "";
 	$scope.tmpRemFlag = {};
-	$scope.tmpRemFlag.selfCheck = "";
+	$scope.tmpRemFlag.selfCheckName = "";
 	$scope.tmpRemFlag.selfCheckAvailable = false;
 	$scope.tmpRemFlag.hint = "";
 	$scope.tmpRemFlag.hintAvailable  = false;
 	$scope.tmpRemFlag.instructions = "";
 	$scope.tmpExpFlag = {};
-	$scope.tmpExpFlag.selfCheck = "";
+	$scope.tmpExpFlag.selfCheckName = "";
 	$scope.tmpExpFlag.selfCheckAvailable = false;
 	$scope.tmpExpFlag.hint = "";
 	$scope.tmpExpFlag.hintAvailable  = false;
@@ -3238,6 +3265,7 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	$scope.tmpInfoFile = {};
 	$scope.tmpInfoTitle = "";
 
+	$rootScope.exportInfoListImages = [];
 	$scope.exerciseNameAvailable = true;
 
 	$scope.isExerciseNameAvailable = function(){
@@ -3279,6 +3307,8 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	$scope.exerciseStatusList = ["AVAILABLE","UPDATED","COMING SOON","INACTIVE"]
 	$scope.difficultyLevelList = ["Easy","Moderate","Hard"];
 	$scope.technologyList = ["Java","NodeJS","C/C++","ASP.NET","Python","Ruby","Golang"];
+	$scope.exerciseTypes = ["TRAINING","CHALLENGE","BOTH"]
+
 	$scope.showAddExerciseModal = function(){
 		$scope.saveFlow = false;
 		$('#addNewExerciseModal').modal('show');
@@ -3301,6 +3331,80 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 			}
 	}	
 
+	$scope.updateExercise = function(){
+
+		if(Object.keys($scope.tmpNewExercise.referenceFile).length==0) {
+			notificationService.notice('Please provide a reference file.');
+			return;
+		}
+		if(Object.keys($scope.tmpNewExercise.solutionFile).length==0) {
+			notificationService.notice('Please provide a solution file.');
+			return;
+		}
+		if($scope.tmpNewExercise.infoList.length==0){
+			notificationService.notice('Please define at list one exercise info.');
+			return;
+		}
+		if($scope.tmpNewExercise.flags.length==0){
+			notificationService.notice('Please define at list one exercise flag.');
+			return;
+
+		}
+		if($scope.tmpNewExercise.difficulty == ""){
+			notificationService.notice('Please provide exercise\'s difficulty.');
+			return;
+		}
+		if($scope.tmpNewExercise.status == ""){
+			notificationService.notice('Please provide exercise\'s status.');
+			return;
+		}
+		if($scope.tmpNewExercise.technology == ""){
+			notificationService.notice('Please provide exercise\'s technology.');
+			return;
+		}
+		if($scope.tmpNewExercise.duration == ""){
+			notificationService.notice('Please provide exercise\'s duration.');
+			return;
+		}
+		if($scope.tmpNewExercise.author == ""){
+			notificationService.notice('Please provide exercise\'s author.');
+			return;
+		}
+		if($scope.tmpNewExercise.type == ""){
+			notificationService.notice('Please provide exercise\'s type.');
+			return;
+		}
+		if($scope.tmpNewExercise.description == ""){
+			notificationService.notice('Please provide exercise\'s description.');
+			return;
+		}
+		if($scope.tmpNewExercise.topics == ""){
+			notificationService.notice('Please provide exercise\'s topics.');
+			return;
+		}
+		if($scope.tmpNewExercise.title == ""){
+			notificationService.notice('Please provide exercise\'s title.');
+			return;
+		}
+		if($scope.tmpNewExercise.score == ""){
+			notificationService.notice('Please provide exercise\'s score.');
+			return;
+		}
+		if($scope.tmpNewExercise.trophyTitle == ""){
+			notificationService.notice('Please provide trophy\'s title.');
+			return;
+		}
+		if($scope.tmpNewExercise.trophyDescription == ""){
+			notificationService.notice('Please provide trophy\'s description.');
+			return;
+		}
+
+		$scope.tmpNewExercise.status = getStatusCodeFromText($scope.tmpNewExercise.status)
+		server.updateExercise($scope.tmpNewExercise);
+
+	}
+
+
 	$scope.addNewExercise = function(){
 
 
@@ -3322,46 +3426,53 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 
 		}
 		if($scope.tmpNewExercise.difficulty == ""){
-			notificationService.notice('Please provide exercise difficulty.');
+			notificationService.notice('Please provide exercise\'s difficulty.');
 			return;
 		}
 		if($scope.tmpNewExercise.status == ""){
-			notificationService.notice('Please provide exercise status.');
+			notificationService.notice('Please provide exercise\'s status.');
 			return;
 		}
 		if($scope.tmpNewExercise.technology == ""){
-			notificationService.notice('Please provide exercise technology.');
+			notificationService.notice('Please provide exercise\'s technology.');
 			return;
 		}
 		if($scope.tmpNewExercise.duration == ""){
-			notificationService.notice('Please provide exercise duration.');
+			notificationService.notice('Please provide exercise\'s duration.');
+			return;
+		}
+		if($scope.tmpNewExercise.author == ""){
+			notificationService.notice('Please provide exercise\'s author.');
+			return;
+		}
+		if($scope.tmpNewExercise.type == ""){
+			notificationService.notice('Please provide exercise\'s type.');
 			return;
 		}
 		if($scope.tmpNewExercise.description == ""){
-			notificationService.notice('Please provide exercise description.');
+			notificationService.notice('Please provide exercise\'s description.');
 			return;
 		}
 		if($scope.tmpNewExercise.topics == ""){
-			notificationService.notice('Please provide exercise topics.');
+			notificationService.notice('Please provide exercise\'s topics.');
 			return;
 		}
 		if($scope.tmpNewExercise.title == ""){
-			notificationService.notice('Please provide exercise title.');
+			notificationService.notice('Please provide exercise\'s title.');
 			return;
 		}
 		if($scope.tmpNewExercise.score == ""){
-			notificationService.notice('Please provide exercise score.');
+			notificationService.notice('Please provide exercise\'s score.');
 			return;
 		}
 		if($scope.tmpNewExercise.trophyTitle == ""){
-			notificationService.notice('Please provide trophy title.');
+			notificationService.notice('Please provide trophy\'s title.');
 			return;
 		}
 		if($scope.tmpNewExercise.trophyDescription == ""){
-			notificationService.notice('Please provide trophy description.');
+			notificationService.notice('Please provide trophy\'s description.');
 			return;
 		}
-
 
 		$scope.tmpNewExercise.status = getStatusCodeFromText($scope.tmpNewExercise.status)
 		server.addExercise($scope.tmpNewExercise);
@@ -3375,29 +3486,96 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	$scope.loadedExerciseFile = {}
 	$scope.showLoadExerciseModal = function(){
 		$('#addNewExerciseModal').modal('hide');
-
+		$scope.loadedExerciseFile = null;
 		$('#loadExerciseModal').modal('show');
 	}
+	$scope.loadExercise = function(){
+		if( null == $scope.loadedExerciseFile || undefined == $scope.loadedExerciseFile.data || $scope.loadedExerciseFile.data.length == 0){
+			notificationService.notice('Please provide a valid exercise file.');
+			$scope.loadedExerciseFile = null;
+			$('#loadExerciseModal').modal('hide');
+			return;
+		}
+		$scope.saveFlow = false;
 
-	$scope.editExercise = function(id){
+		var loadedJSON = JSON.parse(atob($scope.loadedExerciseFile.data.replace("data:application/json;base64,","")))
+		$('#loadExerciseModal').modal('hide');
+
+		$scope.tmpNewExercise.difficulty = loadedJSON.difficulty;
+		$scope.tmpNewExercise.status = loadedJSON.status;
+		$scope.tmpNewExercise.technology = loadedJSON.technology;
+		$scope.tmpNewExercise.duration = loadedJSON.duration;
+		$scope.tmpNewExercise.description =loadedJSON.description;
+		$scope.tmpNewExercise.topics = loadedJSON.topics;
+		$scope.tmpNewExercise.type = loadedJSON.type || "BOTH";
+		$scope.tmpNewExercise.author = loadedJSON.author || "RTF";
+		$scope.tmpNewExercise.title = loadedJSON.title;
+		if(null!=$scope.tmpNewExercise.title)
+			$scope.isExerciseNameAvailable();
+		$scope.tmpNewExercise.score = loadedJSON.score;
+		$scope.tmpNewExercise.trophyTitle =loadedJSON.trophyTitle;  
+		$scope.tmpNewExercise.trophyDescription = loadedJSON.trophyDescription;
+		$scope.tmpNewExercise.infoList = loadedJSON.infoList;
+		for(var i in $scope.tmpNewExercise.infoList){
+			if($scope.tmpNewExercise.infoList.hasOwnProperty(i)){
+				var tmpImg = $scope.tmpNewExercise.infoList[i].image;
+				$scope.tmpNewExercise.infoList[i].image = {};
+				$scope.tmpNewExercise.infoList[i].image.data = tmpImg;
+			}
+		}
+		$scope.tmpNewExercise.flags = loadedJSON.flags;
+		$scope.tmpNewExercise.resources = [];
+		for(var i in loadedJSON.resources){
+			if(loadedJSON.resources.hasOwnProperty(i)){
+				var tmpObj = {};
+				tmpObj.title = loadedJSON.resources[i].title;
+				tmpObj.url = loadedJSON.resources[i].url;
+				$scope.tmpNewExercise.resources.push(tmpObj);
+			}
+		}
+		$scope.tmpNewExercise.referenceFile = loadedJSON.referenceFile;
+		$scope.tmpNewExercise.solutionFile = loadedJSON.solutionFile;
+		if(undefined!=$scope.tmpNewExercise.solutionFile && $scope.tmpNewExercise.solutionFile.name!=undefined)
+			$scope.showSolutionFilePicker = false;
+		if(undefined!=$scope.tmpNewExercise.referenceFile && $scope.tmpNewExercise.referenceFile.name!=undefined)
+			$scope.showReferenceFilePicker = false;
+		$scope.loadedExerciseFile = null;
+
+		$('#addNewExerciseModal').modal('show');
+	}
+
+	$scope.editExercise = function(){
 		$scope.saveFlow = true;
 
+		$scope.tmpNewExercise.id = $rootScope.exerciseDetails.id;
 		$scope.tmpNewExercise.difficulty = $rootScope.exerciseDetails.difficulty;
 		$scope.tmpNewExercise.status = $scope.getExerciseStatusString($rootScope.exerciseDetails.status).toUpperCase();
 		$scope.tmpNewExercise.technology = $rootScope.exerciseDetails.technology;
 		$scope.tmpNewExercise.duration = $rootScope.exerciseDetails.duration;
 		$scope.tmpNewExercise.description =$rootScope.exerciseDetails.description;
 		$scope.tmpNewExercise.topics = $rootScope.exerciseDetails.subtitle;
+		$scope.tmpNewExercise.type = $rootScope.exerciseDetails.exerciseType;
+		$scope.tmpNewExercise.author = $rootScope.exerciseDetails.author;
 		$scope.tmpNewExercise.title = $rootScope.exerciseDetails.title;
 		$scope.tmpNewExercise.score = $rootScope.exerciseDetails.score;
 		$scope.tmpNewExercise.trophyTitle = $rootScope.exerciseDetails.trophy.name;  
 		$scope.tmpNewExercise.trophyDescription = $rootScope.exerciseDetails.trophy.description;
 		$scope.tmpNewExercise.infoList = $rootScope.exerciseDetails.info;
+
+		var queue = [];
+		for(var i in $scope.tmpNewExercise.infoList){
+			if($scope.tmpNewExercise.infoList.hasOwnProperty(i)){
+				queue.push($scope.tmpNewExercise.infoList[i].id)
+			}
+		}	
 		$scope.tmpNewExercise.flags = $rootScope.exerciseDetails.flags;
 		for(var i in $scope.tmpNewExercise.flags){
 			if($scope.tmpNewExercise.flags.hasOwnProperty(i)){
-				$scope.tmpNewExercise.flags[i].questions = $scope.tmpNewExercise.flags[i].flagList;
-				delete $scope.tmpNewExercise.flags[i].flagList;
+				for(var j in $scope.tmpNewExercise.flags[i].flagList){
+					if($scope.tmpNewExercise.flags[i].flagList.hasOwnProperty(j)){
+						$scope.tmpNewExercise.flags[i].flagList[j].hint = $scope.tmpNewExercise.flags[i].flagList[j].hint.text;
+					}
+				}
 			}
 		}
 		$scope.tmpNewExercise.resources = [];
@@ -3409,62 +3587,93 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 				$scope.tmpNewExercise.resources.push(tmpObj);
 			}
 		}
-
-		$scope.tmpNewExercise.referenceFile = {};
-		$scope.tmpNewExercise.solutionFile = {};
-
+		server.returnPicturesInQueue(queue)
 		$('#addNewExerciseModal').modal('show');
-
 	}
 
 	$scope.$on('infoListPicturesReturned:updated', function(event,data) {
-
-		for(var j in $scope.exportExercise.infoList){
-			if($scope.exportExercise.infoList.hasOwnProperty(j)){
-				for(var i in $rootScope.exportInfoListImages){
-					if($rootScope.exportInfoListImages.hasOwnProperty(i)){
-						if($scope.exportExercise.infoList[j].id==$rootScope.exportInfoListImages[i].id){
-							$scope.exportExercise.infoList[j].image = $rootScope.exportInfoListImages[i].data;
-							break;
+		if(!$scope.saveFlow){
+			for(var j in $scope.exportExercise.infoList){
+				if($scope.exportExercise.infoList.hasOwnProperty(j)){
+					for(var i in $rootScope.exportInfoListImages){
+						if($rootScope.exportInfoListImages.hasOwnProperty(i)){
+							if($scope.exportExercise.infoList[j].id==$rootScope.exportInfoListImages[i].id){
+								$scope.exportExercise.infoList[j].image = $rootScope.exportInfoListImages[i].data;
+								break;
+							}
 						}
 					}
 				}
 			}
 		}
-
+		else{
+			for(var j in $scope.tmpNewExercise.infoList){
+				if($scope.tmpNewExercise.infoList.hasOwnProperty(j)){
+					for(var i in $rootScope.exportInfoListImages){
+						if($rootScope.exportInfoListImages.hasOwnProperty(i)){
+							if($scope.tmpNewExercise.infoList[j].id==$rootScope.exportInfoListImages[i].id){
+								$scope.tmpNewExercise.infoList[j].image = {};
+								$scope.tmpNewExercise.infoList[j].image.data = $rootScope.exportInfoListImages[i].data;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
 		server.returnExerciseReference($rootScope.exerciseDetails.id)
 	});
 
 	$scope.$on('exerciseReferenceReturned:updated', function(event,data) {
-		$scope.exportExercise.referenceFile = {}
-		$scope.exportExercise.referenceFile.name = data.name;
 		var reader = new FileReader();
 		reader.readAsDataURL(data.data); 
 		reader.onloadend = function() {
-			$scope.exportExercise.referenceFile.data = reader.result;    
-			server.returnExerciseSolutions($rootScope.exerciseDetails.id)
+			if(!$scope.saveFlow){
+				$scope.exportExercise.referenceFile = {}
+				$scope.exportExercise.referenceFile.name = data.name;
+				$scope.exportExercise.referenceFile.data = reader.result;  
+			}
+			else{
+				$scope.tmpNewExercise.referenceFile = {}
+				$scope.tmpNewExercise.referenceFile.name = data.name;
+				$scope.tmpNewExercise.referenceFile.data = reader.result;  
+				if($scope.tmpNewExercise.referenceFile.data!=undefined)
+					$scope.showReferenceFilePicker = false;
+				else
+					$scope.showReferenceFilePicker = true;
+			}
+			server.returnExerciseSolutions($rootScope.exerciseDetails.id);
 		}
 	});
 
 	$scope.$on('exerciseSolutionReturned:updated', function(event,data) {
-
-		$scope.exportExercise.solutionFile = {}
-		$scope.exportExercise.solutionFile.name = data.name;
 		var reader = new FileReader();
 		reader.readAsDataURL(data.data); 
 		reader.onloadend = function() {
 			$('.waitLoader').hide();
-
-			$scope.exportExercise.solutionFile.data = reader.result;   
-			var blob = new Blob([JSON.stringify($scope.exportExercise)], { type:"application/json;" });		
-			if (navigator.appVersion.toString().indexOf('.NET') > 0){
-				window.navigator.msSaveBlob(blob, "exercise.json");
+			if(!$scope.saveFlow){
+				$scope.exportExercise.solutionFile = {}
+				$scope.exportExercise.solutionFile.name = data.name;
+				$scope.exportExercise.solutionFile.data = reader.result;   
+				var blob = new Blob([JSON.stringify($scope.exportExercise)], { type:"application/json;" });		
+				if (navigator.appVersion.toString().indexOf('.NET') > 0){
+					window.navigator.msSaveBlob(blob, "exercise.json");
+				}
+				else{
+					var downloadLink = angular.element('<a></a>');
+					downloadLink.attr('href',window.URL.createObjectURL(blob));
+					downloadLink.attr('download', "exercise.json");
+					downloadLink[0].click();
+				}
 			}
 			else{
-				var downloadLink = angular.element('<a></a>');
-				downloadLink.attr('href',window.URL.createObjectURL(blob));
-				downloadLink.attr('download', "exercise.json");
-				downloadLink[0].click();
+				$scope.tmpNewExercise.solutionFile = {}
+				$scope.tmpNewExercise.solutionFile.name = data.name;
+				$scope.tmpNewExercise.solutionFile.data = reader.result;   
+				if($scope.tmpNewExercise.solutionFile.data!=undefined)
+					$scope.showSolutionFilePicker = false;
+				else
+					$scope.showSolutionFilePicker = true;
 			}
 		}
 	});
@@ -3472,6 +3681,7 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	$scope.exportCurrentExercise = function(){
 
 		$('.waitLoader').show();
+		$scope.saveFlow = false;
 
 		var exercise = {};
 		exercise.difficulty = $rootScope.exerciseDetails.difficulty;
@@ -3495,42 +3705,131 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		exercise.flags = $rootScope.exerciseDetails.flags;
 		for(var i in exercise.flags){
 			if(exercise.flags.hasOwnProperty(i)){
-				exercise.flags[i].questions = exercise.flags[i].flagList;
-				delete exercise.flags[i].flagList;
+				delete exercise.flags[i]["id"];
 				delete exercise.flags[i]["$$hashKey"];
-				for(var j in exercise.flags[i].questions){
-					if(exercise.flags[i].questions.hasOwnProperty(j)){
-						delete exercise.flags[i].questions[j]["$$hashKey"];
+				for(var j in exercise.flags[i].flagList){
+					if(exercise.flags[i].flagList.hasOwnProperty(j)){
+						exercise.flags[i].flagList[j].hint = exercise.flags[i].flagList[j].hint.text;
+						delete exercise.flags[i].flagList[j]["$$hashKey"];
+						delete exercise.flags[i].flagList[j]["id"];
 					}
 				}
 			}
 		}
 		exercise.resources = [];
-		for(var i in exercise.resources){
-			if(exercise.resources.hasOwnProperty(i)){
+		for(var i in $rootScope.exerciseDetails.resources){
+			if($rootScope.exerciseDetails.resources.hasOwnProperty(i)){
 				var tmpObj = {};
 				tmpObj.title = i;
 				tmpObj.url = $rootScope.exerciseDetails.resources[i];
 				exercise.resources.push(tmpObj);
 			}
 		}
-
 		$rootScope.exportInfoListImages = [];
+
 		$scope.exportExercise = exercise;
 
 		server.returnPicturesInQueue(queue)
 
 	}
 
-	$scope.loadExercise = function(){
-		$('#loadExerciseModal').modal('hide');
-		console.log($scope.loadedExerciseFile);
+	$scope.$on('exerciseUpdated:updated', function(event,data) {
+
+		server.getExerciseDetails($rootScope.exerciseDetails.id);
+		server.getAvailableExercises();
+
+		$scope.tmpNewExercise = {}
+		$scope.tmpNewExercise.id = ""
+		$scope.tmpNewExercise.author = "";
+		$scope.tmpNewExercise.type = ""
+		$scope.tmpNewExercise.referenceFile = {};
+		$scope.tmpNewExercise.solutionFile = {};
+		$scope.tmpNewExercise.difficulty = "";
+		$scope.tmpNewExercise.status = "";
+		$scope.tmpNewExercise.technology = "";
+		$scope.tmpNewExercise.duration = "";
+		$scope.tmpNewExercise.description = "";
+		$scope.tmpNewExercise.flags = []
+		$scope.tmpNewExercise.infoList = [];
+		$scope.tmpNewExercise.resources = []
+		$scope.tmpNewExercise.topics = "";
+		$scope.tmpNewExercise.title = "";
+		$scope.tmpNewExercise.score = ""; 
+		$scope.tmpNewExercise.trophyTitle = ""; 
+		$scope.tmpNewExercise.trophyDescription = ""; 
+
+		$scope.newExerciseFlagList = true;
+
+		$scope.tmpResourceUrl = "";
+		$scope.tmpResourceTitle = "";
+		$scope.tmpRemFlag = {};
+		$scope.tmpRemFlag.selfCheckName = "";
+		$scope.tmpRemFlag.selfCheckAvailable = false;
+		$scope.tmpRemFlag.hint = "";
+		$scope.tmpRemFlag.hintAvailable  = false;
+		$scope.tmpRemFlag.instructions = "";
+		$scope.tmpExpFlag = {};
+		$scope.tmpExpFlag.selfCheckName = "";
+		$scope.tmpExpFlag.selfCheckAvailable = false;
+		$scope.tmpExpFlag.hint = "";
+		$scope.tmpExpFlag.hintAvailable  = false;
+		$scope.tmpExpFlag.instructions = "";
+		$scope.tmpInfoDescription = "";
+		$scope.tmpInfoFile = {};
+		$scope.tmpInfoTitle = "";
+
+		$scope.showReferenceFilePicker = true;
+		$scope.showSolutionFilePicker = true;
+		$scope.saveFlow = false;
 
 		$('#addNewExerciseModal').modal('hide');
 
+	});
+	
+	$scope.clearExerciseModal = function(){
+		
+		$scope.tmpNewExercise = {}
+		$scope.tmpNewExercise.referenceFile = {};
+		$scope.tmpNewExercise.solutionFile = {};
+		$scope.tmpNewExercise.difficulty = "";
+		$scope.tmpNewExercise.status = "";
+		$scope.tmpNewExercise.technology = "";
+		$scope.tmpNewExercise.duration = "";
+		$scope.tmpNewExercise.description = "";
+		$scope.tmpNewExercise.flags = []
+		$scope.tmpNewExercise.infoList = [];
+		$scope.tmpNewExercise.resources = []
+		$scope.tmpNewExercise.topics = "";
+		$scope.tmpNewExercise.title = "";
+		$scope.tmpNewExercise.score = ""; 
+		$scope.tmpNewExercise.trophyTitle = ""; 
+		$scope.tmpNewExercise.trophyDescription = ""; 
+
+		$scope.newExerciseFlagList = true;
+
+		$scope.tmpResourceUrl = "";
+		$scope.tmpResourceTitle = "";
+		$scope.tmpRemFlag = {};
+		$scope.tmpRemFlag.selfCheckName = "";
+		$scope.tmpRemFlag.selfCheckAvailable = false;
+		$scope.tmpRemFlag.hint = "";
+		$scope.tmpRemFlag.hintAvailable  = false;
+		$scope.tmpRemFlag.instructions = "";
+		$scope.tmpExpFlag = {};
+		$scope.tmpExpFlag.selfCheckName = "";
+		$scope.tmpExpFlag.selfCheckAvailable = false;
+		$scope.tmpExpFlag.hint = "";
+		$scope.tmpExpFlag.hintAvailable  = false;
+		$scope.tmpExpFlag.instructions = "";
+		$scope.tmpInfoDescription = "";
+		$scope.tmpInfoFile = {};
+		$scope.tmpInfoTitle = "";
+
+		$scope.showReferenceFilePicker = true;
+		$scope.showSolutionFilePicker = true;
+		$scope.saveFlow = false;
+		
 	}
-
-
 
 
 	$scope.$on('exerciseAdded:updated', function(event,data) {
@@ -3557,13 +3856,13 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		$scope.tmpResourceUrl = "";
 		$scope.tmpResourceTitle = "";
 		$scope.tmpRemFlag = {};
-		$scope.tmpRemFlag.selfCheck = "";
+		$scope.tmpRemFlag.selfCheckName = "";
 		$scope.tmpRemFlag.selfCheckAvailable = false;
 		$scope.tmpRemFlag.hint = "";
 		$scope.tmpRemFlag.hintAvailable  = false;
 		$scope.tmpRemFlag.instructions = "";
 		$scope.tmpExpFlag = {};
-		$scope.tmpExpFlag.selfCheck = "";
+		$scope.tmpExpFlag.selfCheckName = "";
 		$scope.tmpExpFlag.selfCheckAvailable = false;
 		$scope.tmpExpFlag.hint = "";
 		$scope.tmpExpFlag.hintAvailable  = false;
@@ -3571,6 +3870,10 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		$scope.tmpInfoDescription = "";
 		$scope.tmpInfoFile = {};
 		$scope.tmpInfoTitle = "";
+
+		$scope.showReferenceFilePicker = true;
+		$scope.showSolutionFilePicker = true;
+		$scope.saveFlow = false;
 
 		$('#addNewExerciseModal').modal('hide');
 		server.getAvailableExercises();
@@ -3614,34 +3917,34 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 
 		obj.title = $scope.tmpFlagTitle;
 		obj.category = $scope.tmpFlagCategory;
-		obj.questions = [];
-		obj1.selfCheck = $scope.tmpRemFlag.selfCheck;
+		obj.flagList = [];
+		obj1.selfCheckName = $scope.tmpRemFlag.selfCheckName;
 		obj1.selfCheckAvailable = $scope.tmpRemFlag.selfCheckAvailable;
 		obj1.hint = $scope.tmpRemFlag.hint;
 		obj1.hintAvailable = $scope.tmpRemFlag.hintAvailable;
 		obj1.instructions = $scope.tmpRemFlag.instructions;
 		obj1.type = "REMEDIATION";
 
-		obj2.selfCheck = $scope.tmpExpFlag.selfCheck;
+		obj2.selfCheckName = $scope.tmpExpFlag.selfCheckName;
 		obj2.selfCheckAvailable = $scope.tmpExpFlag.selfCheckAvailable;
 		obj2.hint = $scope.tmpExpFlag.hint;
 		obj2.hintAvailable = $scope.tmpExpFlag.hintAvailable;
 		obj2.instructions = $scope.tmpExpFlag.instructions;
 		obj2.type = "EXPLOITATION";
 
-		obj.questions.push(obj1);
-		obj.questions.push(obj2);
+		obj.flagList.push(obj1);
+		obj.flagList.push(obj2);
 
 		$scope.tmpNewExercise.flags.push(obj);
 
 		$scope.newExerciseFlagList = true;
 
-		$scope.tmpRemFlag.selfCheck = "";
+		$scope.tmpRemFlag.selfCheckName = "";
 		$scope.tmpRemFlag.selfCheckAvailable = false;
 		$scope.tmpRemFlag.hint = "";
 		$scope.tmpRemFlag.hintAvailable  = false;
 		$scope.tmpRemFlag.instructions = "";
-		$scope.tmpExpFlag.selfCheck = "";
+		$scope.tmpExpFlag.selfCheckName = "";
 		$scope.tmpExpFlag.selfCheckAvailable = false;
 		$scope.tmpExpFlag.hint = "";
 		$scope.tmpExpFlag.hintAvailable  = false;

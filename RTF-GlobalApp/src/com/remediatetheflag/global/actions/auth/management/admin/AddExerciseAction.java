@@ -46,7 +46,7 @@ import com.remediatetheflag.global.persistence.HibernatePersistenceFacade;
 import com.remediatetheflag.global.utils.Constants;
 
 public class AddExerciseAction extends IAction{
-	
+
 	private HibernatePersistenceFacade hpc = new HibernatePersistenceFacade();
 
 	@Override
@@ -64,6 +64,8 @@ public class AddExerciseAction extends IAction{
 		JsonElement trophyTitleElement = json.get(Constants.ACTION_PARAM_TROPHY_TITLE);
 		JsonElement trophyDescriptionElement = json.get(Constants.ACTION_PARAM_TROPHY_DESCRIPTION);
 		JsonElement statusElement = json.get(Constants.ACTION_PARAM_STATUS);
+		JsonElement typeElement = json.get(Constants.ACTION_PARAM_TYPE);
+		JsonElement authorElement = json.get(Constants.ACTION_PARAM_AUTHOR);
 
 		AvailableExercise exercise = new AvailableExercise();
 		exercise.setDescription(descriptionElement.getAsString());
@@ -74,8 +76,19 @@ public class AddExerciseAction extends IAction{
 		exercise.setTechnology(technologyElement.getAsString());
 		exercise.setScore(scoreElement.getAsInt());
 		exercise.setStatus(AvailableExerciseStatus.getStatusFromStatusCode(statusElement.getAsInt()));
-		exercise.setExerciseType(AvailableExerciseType.BOTH);
-		
+		exercise.setAuthor(authorElement.getAsString());
+
+		AvailableExerciseType validType = null;
+		for(AvailableExerciseType t : AvailableExerciseType.values()) {
+			if(t.toString().equals(typeElement.getAsString())) {
+				validType = t;
+				break;
+			}
+		}
+		if(validType==null)
+			validType = AvailableExerciseType.BOTH;
+		exercise.setExerciseType(validType);
+
 		Trophy trophy = new Trophy();
 		trophy.setDescription(trophyDescriptionElement.getAsString());
 		trophy.setName(trophyTitleElement.getAsString());
@@ -85,53 +98,74 @@ public class AddExerciseAction extends IAction{
 		JsonElement flags = json.get(Constants.ACTION_PARAM_FLAGS_LIST);
 		JsonElement infos = json.get(Constants.ACTION_PARAM_INFO_LIST);
 		JsonElement resources = json.get(Constants.ACTION_PARAM_RESOURCE_LIST);
-		
+
 		JsonElement referenceFile = json.get(Constants.ACTION_PARAM_REFERENCE_FILE);
 		JsonObject referenceFileObj = referenceFile.getAsJsonObject();
-		byte[] tmpReferenceFile = Base64.decodeBase64(referenceFileObj.get(Constants.ACTION_PARAM_DATA).getAsString().replaceFirst("(.*);base64,", ""));
-
+		String tmpReferenceFileString = referenceFileObj.get(Constants.ACTION_PARAM_DATA).getAsString();
+		byte[] tmpReferenceFile = null;
+		try {
+			tmpReferenceFileString = tmpReferenceFileString.replaceFirst("(.*);base64,", "");
+			tmpReferenceFile = Base64.decodeBase64(tmpReferenceFileString);
+		}catch(Exception e) {
+			MessageGenerator.sendErrorMessage("referenceFileParsing", response);
+			return;
+		}
 		if(null==tmpReferenceFile || tmpReferenceFile.length==0) {
 			MessageGenerator.sendErrorMessage("referenceFileEmpty", response);
 			return;
 		}
-		
+
 		AvailableExerciseReferenceFile refFile = new AvailableExerciseReferenceFile();
 		refFile.setFile(tmpReferenceFile);
 		refFile.setFilename(referenceFileObj.get(Constants.ACTION_PARAM_NAME).getAsString());
 		exercise.setReferenceFile(refFile);
-		
+
 		JsonElement solutionFile = json.get(Constants.ACTION_PARAM_SOLUTION_FILE);
 		JsonObject solutionFileObj = solutionFile.getAsJsonObject();
-		byte[] tmpSolutioneFile = Base64.decodeBase64(solutionFileObj.get(Constants.ACTION_PARAM_DATA).getAsString().replaceFirst("(.*);base64,", ""));
-		
+		String tmpSolutionFileString = solutionFileObj.get(Constants.ACTION_PARAM_DATA).getAsString();
+		byte[] tmpSolutioneFile = null;
+		try {
+			tmpSolutionFileString = tmpSolutionFileString.replaceFirst("(.*);base64,", "");
+			tmpSolutioneFile = Base64.decodeBase64(tmpSolutionFileString);
+		}catch(Exception e) {
+			MessageGenerator.sendErrorMessage("solutioneFileParsing", response);
+			return;
+		}
 		if(null==tmpSolutioneFile || tmpSolutioneFile.length==0) {
 			MessageGenerator.sendErrorMessage("solutioneFileEmpty", response);
 			return;
 		}
-		
+
 		AvailableExerciseSolutionFile solFile = new AvailableExerciseSolutionFile();
 		solFile.setFilename(solutionFileObj.get(Constants.ACTION_PARAM_NAME).getAsString());
 		solFile.setFile(tmpSolutioneFile);
 		exercise.setSolutionFile(solFile);
-		
+
 		Map<String,String> resourceMap = new HashMap<String,String>();
 		for(JsonElement resourceElem : resources.getAsJsonArray()) {
 			JsonObject tmpResource = resourceElem.getAsJsonObject();
 			resourceMap.put(tmpResource.get(Constants.ACTION_PARAM_TITLE).getAsString(), tmpResource.get(Constants.ACTION_PARAM_URL).getAsString());
 		}
 		exercise.setResources(resourceMap);
-		
+
 		LinkedList<AvailableExerciseInfo> infoList = new LinkedList<AvailableExerciseInfo>();
 		int n = 0;
 		for(JsonElement infoElem : infos.getAsJsonArray()) {
-			JsonObject tmpFlag = infoElem.getAsJsonObject();
+			JsonObject tmpInfo = infoElem.getAsJsonObject();
 			AvailableExerciseInfo tmpExInfo = new AvailableExerciseInfo();
-			tmpExInfo.setTitle(tmpFlag.get(Constants.ACTION_PARAM_TITLE).getAsString());
-			tmpExInfo.setDescription(tmpFlag.get(Constants.ACTION_PARAM_DESCRIPTION).getAsString());
+			tmpExInfo.setTitle(tmpInfo.get(Constants.ACTION_PARAM_TITLE).getAsString());
+			tmpExInfo.setDescription(tmpInfo.get(Constants.ACTION_PARAM_DESCRIPTION).getAsString());
 			tmpExInfo.setInfoOrder(n);
-			JsonObject tmpImage = tmpFlag.get(Constants.ACTION_PARAM_IMAGE).getAsJsonObject();
-			String b64Image = tmpImage.get(Constants.ACTION_PARAM_DATA).getAsString().replaceFirst("(.*);base64,", "");
-			byte[] tmpImageFile = Base64.decodeBase64(b64Image);
+			JsonObject tmpImage = tmpInfo.get(Constants.ACTION_PARAM_IMAGE).getAsJsonObject();
+			String imageString = tmpImage.get(Constants.ACTION_PARAM_DATA).getAsString();
+			byte[] tmpImageFile = null;
+			try {
+				imageString = imageString.replaceFirst("(.*);base64,", "");
+				tmpImageFile = Base64.decodeBase64(imageString);
+			}catch(Exception e) {
+				MessageGenerator.sendErrorMessage("infoImageParsing", response);
+				return;
+			}
 			tmpExInfo.setImage(tmpImageFile);
 			infoList.add(tmpExInfo);
 			n++;
@@ -141,7 +175,7 @@ public class AddExerciseAction extends IAction{
 			MessageGenerator.sendErrorMessage("infoListEmpty", response);
 			return;
 		}
-		
+
 		LinkedList<Flag> flagList = new LinkedList<Flag>();
 		for(JsonElement flagElem : flags.getAsJsonArray()) {
 			Flag flag = new Flag();
@@ -160,7 +194,10 @@ public class AddExerciseAction extends IAction{
 				JsonObject qEl = questionElem.getAsJsonObject();
 				tmpQuestion.setType(qEl.get(Constants.ACTION_PARAM_TYPE).getAsString());
 				tmpQuestion.setSelfCheckAvailable(qEl.get(Constants.ACTION_PARAM_SELF_CHECK_AVAILABLE).getAsBoolean());
-				tmpQuestion.setSelfCheckName(qEl.get(Constants.ACTION_PARAM_SELF_CHECK).getAsString());
+				if(tmpQuestion.getSelfCheckAvailable())
+					tmpQuestion.setSelfCheckName(qEl.get(Constants.ACTION_PARAM_SELF_CHECK).getAsString());
+				else
+					tmpQuestion.setSelfCheckName(null);
 				tmpQuestion.setInstructions(qEl.get(Constants.ACTION_PARAM_INSTRUCTIONS).getAsString());
 				tmpQuestion.setHintAvailable(qEl.get(Constants.ACTION_PARAM_HINT_AVAILABLE).getAsBoolean());
 				if(tmpQuestion.getHintAvailable()) {
@@ -181,7 +218,7 @@ public class AddExerciseAction extends IAction{
 			MessageGenerator.sendErrorMessage("flagListEmpty", response);
 			return;
 		}
-		
+
 		Integer id = hpc.addAvailableExercise(exercise);
 		if(null!=id)
 			MessageGenerator.sendSuccessMessage(response);

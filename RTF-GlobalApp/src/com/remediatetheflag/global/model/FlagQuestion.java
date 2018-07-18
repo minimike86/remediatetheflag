@@ -25,7 +25,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -49,8 +48,7 @@ public class FlagQuestion {
    
 	@SerializedName("instructions")
     @Expose
-    @Lob
-    @Column(name = "instructions")
+    @Column(name = "instructions", columnDefinition = "LONGTEXT")
     private String instructions;
     
     @SerializedName("hintAvailable")

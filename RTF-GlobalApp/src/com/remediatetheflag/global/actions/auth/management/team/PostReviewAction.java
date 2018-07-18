@@ -109,7 +109,7 @@ public class PostReviewAction extends IAction {
 		reviewedInstance.setReviewer(user);
 		reviewedInstance.setReviewedDate(new Date());
 		hpc.updateExerciseInstance(reviewedInstance);
-		notificationsHelper.addCompletedReviewNotification(user, reviewedInstance);
+		notificationsHelper.addCompletedReviewNotification(reviewedInstance.getUser(), reviewedInstance);
 		List<AchievedTrophy> userAchievedTrophy = hpc.getAllAchievedTropiesForUser(user.getIdUser());
 		boolean alreadyAchieved = false;
 		for(AchievedTrophy trophy : userAchievedTrophy){

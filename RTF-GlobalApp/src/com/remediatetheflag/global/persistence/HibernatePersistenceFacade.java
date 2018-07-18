@@ -473,6 +473,26 @@ public class HibernatePersistenceFacade {
 			return new LinkedList<AvailableExercise>();
 		}
 	}
+	public AvailableExercise getAvailableExerciseComplete(Integer exerciseId) {
+		HibernateSessionTransactionWrapper hb = openSessionTransaction();
+		try{
+			AvailableExercise exercise = hb.localSession.get( AvailableExercise.class, exerciseId );
+			Hibernate.initialize(exercise.getSolutionFile());
+			Hibernate.initialize(exercise.getReferenceFile());
+			for(AvailableExerciseInfo i : exercise.getInfoList()){
+				Hibernate.initialize(i);
+			}	
+			for(Flag f : exercise.getFlags()){
+				Hibernate.initialize(f);
+			}	
+			closeSessionTransaction(hb);
+			return exercise;
+		}catch(Exception e){	
+			closeSessionTransaction(hb);
+			logger.error(e.getMessage());		
+			return null;
+		}
+	}
 	public AvailableExercise getAvailableExercise(Integer exerciseId) {
 		HibernateSessionTransactionWrapper hb = openSessionTransaction();
 		try{

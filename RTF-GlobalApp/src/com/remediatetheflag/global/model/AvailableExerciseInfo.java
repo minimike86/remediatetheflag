@@ -58,8 +58,7 @@ public class AvailableExerciseInfo {
  
     @SerializedName("description")
     @Expose
-    @Lob
-    @Column(name = "description")	
+    @Column(name = "description", columnDefinition = "LONGTEXT")	
     private String description;
     
     

@@ -71,26 +71,33 @@ It is possible to add new exercises, and technologies and target any specific or
 
 
 
-### TODO ###
+### Todo ###
 
   - Platform
     * Complete Challenges use cases
     * Complete User update use case
     * Complete Organization update use case
-    * Complete Exercise update / import use case
+    * ~~Complete Exercise update / import / export use case~~
+    * Change Containers Secrets Injection Strategy (SOPS?)
+    * Drop Capabilities for Linux Containers (drop NET_RAW, add NET_ADMIN for iptables support)
+    * Create IAM User for Programmatic Access in CloudFormation
+    * Reduce assigned permissions for Programmatic Access
+    * Improve Documentation
     * Definition End-to-end test strategy 
     * Automated EC2 scale out in Exercises Instances (the AWS EC2 Scaling service, upon scale in terminates instances even if there are running containers)
-    * Change container's secret injection strategy  
-    * Include Createtion of IAM User for Programmatic Access in CloudFormation
-    * Reduce assigned permissions for programmatic access
-    * Improve Documentation
   - Exercises
-    * Complete Reference and Solution documents for existing exercises
     * Publish existing exercises on S3 as importable JSON
+    * Complete Reference and Solution documents for existing exercises
     * Create metadata and tests for NodeJS VulnerableChat application
-    * Create metadata  for Ruby vulnerable application and integrate tests
+    * Create metadata for Ruby vulnerable application and integrate tests
     * Create C/C++/Python/Golang base exercise images
     * Integrate Static Analysis capabilities in RTF Agent
+
+
+
+### Recent Changes ###
+
+  - Completed Exercise Update/Import/Export flows
 
 
 

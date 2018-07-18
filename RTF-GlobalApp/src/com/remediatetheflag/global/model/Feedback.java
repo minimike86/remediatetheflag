@@ -28,7 +28,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -59,8 +58,7 @@ public class Feedback {
 
 	@SerializedName("id")
 	@Expose
-	@Column(name="feedback")
-	@Lob
+	@Column(name="feedback", columnDefinition = "LONGTEXT")
 	private String feedback;
 	
 	@SerializedName("date")

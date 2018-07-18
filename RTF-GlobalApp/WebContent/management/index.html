@@ -941,10 +941,12 @@
 						</div>
 						<div class="col-md-2 centered">
 							<button ng-show="user.r==0" ng-click="editExercise(item.id)"
-								class="btn btn-primary outline marginTop10">Edit Exercise</button>
+								class="btn btn-primary outline marginTop10">Edit
+								Exercise</button>
 							<br />
 							<button type="button" ng-click="exportCurrentExercise()"
-								class="btn btn-warning outline marginTop10" data-dismiss="modal">Export Exercise</button>
+								class="btn btn-warning outline marginTop10" data-dismiss="modal">Export
+								Exercise</button>
 						</div>
 						<div class="col-md-2 centered marginTop20">
 							<h4 class="marginBottom0">Score</h4>
@@ -1255,25 +1257,27 @@
 							</button>
 							<h3 class="modal-title modalHeader">Load Exercise</h3>
 						</div>
-						<div class="modal-body exerciseModal">
-							<div class="row">
-								<div class="col-md-12">
-									<h5 class="inlineBlock">Upload Excercise JSON file</h5>
-									<i class="fa fa-info-circle inlineBlock marginLeft5 left"
-										tooltips tooltip-side="top"
-										tooltip-template="If the focus of the exercise is remediation, provide candidates a PDF document with step-by-step guide on exploitation and brief information about remediation"></i>
-									<input class="fInput" required type="file"
-										ng-file-model="loadedExerciseFile">
+						<form name="exerciseImportForm">
+							<div class="modal-body exerciseModal">
+								<div class="row">
+									<div class="col-md-12">
+										<h5 class="inlineBlock">Upload Excercise JSON file</h5>
+										<i class="fa fa-info-circle inlineBlock marginLeft5 left"
+											tooltips tooltip-side="top"
+											tooltip-template="If the focus of the exercise is remediation, provide candidates a PDF document with step-by-step guide on exploitation and brief information about remediation"></i>
+										<input class="fInput" required type="file"
+											ng-file-model="loadedExerciseFile">
+									</div>
 								</div>
-							</div>
 
-						</div>
-						<div class="modal-footer ecsModalFooter">
-							<button type="button" class="btn btn-success"
-								data-dismiss="modal">Load</button>
-							<button type="button" class="btn btn-default"
-								data-dismiss="modal">Close</button>
-						</div>
+							</div>
+							<div class="modal-footer ecsModalFooter">
+								<button ng-disabled="loadedExerciseFile == null"
+									ng-click="loadExercise()" type="button" class="btn btn-success">Load</button>
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+							</div>
+						</form>
 					</div>
 				</div>
 			</div>
@@ -1336,6 +1340,24 @@
 											</div>
 										</div>
 										<div class="row">
+											<div class="col-md-9">
+												<h5 class="inlineBlock">Author</h5>
+
+												<input placeholder="RTF" class="fInput" required type="text"
+													ng-model="tmpNewExercise.author">
+											</div>
+											<div class="col-md-3">
+												<h5 class="inlineBlock">Exercise Type</h5>
+												<br />
+												<ol class="nya-bs-select" required
+													ng-model="tmpNewExercise.type" data-size="3">
+													<li nya-bs-option="t in exerciseTypes"><a> <small>{{t | capitalize}}</small>
+															<span class="glyphicon glyphicon-ok check-mark"></span>
+													</a></li>
+												</ol>
+											</div>
+										</div>
+										<div class="row">
 											<div class="col-md-12">
 												<h5 class="inlineBlock">Topics</h5>
 
@@ -1349,7 +1371,7 @@
 											<div class="col-md-12">
 												<h5 class="inlineBlock">Description</h5>
 
-												<textarea rows="4"
+												<textarea rows="3"
 													placeholder="Exploit and remediate Reflected and Stored Cross-Site Scripting (XSS) exposures. XSS attacks affect web applications that do not neutralize user input before it is placed in output as a web page. This could result in the attacker stealing sensitive information or performing actions on behalf of the victim on the vulnerable site."
 													class="fInput" required type="text"
 													ng-model="tmpNewExercise.description"></textarea>
@@ -1357,7 +1379,7 @@
 										</div>
 										<div class="row">
 											<div class="col-md-3">
-												<h5 class="inlineBlock">Duration (minutes)</h5>
+												<h5 class="inlineBlock">Max Duration (minutes)</h5>
 
 												<input placeholder="40" min="10" max="360"
 													class="fInput right" required type="number"
@@ -1448,15 +1470,28 @@
 											<i class="fa fa-info-circle inlineBlock marginLeft5 left"
 												tooltips tooltip-side="top"
 												tooltip-template="If the focus of the exercise is remediation, provide candidates a PDF document with step-by-step guide on exploitation and brief information about remediation"></i>
-											<input class="fInput" required type="file"
+											<div ng-show="!showReferenceFilePicker">
+												<p>{{tmpNewExercise.referenceFile.name}}</p>
+												<button ng-click="showReferenceFilePicker = true"
+													class="btn btn-xs btn-warning">Change</button>
+											</div>
+											<input ng-show="showReferenceFilePicker" class="fInput"
+												required type="file"
 												ng-file-model="tmpNewExercise.referenceFile">
+
 										</div>
 										<div class="col-md-6">
 											<h5 class="inlineBlock">Exercise Solution</h5>
 											<i class="fa fa-info-circle inlineBlock marginLeft5 left"
 												tooltips tooltip-side="top"
 												tooltip-template="Provide PDF document with step-by-step guide to the exercise's solutions."></i>
-											<input class="fInput" required type="file"
+											<div ng-show="!showSolutionFilePicker">
+												<p>{{tmpNewExercise.solutionFile.name}}</p>
+												<button ng-click="showSolutionFilePicker = true"
+													class="btn btn-xs btn-warning">Change</button>
+											</div>
+											<input ng-show="showSolutionFilePicker" class="fInput"
+												required type="file"
 												ng-file-model="tmpNewExercise.solutionFile">
 										</div>
 
@@ -1687,7 +1722,7 @@
 
 
 												<div class="col-md-12 ">
-													<h5>Flag List</h5>
+													<h4>Flag List</h5>
 
 
 													<p ng-show="tmpNewExercise.flags.length==0">There are
@@ -1701,7 +1736,7 @@
 														ng-show="tmpNewExercise.flags.length>0">
 														<div ng-repeat="f in tmpNewExercise.flags">
 
-															<h6 class="inlineBlock">{{f.title}}</h6>
+															<p class="inlineBlock"><strong>Flag:&nbsp;&nbsp;</strong></p><p class="inlineBlock">{{f.title}}</p>
 															<button ng-click="removeNewFlag(f.title,f.category)"
 																class="btn btn-xs marginLeft10 btn-danger">Delete</button>
 
@@ -1717,7 +1752,7 @@
 																</thead>
 																<tbody>
 
-																	<tr ng-repeat="q in f.questions">
+																	<tr ng-repeat="q in f.flagList">
 																		<td>{{q.type }}</td>
 																		<td>{{q.hintAvailable && 'Yes' || 'No'}}</td>
 																		<td>{{q.selfCheckAvailable && 'Yes' || 'No'}}</td>
@@ -1830,15 +1865,18 @@
 							</div>
 						</div>
 						<div class="modal-footer">
-							<button type="button" class="btn btn-info pull-left outline"
-								ng-click="showLoadExerciseModal()" data-dismiss="modal">Import</button>
-
+							<button ng-show="!saveFlow" type="button" class="btn btn-info pull-left outline"
+								ng-click="showLoadExerciseModal()">Import</button>
+							<button ng-show="!saveFlow" type="button" class="btn btn-primary pull-left outline"
+								ng-click="clearExerciseModal()">Clear</button>
 							<button type="button" class="btn btn-default"
 								data-dismiss="modal">Close</button>
-							<button type="button" ng-click="addNewExercise()" ng-show="!saveFlow"
+							<button type="button" ng-click="addNewExercise()"
+								ng-show="!saveFlow"
 								ng-disabled="!exerciseNameAvailable || exerciseScoreForm.$error.required || exerciseDescriptionForm.$error.required"
 								class="btn btn-primary">Add Exercise</button>
-							<button type="button"  ng-show="saveFlow" ng-click="updateExercise()"
+							<button type="button" ng-show="saveFlow"
+								ng-click="updateExercise()"
 								ng-disabled="!exerciseNameAvailable || exerciseScoreForm.$error.required || exerciseDescriptionForm.$error.required"
 								class="btn btn-primary">Save</button>
 						</div>

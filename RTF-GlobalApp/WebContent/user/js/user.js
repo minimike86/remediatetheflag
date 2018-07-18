@@ -1220,7 +1220,7 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 	$scope.exerciseIsInChallenge = false;
 	$scope.resultStatusData = {}
 	$rootScope.exInstanceId;
-	$scope.asNotStarted = true;
+	$scope.asNotStarted = false;
 	$scope.flagIsVulnerable = false;
 	$rootScope.exerciseDetails = {};
 	$scope.currentExerciseResults = server.currentExerciseResults;
@@ -2237,16 +2237,19 @@ rtf.controller('achievements',['$scope','server','$rootScope',function($scope,se
 		$scope.remediatedPerCategory.labels = [];
 		for(var j in $scope.remediationRatePerCategory){
 			if ($scope.remediationRatePerCategory.hasOwnProperty(j)){
-				var tmpName = $scope.remediationRatePerCategory[j].options.title.text;
-				$scope.remediatedPerCategory.labels.push(tmpName);
-				$scope.remediatedPerCategory.data[0].push(Math.ceil(data.totalMinutesPerIssueCategory[tmpName]));
+				try{
+					var tmpName = $scope.remediationRatePerCategory[j].options.title.text;
+					var tmpData = Math.ceil(data.totalMinutesPerIssueCategory[tmpName]);
+					if(!isNaN(tmpData) && tmpName!= "null"){
+						$scope.remediatedPerCategory.labels.push(tmpName);
+						$scope.remediatedPerCategory.data[0].push(tmpData);
+					}
+				}catch(err){}
 			}
 		}
 		$scope.remediatedPerCategory.options = cloneObj($scope.radarOptions);
 		$scope.remediatedPerCategory.options.title.display = false;
 		$scope.remediatedPerCategory.series = ["Total Time (minutes)"];
-
-
 	});
 
 

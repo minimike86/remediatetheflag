@@ -272,6 +272,12 @@ public class MessageGenerator {
 		String json = gson.toJson(exercise);
 		send(json,response);
 	}
+	public static void sendExerciseInfoMessageWithHints(AvailableExercise exercise, HttpServletResponse response) {
+		GsonBuilder builder = new GsonBuilder();
+		Gson gson = builder.excludeFieldsWithoutExposeAnnotation().create();
+		String json = gson.toJson(exercise);
+		send(json,response);
+	}
 
 	public static void sendAllCountriesMessage(List<Country> countries, HttpServletResponse response) {
 		Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
