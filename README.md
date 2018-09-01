@@ -75,19 +75,19 @@ It is possible to add new exercises, and technologies and target any specific or
 
   - Platform
     * Complete Challenges use cases
-    * Complete User update use case
-    * Complete Organization update use case
+    * ~~Complete User update use case~~
+    * ~~Complete Organization update use case~~
     * ~~Complete Exercise update / import / export use case~~
     * Change Containers Secrets Injection Strategy (SOPS?)
-    * Drop Capabilities for Linux Containers (drop NET_RAW, add NET_ADMIN for iptables support)
+    * ~~Drop Capabilities for Linux Containers (drop NET_RAW, add NET_ADMIN for iptables support)~~
     * Create IAM User for Programmatic Access in CloudFormation
     * Reduce assigned permissions for Programmatic Access
     * Improve Documentation
     * Definition End-to-end test strategy 
     * Automated EC2 scale out in Exercises Instances (the AWS EC2 Scaling service, upon scale in terminates instances even if there are running containers)
   - Exercises
-    * Publish existing exercises on S3 as importable JSON
-    * Complete Reference and Solution documents for existing exercises
+    * ~~Publish existing exercises as importable JSON~~
+    * ~~Complete Reference and Solution documents for existing exercises~~
     * Create metadata and tests for NodeJS VulnerableChat application
     * Create metadata for Ruby vulnerable application and integrate tests
     * Create C/C++/Python/Golang base exercise images
@@ -98,6 +98,15 @@ It is possible to add new exercises, and technologies and target any specific or
 ### Recent Changes ###
 
   - Completed Exercise Update/Import/Export flows
+  - Completed User update use case
+- Completed Organization update use case
+  - Completed Reference and Solution documents for existing exercise
+  - Published existing exercises as importable JSON
+  - Turned Portal-App into Maven project. 
+  - Simplified IAM roles for Portal App
+  - Configured Capabilities for Linux Containers (NET_ADMIN for iptables instead of privileged)
+  - Updated RTF-Java-VApp-Exercise and RTF-Java Base docker images (better performances, bug fixes)
+  - UX enhancements when running exercises (now it's all in one tab)
 
 
 

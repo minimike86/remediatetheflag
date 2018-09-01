@@ -26,16 +26,7 @@ The platform comes installed with an admin user (its password is set on the RTF 
    Available Roles:
 
    - Admin:
-      Access/Create/Update/Remove Organizations, Exercises, Gateways, Teams, Users, Challenges 
-
-   - Reviewer:
-      Review Exercises, Create/Update Users and Teams, Manage Teams and Challenges, Access data 
-
-   - Team Manager
-      Review Exercises for managed teams, Setup Challenges for managed teams, Access data for managed teams
-
-   - Stats Monitor
-      Access Metrics, Access User, Teams, Challenges data
+      Full administrative read/write access
 
    - User
       Run exercises, join Challenges, view completed exercises, personal/team stats and achievements.
