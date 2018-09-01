@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- * * REMEDIATE THE FLAG * Copyright 2018 - Andrea Scaduto * remediatetheflag@gmail.com 
+	* * Licensed under the Apache License, Version 2.0 (the "License"); * you 
+	may not use this file except in compliance with the License. * You may obtain 
+	a copy of the License at * * http://www.apache.org/licenses/LICENSE-2.0 * 
+	* Unless required by applicable law or agreed to in writing, software * distributed 
+	under the License is distributed on an "AS IS" BASIS, * WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. * See the License for 
+	the specific language governing permissions and * limitations under the License. 
+	* -->
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+	<session-factory>
+		<!-- Database connection settings -->
+		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+		<property name="connection.url">jdbc:mysql://localhost:3306/dbRTFTest</property>
+		<property name="connection.username">RTFGlobalDBUser</property>
+		<property name="connection.password">cUarr9Agh5Up</property>
+		<property name="hibernate.current_session_context_class">thread</property>
+
+		<property name="hibernate.c3p0.min_size">5</property>
+		<property name="hibernate.c3p0.max_size">1000</property>
+		<property name="hibernate.c3p0.timeout">300</property>
+		<property name="hibernate.c3p0.max_statements">50</property>
+		<property name="hibernate.c3p0.idle_test_period">10</property>
+		<property name="dialect">org.hibernate.dialect.MySQL57Dialect</property>
+
+		<!-- Disable the second-level cache -->
+		<property name="cache.provider_class">org.hibernate.cache.internal.NoCacheProvider</property>
+
+		<!-- Echo all executed SQL to stdout -->
+		<property name="show_sql">false</property>
+
+		<!-- Drop and re-create the database schema on startup -->
+		<property name="hbm2ddl.auto">update</property>
+
+		<!-- Names the annotated entity class -->
+		<mapping class="com.remediatetheflag.portal.model.Timezone" />
+		<mapping class="com.remediatetheflag.portal.model.Country" />
+		<mapping class="com.remediatetheflag.portal.model.Team" />
+		<mapping class="com.remediatetheflag.portal.model.User" />
+		<mapping class="com.remediatetheflag.portal.model.UserFailedLogins" />
+		<mapping class="com.remediatetheflag.portal.model.UserAuthenticationEvent" />
+		<mapping class="com.remediatetheflag.portal.model.Notification" />
+		<mapping class="com.remediatetheflag.portal.model.Trophy" />
+		<mapping class="com.remediatetheflag.portal.model.AchievedTrophy" />
+		<mapping class="com.remediatetheflag.portal.model.RTFGateway" />
+		<mapping class="com.remediatetheflag.portal.model.RTFInstanceReservation" />
+		<mapping class="com.remediatetheflag.portal.model.GuacTempUser" />
+		<mapping class="com.remediatetheflag.portal.model.RTFECSContainerTask" />
+		<mapping
+			class="com.remediatetheflag.portal.model.RTFECSTaskDefinitionForExerciseInRegion" />
+		<mapping class="com.remediatetheflag.portal.model.RTFECSTaskDefinition" />
+		<mapping class="com.remediatetheflag.portal.model.AvailableExercise" />
+		<mapping class="com.remediatetheflag.portal.model.AvailableExerciseInfo" />
+		<mapping
+			class="com.remediatetheflag.portal.model.AvailableExerciseSolutionFile" />
+		<mapping
+			class="com.remediatetheflag.portal.model.AvailableExerciseReferenceFile" />
+		<mapping
+			class="com.remediatetheflag.portal.model.AvailableExercisesForOrganization" />
+		<mapping class="com.remediatetheflag.portal.model.Flag" />
+		<mapping class="com.remediatetheflag.portal.model.FlagQuestion" />
+		<mapping class="com.remediatetheflag.portal.model.FlagQuestionHint" />
+		<mapping class="com.remediatetheflag.portal.model.Challenge" />
+		<mapping class="com.remediatetheflag.portal.model.ExerciseInstance" />
+		<mapping class="com.remediatetheflag.portal.model.ExerciseResult" />
+		<mapping class="com.remediatetheflag.portal.model.ExerciseResultFile" />
+		<mapping class="com.remediatetheflag.portal.model.ExerciseScore" />
+		<mapping class="com.remediatetheflag.portal.model.Feedback" />
+		<mapping class="com.remediatetheflag.portal.model.Organization" />
+		<mapping class="com.remediatetheflag.portal.model.SupportedAWSRegion" />
+		<mapping
+			class="com.remediatetheflag.portal.model.InvitationCodeForOrganization" />
+	</session-factory>
+</hibernate-configuration>
