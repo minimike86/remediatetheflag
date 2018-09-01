@@ -140,9 +140,9 @@
           - Key: stickiness.enabled 
             Value: true
         Matcher:
-          HttpCode: 200
+          HttpCode: 200-399
         HealthCheckIntervalSeconds: 10
-        HealthCheckPath: /
+        HealthCheckPath: /hservlet/handler
         HealthCheckProtocol: HTTP
         HealthCheckTimeoutSeconds: 5
         HealthyThresholdCount: 2

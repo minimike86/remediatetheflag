@@ -39,35 +39,35 @@ Parameters:
 Mappings:
   AWSRegionToAMI:
     us-east-2:
-      AMI: ami-956e52f0
+      AMI: ami-028a9de0a7e353ed9
     us-east-1:
-      AMI: ami-5253c32d
+      AMI: ami-00129b193dc81bc31
     us-west-2:
-      AMI: ami-d2f489aa
+      AMI: ami-00d4f478
     us-west-1:
-      AMI: ami-6b81980b
+      AMI: ami-0d438d09af26c9583
     eu-west-3:
-      AMI: ami-ca75c4b7
+      AMI: ami-07da674f0655ef4e1
     eu-west-2:
-      AMI: ami-3622cf51
+      AMI: ami-a44db8c3
     eu-west-1:
-      AMI: ami-c91624b0
+      AMI: ami-0af844a965e5738db
     eu-central-1:
-      AMI: ami-10e6c8fb
+      AMI: ami-0291ba887ba0d515f
     ap-northeast-2:
-      AMI: ami-7c69c112
+      AMI: ami-047d2a61f94f862dc
     ap-northeast-1:
-      AMI: ami-f3f8098c
+      AMI: ami-0041c416aa23033a2
     ap-southeast-2:
-      AMI: ami-bc04d5de
+      AMI: ami-0092e55c70015d8c3
     ap-southeast-1:
-      AMI: ami-b75a6acb
+      AMI: ami-091bf462afdb02c60
     ca-central-1:
-      AMI: ami-da6cecbe
+      AMI: ami-192fa27d
     ap-south-1:
-      AMI: ami-c7072aa8
+      AMI: ami-0c179ca015d301829
     sa-east-1:
-      AMI: ami-a1e2becd
+      AMI: ami-0018ff8ee48970ac3
 Resources:
   ServicesECSCluster:
     Type: 'AWS::ECS::Cluster'
