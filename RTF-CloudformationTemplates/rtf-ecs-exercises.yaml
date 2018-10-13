@@ -202,7 +202,7 @@ Resources:
     Type: 'AWS::IAM::Role'
     Properties:
       Path: /
-      RoleName: RTF-ECS-Exercises-Role
+      RoleName: !Sub 'RTF-ECS-Exercises-Role-${AWS::StackName}'
       AssumeRolePolicyDocument: |
         {
             "Statement": [{

@@ -81,8 +81,8 @@ Resources:
                 MysqlGlobalUserPassword: REPLACE-MYSQL-GLOBAL-PASSWORD
                 MysqlGuacUserPassword: REPLACE-MYSQL-GUAC-PASSWORD
                 MysqlRootUserPassword: REPLACE-MYSQL-ROOT-PASSWORD
-                #Replace with ECR address to Mysql Service Image
-                MysqlImage: REPLACE-PATH-TO.ecr.eu-west-1.amazonaws.com/rtf-services:rtf-db-latest
+                #Optionally replace with ECR address to Mysql Service Image
+                MysqlImage: remediatetheflag/rtf-database:1.0
     GatewayService:
         Type: AWS::CloudFormation::Stack
         Properties:
@@ -102,10 +102,10 @@ Resources:
                 #Replace Passwords, match them in the other services in this template
                 MysqlGuacUserPassword: REPLACE-MYSQL-GUAC-PASSWORD
                 GatewayAgentPassword: REPLACE-GATEWAY-AGENT-PASSWORD
-                #Replace with ECR address to Kite Service Image
-                KiteImage: REPLACE-PATH-TO.ecr.eu-west-1.amazonaws.com/rtf-services:kite-latest
-                #Replace with ECR address to Gateway Service Image
-                GatewayImage: REPLACE-PATH-TO.ecr.eu-west-1.amazonaws.com/rtf-services:rtf-gateway-latest
+                #Optionally replace with ECR address to Kite Service Image
+                KiteImage: remediatetheflag/rtf-kite:1.0
+                #Optioanlly replace with ECR address to Gateway Service Image
+                GatewayImage: remediatetheflag/rtf-gateway:1.0
                 ECSServiceAutoScalingRoleARN: !GetAtt ServicesECS.Outputs.ECSServiceAutoScalingRole
 Outputs:
     LoadBalancerUrl: 

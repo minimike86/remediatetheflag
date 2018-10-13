@@ -173,7 +173,7 @@
     ServiceRole:
       Type: 'AWS::IAM::Role'
       Properties:
-        RoleName: RTF-ECS-Global-Role
+        RoleName: !Sub 'RTF-ECS-Global-Role-${AWS::StackName}'
         Path: /
         AssumeRolePolicyDocument: |
           {
