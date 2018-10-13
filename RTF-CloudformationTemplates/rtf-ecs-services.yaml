@@ -39,35 +39,35 @@ Parameters:
 Mappings:
   AWSRegionToAMI:
     us-east-2:
-      AMI: ami-028a9de0a7e353ed9
+      AMI: ami-09a64272e7fe706b6
     us-east-1:
-      AMI: ami-00129b193dc81bc31
+      AMI: ami-0b9a214f40c38d5eb
     us-west-2:
-      AMI: ami-00d4f478
+      AMI: ami-00430184c7bb49914
     us-west-1:
-      AMI: ami-0d438d09af26c9583
+      AMI: ami-0e7dd5fe55b87a5fe
     eu-west-3:
-      AMI: ami-07da674f0655ef4e1
+      AMI: ami-06b685336aa497c15
     eu-west-2:
-      AMI: ami-a44db8c3
+      AMI: ami-0209769f0c963e791
     eu-west-1:
-      AMI: ami-0af844a965e5738db
+      AMI: ami-05b65c0f6a75c1c64
     eu-central-1:
-      AMI: ami-0291ba887ba0d515f
+      AMI: ami-0bb804e8cd910a664
     ap-northeast-2:
-      AMI: ami-047d2a61f94f862dc
+      AMI: ami-0d947b1901b27a37c
     ap-northeast-1:
-      AMI: ami-0041c416aa23033a2
+      AMI: ami-08681de00a0aae54f
     ap-southeast-2:
-      AMI: ami-0092e55c70015d8c3
+      AMI: ami-05b48eda7f92aadbe
     ap-southeast-1:
-      AMI: ami-091bf462afdb02c60
+      AMI: ami-0a3f70f0255af1d29
     ca-central-1:
-      AMI: ami-192fa27d
+      AMI: ami-00d1bdbd447b5933a
     ap-south-1:
-      AMI: ami-0c179ca015d301829
+      AMI: ami-0590d0dd683026eab
     sa-east-1:
-      AMI: ami-0018ff8ee48970ac3
+      AMI: ami-01bca91ecf4c1f494
 Resources:
   ServicesECSCluster:
     Type: 'AWS::ECS::Cluster'
