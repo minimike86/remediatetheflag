@@ -74,7 +74,7 @@ It is possible to add new exercises, and technologies and target any specific or
 ### Todo ###
 
   - Platform
-    * Complete Challenges use cases
+    * ~~Complete Challenges use cases~~
     * ~~Complete User update use case~~
     * ~~Complete Organization update use case~~
     * ~~Complete Exercise update / import / export use case~~
@@ -90,23 +90,25 @@ It is possible to add new exercises, and technologies and target any specific or
     * ~~Complete Reference and Solution documents for existing exercises~~
     * Create metadata and tests for NodeJS VulnerableChat application
     * Create metadata for Ruby vulnerable application and integrate tests
-    * Create C/C++/Python/Golang base exercise images
+    * Create C/C++/Python/Golang/PHP/ASP.NET base exercise images
     * Integrate Static Analysis capabilities in RTF Agent
 
 
 
 ### Recent Changes ###
 
+  - Completed Challenges flows
+  - Automated Region selection based on ping time
   - Completed Exercise Update/Import/Export flows
   - Completed User update use case
 - Completed Organization update use case
-  - Completed Reference and Solution documents for existing exercise
-  - Published existing exercises as importable JSON
-  - Turned Portal-App into Maven project. 
-  - Simplified IAM roles for Portal App
-  - Configured Capabilities for Linux Containers (NET_ADMIN for iptables instead of privileged)
-  - Updated RTF-Java-VApp-Exercise and RTF-Java Base docker images (better performances, bug fixes)
-  - UX enhancements when running exercises (now it's all in one tab)
+- Completed Reference and Solution documents for existing exercise
+- Published existing exercises as importable JSON
+- Turned Portal-App into Maven project. 
+- Simplified IAM roles for Portal App
+- Configured Capabilities for Linux Containers (NET_ADMIN for iptables instead of privileged)
+- Updated RTF-Java-VApp-Exercise and RTF-Java Base docker images (better performances, bug fixes)
+- UX enhancements when running exercises (now it's all in one tab)
 
 
 
