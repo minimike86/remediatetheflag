@@ -6770,44 +6770,57 @@ rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter
 	}
 
 	$scope.getClassPlacementInChallenge= function(usr,name){
-		if($scope.challengeResults[usr]==undefined || $scope.challengeResults[usr][name]==undefined)
+		
+		if($scope.challengeResults[usr]==undefined)
 			return false;
-		else if($scope.challengeResults[usr][name]['firstForFlag']){
+		var sf = getSelfCheckFromFlag(name);
+		if($scope.challengeResults[usr][sf]==undefined)
+			return false;
+		 if($scope.challengeResults[usr][sf]['firstForFlag']){
 			return "goldPlacement";
 		}
-		else if($scope.challengeResults[usr][name]['secondForFlag']){
+		else if($scope.challengeResults[usr][sf]['secondForFlag']){
 			return "silverPlacement";
 		}
-		else if($scope.challengeResults[usr][name]['thirdForFlag']){
+		else if($scope.challengeResults[usr][sf]['thirdForFlag']){
 			return "bronzePlacement";
 		}
 		return "";
 	}
 	$scope.getPlacementInChallenge = function(usr,name){
-		if($scope.challengeResults[usr]==undefined || $scope.challengeResults[usr][name]==undefined)
-			return false;
-		else if($scope.challengeResults[usr][name]['firstForFlag']){
+		if($scope.challengeResults[usr]==undefined)
+			return "";
+		var sf = getSelfCheckFromFlag(name);
+		if($scope.challengeResults[usr][sf]==undefined)
+			return "";
+
+		if($scope.challengeResults[usr][sf]['firstForFlag']){
 			return "1st";
 		}
-		else if($scope.challengeResults[usr][name]['secondForFlag']){
+		else if($scope.challengeResults[usr][sf]['secondForFlag']){
 			return "2nd";
 		}
-		else if($scope.challengeResults[usr][name]['thirdForFlag']){
+		else if($scope.challengeResults[usr][sf]['thirdForFlag']){
 			return "3rd";
 		}
 		return "";
 	}
 
 	$scope.isPlacedInChallenge = function(usr,name){
-		if($scope.challengeResults[usr]==undefined || $scope.challengeResults[usr][name]==undefined)
-			return false;
-		else if($scope.challengeResults[usr][name]['firstForFlag']){
+		
+		if($scope.challengeResults[usr]==undefined)
+			return "";
+		var sf = getSelfCheckFromFlag(name);
+		if($scope.challengeResults[usr][sf]==undefined)
+			return "";
+		
+		else if($scope.challengeResults[usr][sf]['firstForFlag']){
 			return true;
 		}
-		else if($scope.challengeResults[usr][name]['secondForFlag']){
+		else if($scope.challengeResults[usr][sf]['secondForFlag']){
 			return true;
 		}
-		else if($scope.challengeResults[usr][name]['thirdForFlag']){
+		else if($scope.challengeResults[usr][sf]['thirdForFlag']){
 			return true;
 		}
 		return false;
