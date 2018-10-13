@@ -41,10 +41,10 @@ Slides: [AppSecEU 2018 - Remediate The Flag](docs/AppSecEU18_RemediateTheFlag.pd
 
 Candidates select an exercise, the RTF platform provisions a dedicated environment accessed through a web browser. Candidates then find and manually remediate vulnerable code in the RTF instance by referencing the instructions.
 Candidates can check in real time whether security issues were successfully remediated; they can take hints which affect their final score.
-When the exercise is completed, the platform provides automated results including code diff and logs. An assessor reviews the exercise results and, if necessary (wrong remediation approach), provides additional feedback to the candidate.
+When the exercise is completed, the platform provides automated results including code diff and logs. An assessor reviews the exercise results and, if necessary (wrong remediation approach), provides additional feedback to the candidate. The platform can be also setup for automated-only scoring.
 It is possible to setup time-boxed tournaments specifying programming languages, developer groups (frontend vs backend, web vs non-web) and target vulnerabilities. Points are used to rank candidates on a “Leaderboard” so that they can compare themselves to their peers.
 Full stats are provided at candidate, team and organisation level indicating remediation ratio and time spent on each type of vulnerability and aggregated on category types.
-It is possible to add new exercises, and technologies and target any specific organization needs.
+The platform allows to add new exercises, and technologies and target any specific organization needs.
 
 
 
