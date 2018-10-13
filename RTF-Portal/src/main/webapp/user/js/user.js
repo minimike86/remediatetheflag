@@ -22,6 +22,9 @@ Number.isInteger = Number.isInteger || function(value) {
 	isFinite(value) && 
 	Math.floor(value) === value;
 };
+function getSum(total, num) {
+	return total + num;
+}
 function receiveMessage(event){
 	if (event.origin != self.origin)
 		return;
@@ -252,11 +255,32 @@ rtf.directive('complexPassword', function() {
 		}
 	}
 });
+rtf.filter('capitalize', function() {
+	return function(input) {
+		return (!!input) ? input.charAt(0).toUpperCase() + input.substr(1).toLowerCase() : '';
+	}
+});
 rtf.service('server',function($http,$timeout,$rootScope,notificationService,$interval){
 
 	this.countries = [];
 
 	var $this = this;
+
+	this.getTeamStats = function(){
+		var msg = {};
+		msg.action = 'getTeamStats';
+		var req = {
+				method: 'POST',
+				url: '/user/handler',
+				data: msg,
+		}
+		$http(req).then(function successCallback(response) {
+			$('.waitLoader').hide();
+			$rootScope.$broadcast('statsTeam:updated',response.data);
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
 
 	this.getCountries = function(){
 
@@ -310,6 +334,24 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 	}
 
 	this.user = {}
+
+	this.addScoringComplaint = function(obj){
+
+		obj.action = 'addScoringComplaint';
+
+		var req = {
+				method: 'POST',
+				url: '/user/handler',
+				data: obj,	
+		}
+		$http(req).then(function successCallback(response) {
+			$rootScope.$broadcast('scoringComplaintAdded:updated',response.data);
+			notificationService.success('Thanks, your comment will be reviewed by our team shortly.');
+			$('.waitLoader').hide();
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
 
 	this.getUserTeamLeaderboard = function(){
 
@@ -594,7 +636,9 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 				var downloadLink = angular.element('<a></a>');
 				downloadLink.attr('href',window.URL.createObjectURL(blob));
 				downloadLink.attr('download', filename);
+				document.body.appendChild(downloadLink[0]);
 				downloadLink[0].click();
+				downloadLink[0].remove();
 			}
 
 		}, function errorCallback(response) {
@@ -631,7 +675,9 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 				var downloadLink = angular.element('<a></a>');
 				downloadLink.attr('href',window.URL.createObjectURL(blob));
 				downloadLink.attr('download', filename);
+				document.body.appendChild(downloadLink[0]);
 				downloadLink[0].click();
+				downloadLink[0].remove();
 			}
 		}, function errorCallback(response) {
 			console.log('ajax error');
@@ -754,11 +800,12 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		});
 	}
 
-	this.startInstance = function(id, regionRaw){
+	this.startInstance = function(id, regions, challenge){
 		var msg = {};
 		msg.action = 'launchExerciseInstance';
 		msg.id = id;
-		msg.region = regionRaw;
+		msg.region = regions;
+		msg.challengeId = challenge;
 
 		var req = {
 				method: 'POST',
@@ -796,6 +843,12 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 				$('.waitLoader').hide();
 				$("#startExerciseModal").modal('hide');
 			}
+			else if(response.data.errorMsg == "AlreadyRun"){
+				PNotify.removeAll();
+				notificationService.error("The exercise requested is part of an active Challenge and it has already been run.");
+				$('.waitLoader').hide();
+				$("#startExerciseModal").modal('hide');
+			}
 			else if(response.data.errorMsg!=undefined){
 				PNotify.removeAll();
 				notificationService.error("The RTF environment could not be started, please try again or contact support.");
@@ -803,8 +856,8 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 				$("#startExerciseModal").modal('hide');
 			}
 			else{
-				$rootScope.$broadcast('instanceStarted:updated',response.data);
 				PNotify.removeAll();
+				$rootScope.$broadcast('instanceStarted:updated',response.data);
 				notificationService.info("We're preparing your RTF environment, use this time to read the exercise's instructions.");
 			}
 		}, function errorCallback(response) {
@@ -919,7 +972,6 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 				$rootScope.$broadcast('unreadNotifications:updated',response.data);
 			}
 			else{
-				PNotify.removeAll();
 				notificationService.notice('Updated failed, please try again.');
 			}
 		}, function errorCallback(response) {
@@ -962,6 +1014,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		this.getRunningExercises();
 		this.getUserReservations();
 		this.getUserTeamLeaderboard();
+		this.getTeamStats();
 		this.getUserHistory();
 		this.getUnreadNotifications();
 	}
@@ -1025,6 +1078,13 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http',f
 	$scope.logout = function(){
 		server.doUserLogout();
 	}
+
+
+	$rootScope.getDateInCurrentTimezone = function(date,format){
+		return moment(date).local().format(format);
+	}
+
+
 	$scope.notifications = [];
 	var ctokenReq = {
 			method: 'POST',
@@ -1068,6 +1128,27 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http',f
 			$(window).scrollTop(0);
 			break;
 		case "challenges":
+			if(target[1]=="details" && undefined!=target[2] && ""!=target[2]){
+				var exId = target[2]
+				if($rootScope.ctoken == ""){
+					$http(ctokenReq).then(function successCallback(response) {
+						$rootScope.ctoken = response.data.ctoken;
+						$rootScope.selectedChallenge = exId;
+						server.getChallengeDetails(exId);
+					}, function errorCallback(response) {
+						console.log('ajax error');
+					});
+				}
+				else{
+					server.getChallengeDetails(exId);
+				}
+				$rootScope.showChallengeDetails = true;
+				$rootScope.showChallengesList = false;
+			}
+			else{
+				$rootScope.showChallengeDetails = false;
+				$rootScope.showChallengesList = true;
+			}
 			$rootScope.visibility.assignedExercises = false;
 			$rootScope.visibility.history = false;
 			$rootScope.visibility.achievements = false;
@@ -1266,6 +1347,158 @@ rtf.controller('leaderboard',['$scope','server','$rootScope',function($scope,ser
 			fillLastPage: false
 	}
 
+	$scope.remediatedPerIssue = {}
+	$scope.remediatedPerIssue.data = [];
+	$scope.remediatedPerIssue.labels = [];
+	$scope.remediatedPerCategory = {}
+	$scope.remediatedPerCategory.data = [];
+	$scope.remediatedPerCategory.labels = [];
+	$scope.remediationRatePerIssue = [];
+	$scope.remediationRatePerCategory = [];
+	$scope.scorePerExercises = {};
+	$scope.options = {}
+	$scope.options.animation = false;
+	$scope.options.layout = {
+			padding: {
+				left: 0,
+				right: 0,
+				top: 0,
+				bottom: 0
+			}
+	}
+	$scope.options.pieceLabel = {
+			// render 'label', 'value', 'percentage' or custom function, default is 'percentage'
+			render: 'percentage',
+			// precision for percentage, default is 0
+			precision: 0,
+			// identifies whether or not labels of value 0 are displayed, default is false
+			showZero: false,
+			// font size, default is defaultFontSize
+			fontSize: 12,
+			// font color, can be color array for each data, default is defaultFontColor
+			fontColor: '#FFF',
+			// font style, default is defaultFontStyle
+			fontStyle: 'normal',
+			// font family, default is defaultFontFamily
+			fontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+			// draw label in arc, default is false
+			arc: false,
+			// position to draw label, available value is 'default', 'border' and 'outside'
+			// default is 'default'
+			position: 'border',
+			// draw label even it's overlap, default is false
+			overlap: true
+	}
+	$scope.options.legend = {
+			display: true,
+			position: 'bottom',
+			labels: {
+				fontColor: "#000",
+				fontSize: 10
+			}
+	};
+	$scope.options.title = {
+			text : "",
+			display:true,
+			position: 'bottom'
+
+	}
+	$scope.radarOptions = {}
+	$scope.radarOptions.animation = false;
+	$scope.radarOptions.title = {
+			text : "",
+			display:true,
+			position: 'top'
+
+	}
+	$scope.radarOptions.legend = {
+			display: true,
+			position: 'bottom',
+			labels: {
+				fontColor: "#000",
+				fontSize: 10
+			}
+	};
+
+	$scope.$on('statsTeam:updated', function(event,data) {
+		$scope.remediationRatePerIssue = [];
+		for (var property in data.issuesRemediationRate) {
+			if (data.issuesRemediationRate.hasOwnProperty(property) && 
+					Object.keys(data.issuesRemediationRate[property]).length>0) {
+
+				var obj = {};
+				obj.options = cloneObj($scope.options);
+				obj.options.title.text = property;
+				obj.data = [];
+				obj.labels = ["Not Vulnerable", "Vulnerable", "Not Addressed", "Broken Functionality"];
+				for(var l=0;l<obj.labels.length;l++){
+					var tmpStatus = obj.labels[l].toUpperCase().replace(" ","_");
+					var tmpValue = data.issuesRemediationRate[property][tmpStatus]
+					if(undefined==tmpValue){
+						tmpValue = 0;
+					}
+					obj.data.push(tmpValue);
+				}
+				$scope.remediationRatePerIssue.push(obj);
+			}
+		}
+		$scope.remediatedPerIssue.data = [[]];
+		$scope.remediatedPerIssue.labels = [];
+		for(var j in $scope.remediationRatePerIssue){
+			if ($scope.remediationRatePerIssue.hasOwnProperty(j)){
+				var tmpRem = $scope.remediationRatePerIssue[j].data[0]
+				var tmpTot = $scope.remediationRatePerIssue[j].data.reduce(getSum);
+				var tmpPercentage =  Math.floor((tmpRem * 100) / tmpTot);
+				var tmpName = $scope.remediationRatePerIssue[j].options.title.text
+				$scope.remediatedPerIssue.labels.push(tmpName);
+				$scope.remediatedPerIssue.data[0].push(tmpPercentage);
+			}
+		}
+		$scope.remediatedPerIssue.options = cloneObj($scope.radarOptions);
+		$scope.remediatedPerIssue.options.title.display = false;
+		$scope.remediatedPerIssue.series = ["Remediated (%)"];
+
+		$scope.remediationRatePerCategory = [];
+		for (var property in data.categoriesRemediationRate) {
+			if (data.categoriesRemediationRate.hasOwnProperty(property) && 
+					Object.keys(data.categoriesRemediationRate[property]).length>0) {
+				var obj = {};
+				obj.options = cloneObj($scope.options);
+				obj.options.title.text = property;
+				obj.data = [];
+				obj.labels = ["Not Vulnerable", "Vulnerable", "Not Addressed", "Broken Functionality"];
+				for(var l=0;l<obj.labels.length;l++){
+					var tmpStatus = obj.labels[l].toUpperCase().replace(" ","_");
+					var tmpValue = data.categoriesRemediationRate[property][tmpStatus]
+					if(undefined==tmpValue){
+						tmpValue = 0;
+					}
+					obj.data.push(tmpValue);
+				}
+				$scope.remediationRatePerCategory.push(obj);
+			}
+		}
+		$scope.remediatedPerCategory.data = [[],[],[]];
+		$scope.remediatedPerCategory.labels = [];
+		for(var j in $scope.remediationRatePerCategory){
+			if ($scope.remediationRatePerCategory.hasOwnProperty(j)){
+				var tmpRem = $scope.remediationRatePerCategory[j].data[0]
+				var tmpTot = $scope.remediationRatePerCategory[j].data.reduce(getSum);
+				var tmpPercentage =  Math.floor((tmpRem * 100) / tmpTot);
+				var tmpName = $scope.remediationRatePerCategory[j].options.title.text;
+				$scope.remediatedPerCategory.labels.push(tmpName);
+				$scope.remediatedPerCategory.data[0].push(tmpPercentage);
+				$scope.remediatedPerCategory.data[1].push(Math.ceil(data.totalMinutesPerIssueCategory[tmpName]/60));
+				$scope.remediatedPerCategory.data[2].push(data.avgMinutesPerIssueCategory[tmpName]);
+			}
+		}
+		$scope.remediatedPerCategory.options = cloneObj($scope.radarOptions);
+		$scope.remediatedPerCategory.options.title.display = false;
+		$scope.remediatedPerCategory.series = ["Remediated (%)","Total Time (hours)","Avg Time (minutes)"];
+
+	});
+
+
 }]);
 
 
@@ -1289,23 +1522,24 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 	$scope.selectedRegion = "";
 	$scope.assignedExercises = [];
 	$rootScope.takenExercises = [];
-	$scope.exerciseTechnologies = [];
+	var exerciseTechnologies = [];
 	$scope.currentSearch = "";
 	$scope.currentTechnology = "";
 	$scope.availableExercises = [];
 
-	$scope.getColorForScore = function(score){
+	$rootScope.getColorForScore = function(score){
 		if(score<=20)
-			return "#7693c1f0"
-			if(score<=50)
-				return "#9e4a72de"
-				if(score<=75)
-					return "#7676c1f0"
-					if(score<=100)
-						return "#6a6a7dde"
-						if(score<=125)
-							return "#381f08de"
-							return "#bd6c22de";
+			return "#7693c1f0";
+		if(score<=50)
+			return "#9e4a72de";
+		if(score<=75)
+			return "#7676c1f0";
+		if(score<=100)
+			return "#6a6a7dde";
+		if(score<=125)
+			return "#381f08de"
+
+			return "#bd6c22de";
 	}
 
 
@@ -1372,21 +1606,30 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 			return "Coming Soon"
 		case "3":
 			return "Not active"
+		case "4":
+			return "Available"
 		default:
 			break;
 		}
 
 	}
-
+	$scope.exercisesTech = [];
 	$scope.showTechnologies = function(data){
-		$scope.exerciseTechnologies = [];
+		exerciseTechnologies = [];
+		$scope.exercisesTech = [];
 		for(var i in data){
 			if(data.hasOwnProperty(i) && undefined!=data[i].technology){
-				if($scope.exerciseTechnologies.indexOf(data[i].technology)<0)
-					$scope.exerciseTechnologies.push(data[i].technology)
+				if(exerciseTechnologies.indexOf(data[i].technology)<0)
+					exerciseTechnologies.push(data[i].technology)
 			}
 		}
-		if($scope.exerciseTechnologies.length<=0){
+
+		var size = 3;
+		while (exerciseTechnologies.length > 0){
+			$scope.exercisesTech.push(exerciseTechnologies.splice(0, size));
+		}
+
+		if($scope.exercisesTech.length<=0){
 			$scope.emptyExercises = true;
 		}
 		else{
@@ -1514,42 +1757,7 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 			$scope.availableExercises = data;
 			$scope.showTechnologies(data);
 		}
-		/*
-			var exArray = deepCopy(data);
 
-			exArray.sort(function(a, b) {
-				var nameA = a.technology; 
-				var nameB = b.technology;
-
-				if (nameA < nameB) {
-					return -1;
-				}
-				if (nameA > nameB) {
-					return 1;
-				}
-				var activeA = a.active;
-				var activeB = b.active;
-				return (activeA === activeB)? 0 : activeA? -1 : 1;
-			});
-			for(var j=0;j<exArray.length;j++){
-				if(!exArray[j].id){
-					try{
-						exArray.remove(j,j);
-						j--;
-					}catch(err){
-						continue;
-					}
-				}
-			}
-			var size = 3;
-			while (exArray.length > 0){
-				$scope.exercises.push(exArray.splice(0, size));
-				$scope.emptyExercises = false;
-			}
-		}
-		if($scope.exercises.length<=0){
-			$scope.emptyExercises = true;
-		}*/
 	});
 
 	$scope.$on('exerciseDetails:updated', function(event,data) {
@@ -1651,61 +1859,27 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 	$scope.$on('exerciseRegions:updated', function(event,data) {
 		if(data!=null){
 			$scope.availableRegions = [];
+			$scope.regionsPingTimes = [];
+			$scope.totalAvailableRegions = 0;
 			for(var j in data){
-				if(!Number.isInteger(parseInt(j)))
+				if(!data.hasOwnProperty(j))
 					continue;
-				var region = "Unavailable";
-
-				switch(data[j]) {
-				case "EU_WEST_1":
-					region = "EU (Ireland)";
-					break;
-				case "US_EAST_1":
-					region = "US East (N. Virginia)"
-						break;
-				case "AP_SOUTH_1":
-					region = "Asia Pacific (Mumbai)"
-						break;
-				case "AP_SOUTHEAST_1":
-					region = "Asia Pacific (Singapore)"
-						break;
-				case "US_EAST_2":
-					region = "US East (Ohio)";
-					break;
-				case "US_WEST_2":
-					region = "US West (Oregon)";
-					break;
-				case "US_WEST_1":
-					region = "US West (N. California)";
-					break;
-				case "CA_CENTRAL_1":
-					region = "Canada (Central)";
-					break;
-				case "EU_CENTRAL_1":
-					region = "EU (Frankfurt)";
-					break;
-				case "EU_WEST_2":
-					region = "EU (London)";
-					break;
-				case "EU_WEST_3":
-					region = "EU (Paris)";
-					break;
-				case "AP_NORTHEAST_2":
-					region = "Asia Pacific (Seoul)";
-					break;
-				case "AP_NORTHEAST_1":
-					region = "Asia Pacific (Tokyo)";
-					break;
-				case "AP_SOUTHEAST_2":
-					region = "Asia Pacific (Sydney)";
-					break;
-				case "SA_EAST_1":
-					region = "South America (São Paulo)";
-					break;
-				default:
-					break;
-				}
-				$scope.availableRegions.push(region);
+				$scope.totalAvailableRegions++;
+				var p = new Ping();
+				var fqdn = data[j].fqdn;
+				p.ping("https://"+fqdn, data[j].name, function(err, ping,f,r) {
+					console.log(f+" "+r+" "+ping)
+					if(ping<3000){
+						var obj = {};
+						obj.name = r;
+						obj.fqdn = f.replace("https://","");
+						obj.ping = ping;
+						$scope.regionsPingTimes.push(obj)
+					}
+					else{
+						$scope.totalAvailableRegions--;
+					}
+				});
 			}
 		}
 	});
@@ -1715,12 +1889,18 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 			"Java": "javab",
 			"Ruby": "rubyb",
 			"Python": "pythonb",
+			"Go Lang":"golangb",
+			"PHP":"phpb",
+			".NET":"dotnetb"
 	};
 	var pictForTechnology = {
 			"NodeJS": "/assets/img/nodejs.png",
 			"Java": "/assets/img/java.png",
 			"Ruby": "/assets/img/ruby.png",
 			"Python": "/assets/img/python.png",
+			"Go Lang":"/assets/img/golang.png",
+			"PHP":"/assets/img/php.png",
+			".NET":"/assets/img/dotnet.png"
 	};
 
 	var remediationClassMap = {
@@ -1734,7 +1914,7 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 		return remediationClassMap[status]
 	};
 
-	$scope.getExerciseClass = function(technology) {
+	$rootScope.getExerciseClass = function(technology) {
 		return technologyClassMap[technology];
 	};
 
@@ -1743,14 +1923,12 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 		return out;
 	};
 
-	$scope.getExerciseDetails = function(exId){
+	$rootScope.getExerciseDetails = function(exId){
 		$rootScope.exerciseStarted = false;
 		$rootScope.ready = false;
 		$rootScope.alreadyLaunched = false;
 		server.getExerciseDetails(exId);
 		server.getRegionsForExercise(exId);
-		//$rootScope.visibility.assignedExercises = false;
-		//$rootScope.visibility.currentExercise = true;
 	}
 	$scope.startExerciseModal = function(exerciseId){
 		$('.waitLoader').show();
@@ -1765,59 +1943,16 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 	});
 	$scope.startInstance = function(id){
 
-		regionString = $scope.selectedRegion;
-		switch(regionString) {
-		case "EU (Ireland)":
-			region = "EU_WEST_1";
-			break;
-		case "US East (N. Virginia)":
-			region = "US_EAST_1"
-				break;
-		case "Asia Pacific (Mumbai)":
-			region = "AP_SOUTH_1"
-				break;
-		case "Asia Pacific (Singapore)":
-			region = "AP_SOUTHEAST_1"
-				break;
-		case "US East (Ohio)":
-			region = "US_EAST_2";
-			break;
-		case "US West (Oregon)":
-			region = "US_WEST_2";
-			break;
-		case "US West (N. California)":
-			region = "US_WEST_1";
-			break;
-		case "Canada (Central)":
-			region = "CA_CENTRAL_1";
-			break;
-		case "EU (Frankfurt)":
-			region = "EU_CENTRAL_1";
-			break;
-		case "EU (London)":
-			region = "EU_WEST_2";
-			break;
-		case "EU (Paris)":
-			region = "EU_WEST_3";
-			break;
-		case "Asia Pacific (Seoul)":
-			region = "AP_NORTHEAST_2";
-			break;
-		case "Asia Pacific (Tokyo)":
-			region = "AP_NORTHEAST_1";
-			break;
-		case "Asia Pacific (Sydney)":
-			region = "AP_SOUTHEAST_2";
-			break;
-		case "South America (São Paulo)":
-			region = "SA_EAST_1";
-			break;
-		default:
-			$("#startExerciseModal").modal('hide');
-		return;
+		if($scope.regionsPingTimes.length==$scope.totalAvailableRegions){
+			$('.waitLoader').show();
+			server.startInstance(id, $scope.regionsPingTimes, $rootScope.selectedChallenge);
 		}
-		$('.waitLoader').show();
-		server.startInstance(id, region);
+		else{
+			$('.waitLoader').show();
+			setTimeout(function () {
+				$scope.startInstance(id);
+			},500);
+		}
 	}
 
 	var popupBlockerChecker = {
@@ -1842,7 +1977,7 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 			},
 			_displayError: function(){
 				PNotify.removeAll();
-				notificationService.notice("A Popup Blocker is preventing opening a new tab for your RTF environment. Please add this site to your exception list.");
+				notificationService.error("A Popup Blocker is preventing opening a new tab for your RTF environment. Please add this site to your exception list.");
 			}
 	};
 	function getCountdownString(wait){
@@ -1867,15 +2002,8 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 		try{
 			var popup = window.open("/user/exercise.html#id="+data.exInstanceId);  
 			popupBlockerChecker.check(popup);
-			/*if(beta){
-
-			}
-			else{
-				var popup = window.open("https://"+$scope.guacFqdn+"/rtf/cservlet?u="+$scope.guacUser+"&t="+$scope.guacToken);  
-				popupBlockerChecker.check(popup);
-			}*/
 		}catch(err){
-			var popup = window.open("https://"+$scope.guacFqdn+"/rtf/cservlet?u="+$scope.guacUser+"&t="+$scope.guacToken);  
+			var popup = window.open("/user/exercise.html#id="+data.exInstanceId);  
 			popupBlockerChecker.check(popup);
 		}	
 	});
@@ -1900,7 +2028,7 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 	}
 
 	$scope.$on('exerciseStopped:updated', function(event,data) {
-		exerciseStopped();
+		$scope.exerciseStopped();
 	});
 
 	$scope.reservationPolled = false;
@@ -2032,7 +2160,6 @@ rtf.controller('exercises',['$scope','server','$route','$rootScope','$interval',
 		var src = "https://"+$scope.guacFqdn+"/rtf/cservlet?u="+$scope.guacUser+"&t="+$scope.guacToken;  		
 		$('#preload').html("<iframe id='preloadIframe' class='preloadIframe' src='"+src+"'></iframe>");
 	}
-	//window.preload=setupPreload;
 	$scope.refreshResults = function(){
 		$('.waitLoader').show();
 		server.getResultStatus($rootScope.exInstanceId);
@@ -2071,32 +2198,36 @@ rtf.controller('history',['$scope','server','$rootScope','$filter','$location',f
 	$scope.userHistoryDetails = {}
 
 	$scope.masterCompletedReviews = [];
-	$scope.hideCancelled = true;
 	$scope.filteredCompletedList = []; 
 
 	$scope.getUserHistory = function(){
 		server.getUserHistory();
 	}
 
-	$scope.$watch("hideCancelled", function() {
-		$scope.updateFilteredList();
-	});
+	$scope.notCorrect = function(flag,exercise){
 
+	}
 
 	$scope.updateFilteredList = function() {
 		$scope.filteredCompletedList = $filter("filter")($scope.masterCompletedReviews, $scope.query);
-		if($scope.hideCancelled){
-			$scope.filteredCompletedList = $filter("filter")($scope.filteredCompletedList,{ status:"!CANCELLED"});
-		}
 	};
-
-	$scope.$on('completedReviews:updated', function(event,data) {
-	});
-	//
 
 	$scope.tableconfig = {
 			itemsPerPage: 8,
 			fillLastPage: false
+	}
+
+	$scope.getScoringModeString = function(code){
+		switch(parseInt(code)){
+		case 0:
+			return "Automated";
+		case 1:
+			return "Automated";
+		case 2:
+			return "Manual";
+		default: 
+			return "Manual";
+		}
 	}
 
 	$scope.getExerciseStatusString = function(status){
@@ -2110,8 +2241,14 @@ rtf.controller('history',['$scope','server','$rootScope','$filter','$location',f
 		case "REVIEWED":
 			return "Completed";
 			break;
-		default:
+		case "AUTOREVIEWED":
 			return "Completed";
+			break;
+		case "REVIEWED_MODIFIED":
+			return "Completed";
+			break;
+		default:
+			return "Pending Review";
 		break;
 		}
 	}
@@ -2149,7 +2286,19 @@ rtf.controller('history',['$scope','server','$rootScope','$filter','$location',f
 			pointRadius: 10,pointHoverRadius: 15},{ showLine: true,pointStyle:'rectRounded',fill: false,
 				pointRadius: 10,pointHoverRadius: 15}] ;
 		$rootScope.scorePerExercises.options.events= ["mousemove", "mouseout", "click", "touchstart", "touchmove", "touchend"];
-		$rootScope.scorePerExercises.options.title = { display:false}
+		$rootScope.scorePerExercises.options.title = { display:true}
+
+		$rootScope.scorePerExercises.options.tooltips = {
+				callbacks: {
+					// Use the footer callback to display the sum of the items showing in the tooltip
+					afterTitle: function(tooltipItems, data) {
+						if(undefined==$rootScope.scorePerExercises.exercises[tooltipItems[0].index])
+							return "";
+						return $rootScope.scorePerExercises.exercises[tooltipItems[0].index];
+					}
+				},
+				footerFontStyle: 'normal'
+		};
 		$rootScope.scorePerExercises.options.pieceLabel = {
 				render: 'value',
 				precision: 0,
@@ -2166,14 +2315,17 @@ rtf.controller('history',['$scope','server','$rootScope','$filter','$location',f
 		$rootScope.scorePerExercises.data = [[],[]];
 		$rootScope.scorePerExercises.series = ["Score","Duration (minutes)"];
 		$rootScope.scorePerExercises.labels = [];
-
+		$rootScope.scorePerExercises.exercises = [];
 		for (var property in data) {
 			if(data.hasOwnProperty(property) && data[property].status == "CANCELLED")
 				$rootScope.cancelledExercisesInHistory = true;
-			if (data.hasOwnProperty(property) && data[property].status == "REVIEWED") {
-				$rootScope.scorePerExercises.labels.push(moment(data[property].endTime).format('MMM DD'))
+			if (data.hasOwnProperty(property) && (data[property].status == "REVIEWED" || data[property].status == "AUTOREVIEWED" || data[property].status == "REVIEWED_MODIFIED")) {
+				$rootScope.scorePerExercises.labels.push(moment(data[property].endTime).format('MMM DD'));	
 				$rootScope.scorePerExercises.data[0].push(data[property].score.result);
+				if(undefined==data[property].duration)
+					data[property].duration=0;
 				$rootScope.scorePerExercises.data[1].push(data[property].duration);
+				$rootScope.scorePerExercises.exercises.push(data[property].title);
 
 			}
 		}
@@ -2182,7 +2334,10 @@ rtf.controller('history',['$scope','server','$rootScope','$filter','$location',f
 	var remediationClassMap = {
 			"Not Vulnerable": "table-success",
 			"Vulnerable": "table-danger",
-			"Broken Functionality":"table-warning"
+			"Broken Functionality":"table-warning",
+			"Not Available":"table-secondary",
+			"Not Addressed":"table-info"
+
 	}
 	$scope.getRemedationTableClass = function(status) {
 		return remediationClassMap[status]
@@ -2200,17 +2355,25 @@ rtf.controller('history',['$scope','server','$rootScope','$filter','$location',f
 		case "3":
 			return "Not Available"
 
-		default: return "Not Available";
+		default: 
+			if($scope.userHistoryDetails.status == 'STOPPED')
+				return "Not Available";
+			else
+				return "Not Addressed";
 		}
 	}
 	var statusClassMap = {
 			"0": "table-success",
 			"1": "table-danger",
 			"2": "table-warning",
-			"4": "table-info"
+			"4": "table-info",
+			"NOT_AVAILABLE":"table-secondary"
 	};
 	$scope.getStatusClass = function(status) {
-		return statusClassMap[status]
+		s = statusClassMap[status];
+		if(s == 'table-secondary' && ($scope.userHistoryDetails.status == 'AUTOREVIEWED' ||$scope.userHistoryDetails.status == 'REVIEWED_MODIFIED'))
+			s = 'table-info';
+		return s;
 	};
 
 	var scoreClassMap = {	
@@ -2237,7 +2400,7 @@ rtf.controller('history',['$scope','server','$rootScope','$filter','$location',f
 	}
 
 	$scope.getDateFormat = function(start){
-		return moment(start).format("MMM D YYYY, HH:mm");
+		return moment(start).local().format("MMM D YYYY, HH:mm");
 	}
 
 	$scope.getResultsScoreClass = function(result,total,status) {
@@ -2245,7 +2408,7 @@ rtf.controller('history',['$scope','server','$rootScope','$filter','$location',f
 			return scoreClassMap["active"];
 		if(result==-1)
 			return scoreClassMap["pending"];
-		if(result==total)
+		if(result>(total-(total/10)))
 			return scoreClassMap["success"];
 		else if(result<(total/3))
 			return scoreClassMap["failure"];
@@ -2282,15 +2445,83 @@ rtf.controller('history',['$scope','server','$rootScope','$filter','$location',f
 		server.sendFeedback($scope.userHistoryDetails.id, $scope.feedbackMessage);
 		$('#leaveFeedbackModal').modal('hide');
 	}
+	$scope.getScoreString = function(score){
+		if(parseInt(score)>=0)
+			return score;
+		else{
+			if($scope.userHistoryDetails.status == "AUTOREVIEWED" || $scope.userHistoryDetails.status == "REVIEWED_MODIFIED")
+				return 0;
+			return " ? ";
+		}
+	}
+
+	$scope.getQuestionName = function(resName){
+		if($scope.userHistoryDetails.exercise!=undefined){
+			for(var i in $scope.userHistoryDetails.exercise.flags){
+				if($scope.userHistoryDetails.exercise.flags.hasOwnProperty(i)){
+					for(var j in $scope.userHistoryDetails.exercise.flags[i].flagList){
+						if($scope.userHistoryDetails.exercise.flags[i].flagList.hasOwnProperty(j) && $scope.userHistoryDetails.exercise.flags[i].flagList[j].selfCheckAvailable && $scope.userHistoryDetails.exercise.flags[i].flagList[j].selfCheckName==resName){
+							return $scope.userHistoryDetails.exercise.flags[i].title;
+						}
+					}
+				}
+			}
+		}
+		return resName;
+	}
+	$scope.getQuestionMaxScore = function(resName){
+		if($scope.userHistoryDetails.exercise!=undefined){
+
+			for(var i in $scope.userHistoryDetails.exercise.flags){
+				if($scope.userHistoryDetails.exercise.flags.hasOwnProperty(i)){
+					for(var j in $scope.userHistoryDetails.exercise.flags[i].flagList){
+						if($scope.userHistoryDetails.exercise.flags[i].flagList.hasOwnProperty(j) && $scope.userHistoryDetails.exercise.flags[i].flagList[j].selfCheckAvailable && $scope.userHistoryDetails.exercise.flags[i].flagList[j].selfCheckName==resName){
+							return $scope.userHistoryDetails.exercise.flags[i].flagList[j].maxScore;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	$scope.complaintExerciseId = -1;
+	$scope.complaintExerciseFlag = "";
+
+	$scope.openComplaintModal = function(e,f){
+		$scope.complaintExerciseId = e;
+		$scope.complaintExerciseFlag = f;
+		$('#scoringComplaintModal').modal('show');
+	}
+
+	$scope.sendScoringComplaint = function(){
+		var obj = {};
+		obj.name = $scope.complaintExerciseFlag;
+		obj.text = $scope.complaintModalTextInput;
+		obj.id = $scope.complaintExerciseId;
+		server.addScoringComplaint(obj);
+		$('#scoringComplaintModal').modal('hide');
+	}
+
+	$scope.$on('scoringComplaintAdded:updated', function(event,data) {	
+		server.getUserHistoryDetails($scope.userHistoryDetails.id);
+		$scope.complaintModalTextInput = "";
+	});
 	$scope.$on('userHistoryDetails:updated', function(event,data) {	
 
 		if(data.results.length == 0){
 			data.results = [];
 			for(var j in data.exercise.flags){
-				data.results[j] = {};
-				data.results[j].name = data.exercise.flags[j].title;
-				data.results[j].status = "NOT_AVAILABLE";
-				data.results[j].verified = false; 
+				if(data.exercise.flags.hasOwnProperty(j)){
+					for(var i in data.exercise.flags[j].flagList){
+						if(data.exercise.flags[j].flagList.hasOwnProperty(i) && data.exercise.flags[j].flagList[i].selfCheckAvailable){
+							data.results[j] = {};
+							data.results[j].name = data.exercise.flags[j].flagList[i].selfCheckName;
+							data.results[j].status = "NOT_AVAILABLE";
+							data.results[j].verified = false; 
+						}
+					}
+				}
+
 			}
 		}
 		$scope.showCodeDiff = false;
@@ -2311,7 +2542,7 @@ rtf.controller('history',['$scope','server','$rootScope','$filter','$location',f
 		JSZipUtils.getBinaryContent($scope.userHistoryDetails.id,$rootScope.ctoken, '/user/handler','getUserHistoryDetailsFile', function(err, data) {
 			if(err) {
 				$scope.zipError = true;
-				throw err; // or handle err
+				return; // or handle err
 			}
 
 			JSZip.loadAsync(data).then(function(zip) {
@@ -2457,6 +2688,8 @@ rtf.controller('achievements',['$scope','server','$rootScope',function($scope,se
 	});
 	$scope.$on('statsUser:updated', function(event,data) {
 
+
+
 		$scope.remediationRatePerCategory = [];
 		for (var property in data.categoriesRemediationRate) {
 			if (data.categoriesRemediationRate.hasOwnProperty(property) && 
@@ -2512,14 +2745,6 @@ rtf.controller('achievements',['$scope','server','$rootScope',function($scope,se
 		}
 	});
 
-	var technologyClassMap = {
-			"NodeJS": "card-outline-warning",
-			"Java": "card-outline-primary",
-			"C#": "card-outline-success",
-	};
-	$scope.getTechnologyClass = function(technology) {
-		return technologyClassMap[technology];
-	};
 
 }]);
 rtf.controller('settings',['$scope','server','$timeout',function($scope,server,$timeout){
@@ -2552,23 +2777,83 @@ rtf.controller('settings',['$scope','server','$timeout',function($scope,server,$
 		$scope.newPassword = "";
 	}
 }]);
-rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter',function($scope,server,$rootScope,$location,$filter){
+rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter','$interval',function($scope,server,$rootScope,$location,$filter,$interval){
 
-	$scope.selectedChallenge = "";
+	$scope.user = server.user;
+	$rootScope.selectedChallenge = -1;
 	$scope.filteredChallengesList = [];
 	$scope.masterChallengesList = [];
 	$rootScope.showChallengesList = true;
 	$rootScope.showChallengeDetails = false;
-	$scope.showList = true;
-	$scope.showDetails = false;
-	$scope.getChallengeDetails = function(exId){
-		server.getChallengeDetails(exId);
+	$scope.showCompleted = false;
+	$scope.noActiveChallenges = true;
+
+	$scope.challengeResults = {};
+	$rootScope.challengeDetails = [];
+
+
+	$scope.$watch("showCompleted", function() {
+		$scope.updateFilteredList();
+	});	
+
+	$scope.getChallengeDetailsButton = function(id){
+		$('.waitLoader').show();
+		$rootScope.selectedChallenge = id;
+		server.getChallengeDetails(id);
+	}
+	$scope.getChallengeDetails = function(id){
+		$rootScope.selectedChallenge = id;
+		server.getChallengeDetails(id);
+	}
+
+	$rootScope.getChallengeStatusString = function(status){
+		switch(status){
+		case "IN_PROGRESS":
+			return "In Progress";
+			break;
+		case "NOT_STARTED":
+			return "Not Started";
+			break;
+		case "FINISHED":
+			return "Completed";
+			break;
+		}
+	}
+
+	$scope.didTakeExercise = function(exId){
+		for(var e in $rootScope.challengeDetails.runExercises){
+			if($rootScope.challengeDetails.runExercises.hasOwnProperty(e)){
+				if($rootScope.challengeDetails.runExercises[e].user.user == $scope.user.user && $rootScope.challengeDetails.runExercises[e].exercise.id==exId){
+					return true;
+				}
+			} 
+		}
+		return false;
 	}
 
 	$rootScope.challengeDetails = [];
+	var challengeUpdateTimer = null;
+
+
+
+
 	$scope.$on('challengeDetails:updated', function(event,data) {
+
+		$('.waitLoader').hide();
+
 		data.flags = [];
 		data.theads = [];
+
+		$scope.exercises = [];
+		var tmpExercises = [];
+		for(var i in data.exercises){
+			if(data.exercises.hasOwnProperty(i) && data.exercises[i].id)
+				tmpExercises.push(data.exercises[i])
+		}
+		var size = 3;
+		while (tmpExercises.length > 0){
+			$scope.exercises.push(tmpExercises.splice(0, size));
+		}
 
 		for (var property in data.exercises) {
 			if (data.exercises.hasOwnProperty(property)) {
@@ -2585,43 +2870,187 @@ rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter
 		}
 
 		var remediated = 0; 
-		var runFlags = 0;
+		data.runFlags = 0;
+		data.userRunFlags = 0;
+		var userRemediated = 0;
+		data.userRunExercises = 0;
+		data.challengeRunExercises=0;
+		data.challengeRunningExercises=0;
 		for(var i=0;i<data.runExercises.length;i++){
+			if(data.runExercises[i].results.length>0){
+				data.challengeRunExercises++;
+			}
+			if(data.runExercises[i].status=="RUNNING"){
+				data.challengeRunningExercises++;
+			}
+			if(data.runExercises[i].user.user==$scope.user.user && data.runExercises[i].results.length>0){
+				data.userRunExercises++
+			}
 			for(var j=0;j<data.runExercises[i].results.length;j++){
-				runFlags++;
+				data.runFlags++;
+				if(data.runExercises[i].user.user==$scope.user.user){
+					data.userRunFlags++
+				}
 				if(data.runExercises[i].results[j].status == "0"){
 					remediated++;
-				}
-			}
-		}
-
-		data.remediation = remediated/runFlags * 100;
-
-		//data.remediation = data.users.length * data.flags.length
-		$rootScope.challengeDetails = data;
-
-		$rootScope.showChallengeDetails = true;
-		$rootScope.showChallengesList = false;
-		$location.path("challenges/details/"+$rootScope.challengeDetails.id, false);
-	});
-
-	$scope.getChallengeResultFor = function(usr,flag){
-		var runExercises = $rootScope.challengeDetails.runExercises;
-		var status = "-1";
-		//loop1:
-		for (var ex=0;ex<runExercises.length;ex++) {
-			if(runExercises[ex]["user"].user==usr) {
-				for(var res=0;res<runExercises[ex]["results"].length;res++){
-					if (runExercises[ex]["results"][res].name==flag) {
-						status = runExercises[ex]["results"][res].status;
-						break;
+					if(data.runExercises[i].user.user==$scope.user.user){
+						userRemediated++;
 					}
 				}
 			}
 		}
+		if(remediated==0 || data.runFlags == 0)
+			data.remediation = 0;
+		else
+			data.remediation = (remediated/data.runFlags) * 100;
+
+		if(userRemediated==0 || data.userRunFlags == 0)
+			data.userRemediation = 0;
+		else
+			data.userRemediation = (userRemediated/data.userRunFlags) * 100;
+
+		if(data.exercises.length!=0 && data.userRunExercises !=0)
+			data.userCompletion = (data.userRunExercises /  data.exercises.length) * 100;
+		else
+			data.userCompletion = 0;
+
+
+
+		$rootScope.challengeDetails = data;
+
+		$rootScope.challengeDetails.teams = [];
+
+		for(var u in $rootScope.challengeDetails.users){
+			if ($rootScope.challengeDetails.users.hasOwnProperty(u)){
+
+				$scope.challengeResults[$rootScope.challengeDetails.users[u].user] = {}
+				$rootScope.challengeDetails.users[u].challengeRunFlags = 0;
+				$rootScope.challengeDetails.users[u].challengeRunExercises = 0;
+				$rootScope.challengeDetails.users[u].challengeScore = 0;
+				$rootScope.challengeDetails.users[u].challengeRemediatedFlags = 0;
+				for(var e in $rootScope.challengeDetails.runExercises){
+
+					if($rootScope.challengeDetails.runExercises.hasOwnProperty(e) && $rootScope.challengeDetails.runExercises[e].user.user==$rootScope.challengeDetails.users[u].user){
+						$rootScope.challengeDetails.users[u].challengeRunExercises++;
+						for(var r in $rootScope.challengeDetails.runExercises[e].results){
+							if($rootScope.challengeDetails.runExercises[e].results.hasOwnProperty(r)){
+								$scope.challengeResults[$rootScope.challengeDetails.users[u].user][$rootScope.challengeDetails.runExercises[e].results[r].name] = $rootScope.challengeDetails.runExercises[e].results[r];
+								if($rootScope.challengeDetails.runExercises[e].results[r].status=="0" && Number.isInteger($rootScope.challengeDetails.runExercises[e].results[r].score)){
+									$rootScope.challengeDetails.users[u].challengeScore += $rootScope.challengeDetails.runExercises[e].results[r].score;
+									$rootScope.challengeDetails.users[u].challengeRemediatedFlags++;
+								}
+
+								$rootScope.challengeDetails.users[u].challengeRunFlags++;
+							} 
+						}
+					}
+				}
+			}
+		}
+		$rootScope.showChallengeDetails = true;
+		$rootScope.showChallengesList = false;
+		$location.path("challenges/details/"+$rootScope.challengeDetails.id, false);
+
+		if(challengeUpdateTimer==null )
+			challengeUpdateTimer = $interval(function(){triggerChallengeUpdate($rootScope.challengeDetails.id)},10000)
+
+	});
+
+	function triggerChallengeUpdate(id){
+		if($rootScope.visibility.challenges && $rootScope.showChallengeDetails && id == $rootScope.challengeDetails.id){
+			$scope.getChallengeDetails(id);
+			$rootScope.challengeDetails.lastRefreshed = new Date();
+		}
+		else{
+			$interval.cancel(challengeUpdateTimer);
+			challengeUpdateTimer = null;
+		}
+	}
+
+	$scope.getExerciseIdForFlag = function(usr,flag){
+		var sf = getSelfCheckFromFlag(flag);
+		if(sf=="")
+			return "";
+		var runExercises = $rootScope.challengeDetails.runExercises;
+		for (var ex=0;ex<runExercises.length;ex++) {
+			for(var res=0;res<runExercises[ex]["results"].length;res++){
+				if (runExercises[ex]["results"][res].name==sf) {
+					return runExercises[ex].id
+				}
+			}			
+		}
+	}
+	function getSelfCheckFromFlag(flag){
+		for(var f in $rootScope.challengeDetails.flags){
+			if($rootScope.challengeDetails.flags.hasOwnProperty(f) && $rootScope.challengeDetails.flags[f].title==flag){
+				for(var q in $rootScope.challengeDetails.flags[f].flagList){
+					if($rootScope.challengeDetails.flags[f].flagList.hasOwnProperty(q) && $rootScope.challengeDetails.flags[f].flagList[q].selfCheckAvailable==true){
+						return $rootScope.challengeDetails.flags[f].flagList[q].selfCheckName;
+					}
+				}
+			}
+		}
+		return "";
+	}
+	$scope.getClassPlacementInChallenge= function(usr,name){
+		if($scope.challengeResults[usr][name]==undefined)
+			return false;
+		else if($scope.challengeResults[usr][name]['firstForFlag']){
+			return "goldPlacement";
+		}
+		else if($scope.challengeResults[usr][name]['secondForFlag']){
+			return "silverPlacement";
+		}
+		else if($scope.challengeResults[usr][name]['thirdForFlag']){
+			return "bronzePlacement";
+		}
+		return "";
+	}
+	$scope.getPlacementInChallenge = function(usr,name){
+		if($scope.challengeResults[usr][name]==undefined)
+			return false;
+		else if($scope.challengeResults[usr][name]['firstForFlag']){
+			return "1st";
+		}
+		else if($scope.challengeResults[usr][name]['secondForFlag']){
+			return "2nd";
+		}
+		else if($scope.challengeResults[usr][name]['thirdForFlag']){
+			return "3rd";
+		}
+		return "";
+	}
+
+	$scope.isPlacedInChallenge = function(usr,name){
+		if($scope.challengeResults[usr][name]==undefined)
+			return false;
+		else if($scope.challengeResults[usr][name]['firstForFlag']){
+			return true;
+		}
+		else if($scope.challengeResults[usr][name]['secondForFlag']){
+			return true;
+		}
+		else if($scope.challengeResults[usr][name]['thirdForFlag']){
+			return true;
+		}
+		return false;
+	}
+
+	$scope.getChallengeResultFor = function(usr,flag){
+		var sf = getSelfCheckFromFlag(flag);
+
+		if(sf=="")
+			return "N/A";
+		var status = "-1";
+		//loop1:
+		try{
+			var status = $scope.challengeResults[usr][sf].status
+		}catch(e){
+			status = "-1";
+		}
 
 		switch(status){
-		case "-1":
+		case undefined:
 			return "Not Started"
 		case "1":
 			return "Vulnerable"
@@ -2634,30 +3063,44 @@ rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter
 		default: return "N/A"
 		};
 	}
+	$scope.getClassForChallengeResult = function(user,flag){
+		var status = $scope.getChallengeResultFor(user,flag);
+
+		switch(status){
+		case "-1":
+			return "table-light"
+		case "Vulnerable":
+			return "table-danger"
+		case "Not Vulnerable":
+			return "table-success"
+		case "Broken Functionality":
+			return "table-warning"
+		case "Not Addressed":
+			return "table-info"
+		default: return "table-light"
+		};
+
+
+
+	}
 
 	$scope.backToList = function(){
 		$rootScope.showChallengeDetails = false;
 		$rootScope.showChallengesList = true;
+		$location.path("challenges", false);
+
 	}
 
+	$scope.updateFilteredList = function() {
+		if($scope.showCompleted)
+			$scope.filteredChallengesList = $scope.masterChallengesList;
+		else
+			$scope.filteredChallengesList = $filter("filter")($scope.masterChallengesList,{ status:"!FINISHED"});
 
-	$scope.getChallengeStatusString = function(status){
-		switch(status){
-		case "IN_PROGRESS":
-			return "In Progress";
-			break;
-		case "NOT_STARTED":
-			return "Not Started";
-			break;
-		case "FINISHED":
-			return "Finished";
-			break;
-		}
-	}
-
-
-	$scope.updateChallengesFilteredList = function() {
-		$scope.filteredChallengesList = $filter("filter")($scope.masterChallengesList, $scope.queryChallenges);
+		if($scope.filteredChallengesList.length==0)
+			$scope.noActiveChallenges = true;
+		else
+			$scope.noActiveChallenges = false;
 	};
 	$scope.challengestableconfig = {
 			itemsPerPage: 20,
@@ -2667,7 +3110,6 @@ rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter
 
 		for(var c in data){
 			if (data.hasOwnProperty(c)) {
-
 				for (var property in data[c].exercises) {
 					if (data[c].exercises.hasOwnProperty(property)) {
 						for(var f in data[c].exercises[property].flags){
@@ -2695,20 +3137,21 @@ rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter
 				}
 			}
 		}
-
-		//data.remediation = data.users.length * data.flags.length
-		$rootScope.challengeDetails = data;
+		if(null==data)
+			data = []
 		$scope.masterChallengesList = data;
-		$scope.filteredChallengesList = $scope.masterChallengesList;
+
+		if($scope.showCompleted)
+			$scope.filteredChallengesList = $scope.masterChallengesList;
+		else
+			$scope.filteredChallengesList = $filter("filter")($scope.masterChallengesList,{ status:"!FINISHED"});
+
+		if($scope.filteredChallengesList.length==0)
+			$scope.noActiveChallenges = true;
+		else
+			$scope.noActiveChallenges = false;
 	});
-	var technologyClassMap = {
-			"NodeJS": "nodejsb",
-			"Java": "javab",
-			"C#": "csharpb",
-	};
-	$scope.getExerciseClass = function(technology) {
-		return technologyClassMap[technology];
-	};
+
 	$scope.getFormattedEnd = function(date){
 		var out = moment(date).format("MMM Do YYYY");
 		return out;

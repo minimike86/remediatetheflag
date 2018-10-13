@@ -152,7 +152,7 @@ _st = function(fRef, mDelay) {
 
 	}
 }
-var rtf = angular.module('rtfNg',[]).filter('trustUrl', function ($sce) {
+var rtf = angular.module('rtfNg',['angular-table']).filter('trustUrl', function ($sce) {
 	return function(url) {
 		return $sce.trustAsResourceUrl(url);
 	};
@@ -179,9 +179,9 @@ var compareTo = function() {
 $(document).ready(function(){
 	var originalHash = document.location.hash.substr(1);
 	var result = originalHash.split('&').reduce(function (result, item) {
-	    var parts = item.split('=');
-	    result[parts[0]] = parts[1];
-	    return result;
+		var parts = item.split('=');
+		result[parts[0]] = parts[1];
+		return result;
 	}, {});
 	$('li.dropdown a').on('click', function (event) {
 		$(this).parent().toggleClass('open');
@@ -221,12 +221,13 @@ rtf.service('server',function($http,$rootScope){
 			var exId = document.location.hash.replace("#","");
 			var hash = window.location.hash.substr(1);
 			var result = hash.split('&').reduce(function (result, item) {
-			    var parts = item.split('=');
-			    result[parts[0]] = parts[1];
-			    return result;
+				var parts = item.split('=');
+				result[parts[0]] = parts[1];
+				return result;
 			}, {});
 			if(parseInt(result["id"])){
 				$rootScope.exInstanceId = result["id"];
+				$this.getUserProfile();
 				$this.refreshGuacToken($rootScope.exInstanceId);
 				$this.getRunningExercises();
 			}
@@ -256,6 +257,27 @@ rtf.service('server',function($http,$rootScope){
 		}, function errorCallback(response) {
 			console.log('ajax error');
 		});
+	}
+
+	this.getChallengeDetails = function(id){
+
+		var msg = {};
+		msg.action = 'getChallengeDetails';
+		msg.id = id;
+		var req = {
+				method: 'POST',
+				url: '/user/handler',
+				data: msg
+		}
+		$http(req).then(function successCallback(response) {
+			if(response.data.length==0)
+				$rootScope.$broadcast('challengeDetails:updated',null);
+			else
+				$rootScope.$broadcast('challengeDetails:updated',response.data);
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+
 	}
 
 	this.getExerciseDetails = function(id){
@@ -384,6 +406,25 @@ rtf.service('server',function($http,$rootScope){
 		});
 
 	}
+	this.user = {};
+	this.getUserProfile = function(){
+
+		var msg = {};
+		msg.action = 'getUserInfo';
+
+		var req = {
+				method: 'POST',
+				url: '/user/handler',
+				data: msg,
+		}
+		$http(req).then(function successCallback(response) {
+			replaceObjectContent($this.user,response.data);
+			$('.waitLoader').hide();
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+
+	}
 
 
 
@@ -407,19 +448,228 @@ rtf.config(['$httpProvider', function($httpProvider) {
 
 rtf.controller('exercise',['$scope','server','$rootScope','$interval',function($scope,server,$rootScope,$interval){
 	$scope.exerciseName = "";
+	$scope.challengeTableConfig = {
+			itemsPerPage: 20,
+			fillLastPage: false
+	}
 
+	$rootScope.getDateInCurrentTimezone = function(date,format){
+		return moment(date).local().format(format);
+	}
+	$scope.user = server.user;
 	$scope.guacToken;
 	$scope.resultStatusData = {};
 	$scope.asNotStarted = false;
 	$scope.flagIsVulnerable = false;
 	$rootScope.exerciseDetails = {};	
+	$rootScope.isChallenge = false;
 
+	var challengeUpdateTimer = null;
+	$scope.challengeResults = {};
+	$rootScope.challengeDetails = [];
+	
+	$scope.getExerciseIdForFlag = function(usr,flag){
+		var sf = getSelfCheckFromFlag(flag);
+		if(sf=="")
+			return "";
+		var runExercises = $rootScope.challengeDetails.runExercises;
+		for (var ex=0;ex<runExercises.length;ex++) {
+			for(var res=0;res<runExercises[ex]["results"].length;res++){
+				if (runExercises[ex]["results"][res].name==sf) {
+					return runExercises[ex].id
+				}
+			}			
+		}
+	}
+	function getSelfCheckFromFlag(flag){
+		for(var f in $rootScope.challengeDetails.flags){
+			if($rootScope.challengeDetails.flags.hasOwnProperty(f) && $rootScope.challengeDetails.flags[f].title==flag){
+				for(var q in $rootScope.challengeDetails.flags[f].flagList){
+					if($rootScope.challengeDetails.flags[f].flagList.hasOwnProperty(q) && $rootScope.challengeDetails.flags[f].flagList[q].selfCheckAvailable==true){
+						return $rootScope.challengeDetails.flags[f].flagList[q].selfCheckName;
+					}
+				}
+			}
+		}
+		return "";
+	}
+
+	
+	$scope.getChallengeResultFor = function(usr,flag){
+		var sf = getSelfCheckFromFlag(flag);
+
+		if(sf=="")
+			return "N/A";
+		var status = "-1";
+		//loop1:
+		try{
+			var status = $scope.challengeResults[usr][sf]
+		}catch(e){
+			status = "-1";
+		}
+
+		switch(status){
+		case undefined:
+			return "Not Started"
+		case "1":
+			return "Vulnerable"
+		case "0":
+			return "Not Vulnerable"
+		case "2":
+			return "Broken Functionality"
+		case "4":
+			return "Not Addressed"
+		default: return "N/A"
+		};
+	}
+	$scope.getClassForChallengeResult = function(user,flag){
+		var status = $scope.getChallengeResultFor(user,flag);
+
+		switch(status){
+		case "-1":
+			return "table-light"
+		case "Vulnerable":
+			return "table-danger"
+		case "Not Vulnerable":
+			return "table-success"
+		case "Broken Functionality":
+			return "table-warning"
+		case "Not Addressed":
+			return "table-info"
+		default: return "table-light"
+		};
+
+
+
+	}
+	$rootScope.exerciseScore = 0;
+	$scope.challengeUsers  = [];
+	$scope.$on('challengeDetails:updated', function(event,data) {
+
+
+
+		data.flags = [];
+		data.theads = [];
+
+		$scope.exercises = [];
+		var tmpExercises = [];
+		for(var i in data.exercises){
+			if(data.exercises.hasOwnProperty(i) && data.exercises[i].id)
+				tmpExercises.push(data.exercises[i])
+		}
+		var size = 3;
+		while (tmpExercises.length > 0){
+			$scope.exercises.push(tmpExercises.splice(0, size));
+		}
+
+		for (var property in data.exercises) {
+			if (data.exercises.hasOwnProperty(property)) {
+				for(var f in data.exercises[property].flags){
+					if (data.exercises[property].flags.hasOwnProperty(f)) {
+						var tmpObj = {};
+						tmpObj.id = data.exercises[property].flags[f].id
+						tmpObj.name = data.exercises[property].flags[f].title
+						data.theads.push(tmpObj)
+						data.flags.push(data.exercises[property].flags[f]);
+					}
+				}
+			}
+		}
+
+		data.userRunFlags = 0;
+		var userRemediated = 0;
+		data.userRunExercises = 0;
+		var tmpScore = 0;
+		for(var i=0;i<data.runExercises.length;i++){
+			for(var j=0;j<data.runExercises[i].results.length;j++){
+				if(data.runExercises[i].id==$rootScope.exInstanceId){
+					tmpScore += data.runExercises[i].results[j].score;
+				}
+				if(data.runExercises[i].user.user==$scope.user.user && data.runExercises[i].results.length>0){
+					data.userRunExercises++
+				}
+				if(data.runExercises[i].user.user==$scope.user.user){
+					data.userRunFlags++
+				}
+				if(data.runExercises[i].results[j].status == "0"){
+					if(data.runExercises[i].user.user==$scope.user.user){
+						userRemediated++;
+					}
+				}
+			}
+		}
+		$rootScope.exerciseScore = tmpScore;
+		if(userRemediated==0 || data.userRunFlags == 0)
+			data.userRemediation = 0;
+		else
+			data.userRemediation = (userRemediated/data.userRunFlags) * 100;
+
+		if(data.exercises.length!=0 && data.userRunExercises !=0)
+			data.userCompletion = (data.userRunExercises /  data.exercises.length) * 100;
+		else
+			data.userCompletion = 0;
+
+
+
+		$rootScope.challengeDetails = data;
+
+		$rootScope.challengeDetails.teams = [];
+
+		for(var u in $rootScope.challengeDetails.users){
+			if ($rootScope.challengeDetails.users.hasOwnProperty(u)){
+				if($rootScope.challengeDetails.teams.indexOf($rootScope.challengeDetails.users[u].team.name)<0){
+					$rootScope.challengeDetails.teams.push($rootScope.challengeDetails.users[u].team.name);
+				}
+				$scope.challengeResults[$rootScope.challengeDetails.users[u].user] = {}
+				$rootScope.challengeDetails.users[u].challengeRunFlags = 0;
+				$rootScope.challengeDetails.users[u].challengeRunExercises = 0;
+				$rootScope.challengeDetails.users[u].challengeScore = 0;
+				$rootScope.challengeDetails.users[u].challengeRemediatedFlags = 0;
+				for(var e in $rootScope.challengeDetails.runExercises){
+
+					if($rootScope.challengeDetails.runExercises.hasOwnProperty(e) && $rootScope.challengeDetails.runExercises[e].user.user==$rootScope.challengeDetails.users[u].user){
+						$rootScope.challengeDetails.users[u].challengeRunExercises++;
+						for(var r in $rootScope.challengeDetails.runExercises[e].results){
+							if($rootScope.challengeDetails.runExercises[e].results.hasOwnProperty(r)){
+								$scope.challengeResults[$rootScope.challengeDetails.users[u].user][$rootScope.challengeDetails.runExercises[e].results[r].name] = $rootScope.challengeDetails.runExercises[e].results[r].status;
+								if($rootScope.challengeDetails.runExercises[e].results[r].status=="0" && Number.isInteger($rootScope.challengeDetails.runExercises[e].results[r].score)){
+									$rootScope.challengeDetails.users[u].challengeScore += $rootScope.challengeDetails.runExercises[e].results[r].score;
+									$rootScope.challengeDetails.users[u].challengeRemediatedFlags++;
+								}
+
+								$rootScope.challengeDetails.users[u].challengeRunFlags++;
+							} 
+						}
+					}
+				}
+			}
+		}
+		$scope.challengeUsers = $rootScope.challengeDetails.users;
+		if(challengeUpdateTimer==null )
+			challengeUpdateTimer = $interval(function(){triggerChallengeUpdate($rootScope.challengeDetails.id)},10000)
+
+	});
+
+	function triggerChallengeUpdate(id){
+		if($rootScope.isChallenge && id == $rootScope.challengeDetails.id){
+			server.getChallengeDetails(id);
+			$rootScope.challengeDetails.lastRefreshed = new Date();
+		}
+		else{
+			$interval.cancel(challengeUpdateTimer);
+			challengeUpdateTimer = null;
+		}
+	}
 
 	$scope.$on('runningExercises:updated', function(event,data) {
 		$scope.runningInstances = data;
 		for(var i in data){
 			if(data.hasOwnProperty(i)){
 				if(data[i].id == $rootScope.exInstanceId){
+					if(data[i].challengeId){
+						$rootScope.isChallenge = true;
+						server.getChallengeDetails(data[i].challengeId);
+					}
 					$rootScope.exerciseDetails = data[i];
 					server.getExerciseDetails(data[i].exercise.id)
 					$scope.exerciseName = $rootScope.exerciseDetails.title;
@@ -503,7 +753,12 @@ rtf.controller('exercise',['$scope','server','$rootScope','$interval',function($
 	});
 
 
-
+	$scope.getSelfCheckScore = function(f){
+		if(undefined!=f && f.selfCheckAvailable && undefined!=f.score)
+			return f.score;
+		else
+			return " ? ";
+	}
 
 	$scope.getSelfChekResult = function(selfCheckName){
 		if(undefined==selfCheckName || undefined==$scope.resultStatusData.length || $scope.resultStatusData.length==0){

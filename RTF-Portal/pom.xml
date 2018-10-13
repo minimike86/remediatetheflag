@@ -2,10 +2,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.remediatetheflag</groupId>
-	<artifactId>RTF-Portal</artifactId>
+	<artifactId>RTF-Global</artifactId>
 	<packaging>war</packaging>
-	<version>1.0.0</version>
-	<name>RTF Portal</name>
+	<version>1.0.1</version>
+	<name>global</name>
 	<url>https://github.com/sk4ddy/remediatetheflag</url>
 	<dependencies>
 		<dependency>
@@ -684,7 +684,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.5</version>
+			<version>1.7.21</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -707,4 +707,35 @@
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+    <profile>
+        <id>local</id>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+        <build>
+            <resources>
+                <resource>
+                    <directory>src/main/resources</directory>
+                </resource>
+                <resource>
+                    <directory>src/main/config/local</directory>
+                </resource>
+            </resources>
+        </build>
+    </profile>
+    <profile>
+        <id>prod</id>
+        <build>
+            <resources>
+                <resource>
+                    <directory>src/main/resources</directory>
+                </resource>
+                <resource>
+                    <directory>src/main/config/prod</directory>
+                </resource>
+            </resources>
+        </build>
+    </profile>
+</profiles>
 </project>

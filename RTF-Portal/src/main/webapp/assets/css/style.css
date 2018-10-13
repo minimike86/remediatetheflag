@@ -177,7 +177,8 @@ img {
 }
 
 .width185 {
-	width: 185px;
+	width: auto;
+	min-width: 185px;
 }
 
 a {
@@ -816,7 +817,25 @@ csmall2 {
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	 
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -869,6 +888,24 @@ csmall2 {
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	:not
 	
 	
@@ -887,7 +924,25 @@ csmall2 {
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	 
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -924,7 +979,25 @@ csmall2 {
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	 
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -961,7 +1034,25 @@ csmall2 {
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	 
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -998,7 +1089,25 @@ csmall2 {
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	 
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -1053,6 +1162,24 @@ csmall2 {
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	:
 	
 	
@@ -1071,7 +1198,25 @@ csmall2 {
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	 
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -1146,7 +1291,15 @@ csmall2 {
 .pythonb {
 	border: 1px solid #32af14;
 }
-
+.phpb{
+	border: 1px solid  #8893be;
+}
+.golangb{
+	border: 1px solid  #29bdb0;
+}
+.dotnetb{
+	border: 1px solid  #145da3;
+}
 .rubyb {
 	border: 1px solid #dc5ecd;
 }
@@ -1190,10 +1343,16 @@ csmall2 {
 	background-color: rgba(96, 196, 247, 0.72);
 }
 
+.statsBadgeColor4 {
+	background-color: rgba(31, 71, 162, 0.67);
+}
+.statsBadgeColor5{
+  background-color: rgba(11, 77, 154, 0.71);
+}
 .statsText {
 	font-size: 15px;
 	font-weight: 200;
-	line-height: 1.4;
+	line-height: 0.8;
 }
 
 .orgFilterText {
@@ -1204,15 +1363,15 @@ csmall2 {
 }
 
 .left {
-	text-align: left;
+	text-align: left !important;
 }
 
 .right {
-	text-align: right;
+	text-align: right !important;
 }
 
 .justify {
-	text-align: justify;
+	text-align: justify !important;
 }
 
 .marginLeft20 {
@@ -1268,7 +1427,11 @@ csmall2 {
 }
 
 .marginBottom20 {
-	margin-bottom: 20px;
+	margin-bottom: 20px !important;
+}
+
+.marginBottom30 {
+	margin-bottom: 30px !important;
 }
 
 .marginBottom10 {
@@ -1355,55 +1518,151 @@ csmall2 {
 	padding: 0.3rem;
 }
 
+.table-primary, .table-primary>th, .table-primary>td {
+	background-color: #b8daff;
+}
+
+.table-hover .table-primary:hover {
+	background-color: #9fcdff;
+}
+
+.table-hover .table-primary:hover>td, .table-hover .table-primary:hover>th
+	{
+	background-color: #9fcdff;
+}
+
+.table-secondary, .table-secondary>th, .table-secondary>td {
+	background-color: #d6d8db;
+}
+
+.table-light, .table-light>th, .table-light>td {
+	background-color: #fdfdfe;
+}
+
+.table-hover .table-light:hover {
+	background-color: #ececf6;
+}
+
+.table-hover .table-light:hover>td, .table-hover .table-light:hover>th {
+	background-color: #ececf6;
+}
+
+.table-dark, .table-dark>th, .table-dark>td {
+	background-color: #c6c8ca;
+}
+
+.table-hover .table-dark:hover {
+	background-color: #b9bbbe;
+}
+
+.table-hover .table-dark:hover>td, .table-hover .table-dark:hover>th {
+	background-color: #b9bbbe;
+}
+
+.table-active, .table-active>th, .table-active>td {
+	background-color: rgba(0, 0, 0, 0.075);
+}
+
+.table-hover .table-active:hover {
+	background-color: rgba(0, 0, 0, 0.075);
+}
+
+.table-hover .table-active:hover>td, .table-hover .table-active:hover>th
+	{
+	background-color: rgba(0, 0, 0, 0.075);
+}
+
+.table .thead-dark th {
+	color: #fff;
+	background-color: #212529;
+	border-color: #32383e;
+}
+
+.table .thead-light th {
+	color: #495057;
+	background-color: #e9ecef;
+	border-color: #dee2e6;
+}
+
+.table-dark {
+	color: #fff;
+	background-color: #212529;
+}
+
+.table-dark th, .table-dark td, .table-dark thead th {
+	border-color: #32383e;
+}
+
+.table-dark.table-bordered {
+	border: 0;
+}
+
+.table-dark.table-striped tbody tr:nth-of-type(odd) {
+	background-color: rgba(255, 255, 255, 0.05);
+}
+
+.table-dark.table-hover tbody tr:hover {
+	background-color: rgba(255, 255, 255, 0.075);
+}
+
+.table-hover .table-secondary:hover {
+	background-color: #c8cbcf;
+}
+
+.table-hover .table-secondary:hover>td, .table-hover .table-secondary:hover>th
+	{
+	background-color: #c8cbcf;
+}
+
 .table-success, .table-success>th, .table-success>td {
-	background-color: #dff0d8;
+	background-color: #c3e6cb;
 }
 
 .table-hover .table-success:hover {
-	background-color: #d0e9c6;
+	background-color: #b1dfbb;
 }
 
 .table-hover .table-success:hover>td, .table-hover .table-success:hover>th
 	{
-	background-color: #d0e9c6;
+	background-color: #b1dfbb;
 }
 
 .table-info, .table-info>th, .table-info>td {
-	background-color: #d9edf7;
+	background-color: #bee5eb;
 }
 
 .table-hover .table-info:hover {
-	background-color: #c4e3f3;
+	background-color: #abdde5;
 }
 
 .table-hover .table-info:hover>td, .table-hover .table-info:hover>th {
-	background-color: #c4e3f3;
+	background-color: #abdde5;
 }
 
 .table-warning, .table-warning>th, .table-warning>td {
-	background-color: #fcf8e3;
+	background-color: #ffeeba;
 }
 
 .table-hover .table-warning:hover {
-	background-color: #faf2cc;
+	background-color: #ffe8a1;
 }
 
 .table-hover .table-warning:hover>td, .table-hover .table-warning:hover>th
 	{
-	background-color: #faf2cc;
+	background-color: #ffe8a1;
 }
 
 .table-danger, .table-danger>th, .table-danger>td {
-	background-color: #f2dede;
+	background-color: #f5c6cb;
 }
 
 .table-hover .table-danger:hover {
-	background-color: #ebcccc;
+	background-color: #f1b0b7;
 }
 
 .table-hover .table-danger:hover>td, .table-hover .table-danger:hover>th
 	{
-	background-color: #ebcccc;
+	background-color: #f1b0b7;
 }
 
 #exerciseNotStarted {
@@ -1431,12 +1690,26 @@ csmall2 {
 	font-size: 30px;
 }
 
+#exerciseScoreBadge {
+	font-size: 12px !important;
+	margin-right: 10px;
+	padding: 5px 7px;
+}
+
 .marginLeft50 {
 	margin-left: 50px;
 }
 
+.marginRight10 {
+	margin-right: 20px
+}
+
 .marginRight20 {
 	margin-right: 20px
+}
+
+.marginRight30 {
+	margin-right: 30px
 }
 
 .marginRight40 {
@@ -1601,7 +1874,7 @@ csmall2 {
 }
 
 .paddingTop0 {
-	padding-top: 0px;
+	padding-top: 0px !important;
 }
 
 .paddingTop5 {
@@ -1916,10 +2189,35 @@ a.disabled {
 	margin-top: -55px;
 }
 
+.font14 {
+	font-size: 14px !important;
+}
+
+.font12 {
+	font-size: 12px !important;
+}
+
+.marginTopM50 {
+	margin-top: -50px;
+}
+
 .scoreBadgeMgmt {
 	padding: 5px 10px;
-	font-size: 16px;
+	font-size: 25px;
 	background-color: #2d7dd2;
+}
+
+.issuesItalicsNormal {
+	font-style: italic !important;
+	font-weight: normal !important;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.italics {
+	font-style: italic;
 }
 
 .creditsBadgeMgmt {
@@ -2084,10 +2382,10 @@ a.dropdown-item {
 
 .challengeDeck {
 	padding-bottom: 10px;
-	border: 1px solid #394553;
+	border: 1px solid #384452;
 	border-radius: 12px;
 	background-color: rgba(212, 207, 206, 0.15);
-	box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.65);
+	box-shadow: 2px 2px 2px 0px rgba(0, 0, 0, 0.25);
 }
 
 .row-centered {
@@ -2115,6 +2413,13 @@ a.dropdown-item {
 .cardBadge {
 	padding: 12px 2px;
 	font-size: 18px;
+	border: 1px solid rgba(0, 0, 0, 0.16);
+}
+
+.cardBadgeSmall {
+	padding: 12px 2px;
+	font-size: 14px;
+	font-weight: 100;
 	border: 1px solid rgba(0, 0, 0, 0.16);
 }
 
@@ -2377,6 +2682,10 @@ span.step {
 	margin-left: 10%;
 }
 
+.marginLeft13P {
+	margin-left: 13%;
+}
+
 .marginTopM5 {
 	margin-top: -5px;
 }
@@ -2400,63 +2709,193 @@ span.step {
 .techPict {
 	height: 150px;
 }
-.backToTechnologies{
-	    padding-right: 0px;
+
+.backToTechnologies {
+	padding-right: 0px;
 }
+
 .searchExercise {
 	margin-bottom: 15px;
 	padding-left: 0px;
 }
+
 .dropdown.dropdown-lg .dropdown-menu {
-    margin-top: -1px;
-    padding: 6px 20px;
+	margin-top: -1px;
+	padding: 6px 20px;
 }
+
 .input-group-btn .btn-group {
-    display: flex !important;
+	display: flex !important;
 }
+
 .btn-group .btn {
-    border-radius: 0;
-    margin-left: -1px;
+	border-radius: 0;
+	margin-left: -1px;
 }
+
 .btn-group .btn:last-child {
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
 }
+
 .btn-group .form-horizontal .btn[type="submit"] {
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
 }
+
 .form-horizontal .form-group {
-    margin-left: 0;
-    margin-right: 0;
+	margin-left: 0;
+	margin-right: 0;
 }
+
 .form-group .form-control:last-child {
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
 }
 
 @media screen and (min-width: 768px) {
-    #adv-search {
-        width: 310px;
-        margin: 0 auto;
-    }
-   	#adv-search-wide {
-        width: 500px;
-        margin: 0 auto;
-    }
-    .dropdown.dropdown-lg {
-        position: static !important;
-    }
-    .dropdown.dropdown-lg .dropdown-menu {
-        min-width: 310px;
-    }
-     .dropdown.dropdown-xl .dropdown-menu {
-        min-width: 500px;
-    }
+	#adv-search {
+		width: 310px;
+		margin: 0 auto;
+	}
+	#adv-search-wide {
+		width: 500px;
+		margin: 0 auto;
+	}
+	.dropdown.dropdown-lg {
+		position: static !important;
+	}
+	.dropdown.dropdown-lg .dropdown-menu {
+		min-width: 310px;
+	}
+	.dropdown.dropdown-xl .dropdown-menu {
+		min-width: 500px;
+	}
 }
-.emptyExercises{
-	    margin-top: 65px;
+
+.marginL12P {
+	margin-left: 12%;
 }
-.marginL12P{
-	margin-left:12%;
+
+#challengedFilteredExerciseList ul {
+	margin: 0px !important;
+}
+
+#challengeUserList ul {
+	margin: 0px !important;
+}
+
+.vertical-align {
+	display: flex;
+	flex-direction: row;
+}
+
+.vertical-align>[class^="col-"], .vertical-align>[class*=" col-"] {
+	display: flex;
+	align-items: center;
+	justify-content: center; /* Optional, to align inner items 
+                              horizontally inside the column */
+}
+
+.block {
+	display: block !important;
+}
+
+#challengeResults td {
+	border: 1px solid #FFF;
+}
+
+#resultTable {
+	border-collapse: separate;
+	border-spacing: 5px;
+}
+
+#challengeResults {
+	border-collapse: separate;
+	border-spacing: 5px;
+}
+
+#resultTable th {
+	font-size: 12px;
+	vertical-align: middle;
+	letter-spacing: 0.8px;
+	border: 0px;
+}
+
+#challengeResults th {
+	font-size: 12px;
+	text-align: center;
+	vertical-align: middle;
+	letter-spacing: 0.8px;
+}
+
+#challengeResults th:first-child {
+	border: 0px;
+}
+
+.challengeImg {
+	height: 75px;
+	display: block;
+	margin: auto;
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
+.clear {
+	clear: both;
+}
+
+.margin30 {
+	margin: 30px;
+}
+
+.tableCell {
+	display: table-cell;
+}
+
+.padding5 {
+	padding: 5px;
+}
+
+.btn-xl {
+	padding: 14px 18px !important;
+	font-size: 30px !important;
+	line-height: 1.33 !important;
+	border-radius: 15px !important;
+}
+
+.maxHeight410 {
+	max-height: 410px;
+	overflow: scroll;
+}
+
+.goldPlacement {
+	margin-left: 5px !important;
+	background-color: #ffd700d4;
+	border: 0.5px solid #d2bb3bf7 !important;
+}
+
+.silverPlacement {
+	margin-left: 5px !important;
+	background-color: #dddc;
+	border: 0.5px solid #ccc !important;
+}
+
+.bronzePlacement {
+	margin-left: 5px !important;
+	background-color: #c383288a;
+	border: 0.5px solid #c3832861 !important;
+}
+.flagModalQuestion{
+    height: 430px;
+    overflow: scroll;
+}
+.noResize{
+	  resize: none;
+}
+.exerciseFlagsTh{
+    padding-top: 0px !important;
+    font-size: 12px;
+    letter-spacing: 0.8px;
+    border: 0px;
 }

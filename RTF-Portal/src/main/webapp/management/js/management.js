@@ -156,7 +156,7 @@ $(document).ready(function(){
 		});
 	})
 });
-var rtf = angular.module('rtfNg',['nya.bootstrap.select','jlareau.pnotify','ngRoute','ui.toggle','angular-table','chart.js','angular-notification-icons','angularSpinner','720kb.tooltips','ng-file-model','ngDragToReorder']);
+var rtf = angular.module('rtfNg',['nya.bootstrap.select','jlareau.pnotify','ngRoute','ui.toggle','angular-table','chart.js','angular-notification-icons','angularSpinner','720kb.tooltips','ng-file-model','ngDragToReorder','moment-picker']);
 
 
 //register the interceptor as a service
@@ -219,13 +219,92 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 	this.definedGateways = [];
 	this.definedGatewaysRegions = [];
 
+
+	this.updateScore = function(obj){
+		obj.action = 'updateExerciseResult';
+
+		var req = {
+				method: 'POST',
+				url: '/management/team/handler',
+				data: obj,	
+		}
+		$http(req).then(function successCallback(response) {
+			$rootScope.$broadcast('scoringUpdated:updated',response.data);
+			notificationService.success('Score updated.');
+			$('.waitLoader').hide();
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
+
+	this.addScoringComment = function(obj){
+
+		obj.action = 'addResultComment';
+
+		var req = {
+				method: 'POST',
+				url: '/management/team/handler',
+				data: obj,	
+		}
+		$http(req).then(function successCallback(response) {
+			$rootScope.$broadcast('scoringCommentAdded:updated',response.data);
+			notificationService.success('Comment sent.');
+			$('.waitLoader').hide();
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
+
+	this.addChallenge = function(obj){
+		obj.action = 'addChallenge';
+
+		var req = {
+				method: 'POST',
+				url: '/management/team/handler',
+				data: obj,
+		}
+		$http(req).then(function successCallback(response) {
+			if(response.data.result=="success"){
+				PNotify.removeAll();
+				notificationService.success('Challenge added.');
+				$rootScope.$broadcast('addChallenge:updated',response.data);
+			}
+			else{
+				PNotify.removeAll();
+				notificationService.notice('Updated failed, please try again.');
+			}
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
+
+	this.getUsersInOrg = function(organization){
+
+		var obj = {};
+		obj.action = 'getUsersInOrg';
+		obj.orgId = organization.id;
+
+		var req = {
+				method: 'POST',
+				url: '/management/team/handler',
+				data: obj,
+		}
+		$http(req).then(function successCallback(response) {
+			$rootScope.$broadcast('usersInOrg:updated',response.data);
+
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
+
+
 	this.addExercise = function(obj){
 
 		obj.action = 'addExercise';
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/rtfadmin/handler',
 				data: obj,
 		}
 		$http(req).then(function successCallback(response) {
@@ -243,14 +322,39 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 			console.log('ajax error');
 		});
 
+	};
+	this.updateChallenge = function(obj){
+
+		obj.action = 'updateChallenge';
+
+		var req = {
+				method: 'POST',
+				url: '/management/team/handler',
+				data: obj,
+		}
+		$http(req).then(function successCallback(response) {
+			if(response.data.result=="success"){
+				PNotify.removeAll();
+				notificationService.success('Challenge updated.');
+				$rootScope.$broadcast('challengeUpdated:updated',response.data);
+			}
+			else{
+				PNotify.removeAll();
+				notificationService.notice('Updated failed, please try again.');
+			}
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+
 	}
+
 	this.updateExercise = function(obj){
 
 		obj.action = 'updateExercise';
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/rtfadmin/handler',
 				data: obj,
 		}
 		$http(req).then(function successCallback(response) {
@@ -275,7 +379,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: obj,
 		}
 		$http(req).then(function successCallback(response) {
@@ -302,13 +406,13 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: obj,
 		}
 		$http(req).then(function successCallback(response) {
 			if(response.data.result=="success"){
-				PNotify.removeAll();
 				notificationService.success('Organization added. We recommend to logout and login again to manage the newly created organization.');
+				PNotify.removeAll();
 			}
 			else{
 				PNotify.removeAll();
@@ -330,7 +434,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: obj,
 		}
 		$http(req).then(function successCallback(response) {
@@ -347,7 +451,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: obj,
 		}
 		$http(req).then(function successCallback(response) {
@@ -373,7 +477,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: obj,
 		}
 		$http(req).then(function successCallback(response) {
@@ -400,7 +504,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.username = usr;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -433,7 +537,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/rtfadmin/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -459,7 +563,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.action = "disableExerciseInRegion";
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/rtfadmin/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -485,7 +589,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.action = "removeExerciseInRegion";
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/rtfadmin/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -501,17 +605,13 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		}, function errorCallback(response) {
 			console.log('ajax error');
 		});	
-
-
 	}
-
-
 
 	this.addTaskDefinition = function(msg){
 		msg.action = "addTaskDefinition";
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/rtfadmin/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -538,7 +638,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/rtfadmin/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -563,7 +663,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -581,7 +681,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		delete obj.region;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/rtfadmin/handler',
 				data: obj,
 		}
 		$http(req).then(function successCallback(response) {
@@ -606,7 +706,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/rtfadmin/handler',
 				data: obj,
 		}
 		$http(req).then(function successCallback(response) {
@@ -619,7 +719,6 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 				notificationService.notice('Updated failed, please try again.');
 			}
 			$rootScope.$broadcast('gatewayAdded:updated',response.data);
-
 		}, function errorCallback(response) {
 			console.log('ajax error');
 		});
@@ -632,7 +731,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -651,7 +750,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -710,7 +809,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/stats/handler',
 				data: msg
 		}
 		$http(req).then(function successCallback(response) {
@@ -730,7 +829,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/stats/handler',
 				data: msg
 		}
 		$http(req).then(function successCallback(response) {
@@ -792,7 +891,6 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 				url: '/user/handler',
 				data: msg,
 		}
-		$('.waitLoader').show();
 		$http(req).then(function successCallback(response) {
 			$('.waitLoader').hide();
 			if(response.data.result=="success"){
@@ -809,13 +907,40 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 	}
 
+	this.removeChallenge = function(id){
+		var msg = {};
+		msg.action = "removeChallenge";
+		msg.id = id;
+		var req = {
+				method: 'POST',
+				url: '/management/admin/handler',
+				data: msg,
+		}
+		$('.waitLoader').show();
+		$http(req).then(function successCallback(response) {
+			$('.waitLoader').hide();
+			if(response.data.result=="error"){
+				PNotify.removeAll();
+				notificationService.notice('Updated failed, please try again. You can remove a challenge if no exercises were run. For further help, please contact support.');
+			}
+			else{
+				PNotify.removeAll();
+				notificationService.success('Challenge removed.');
+				$rootScope.$broadcast('challengeRemoved:updated',response.data);
+			}
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
+
+
 	this.removeExercise = function(id){
 		var msg = {};
 		msg.action = "removeExercise";
 		msg.exerciseId = id;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/rtfadmin/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -840,7 +965,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.orgId = id;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -877,7 +1002,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/reviewer/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -913,7 +1038,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -942,7 +1067,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -969,7 +1094,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -987,10 +1112,9 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg
 		}
-		$('.waitLoader').show();
 		$http(req).then(function successCallback(response) {
 			$('.waitLoader').hide();
 			$rootScope.$broadcast('runningExercises:updated',response.data);
@@ -1007,7 +1131,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg
 		}
 		$('.waitLoader').show();
@@ -1027,7 +1151,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.name = name;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/reviewer/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1037,6 +1161,24 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		});
 	}
 
+	this.isChallengeNameAvailable = function(name){
+
+		var msg = {};
+		msg.action = 'checkChallengeNameAvailable';
+		msg.name = name;
+		var req = {
+				method: 'POST',
+				url: '/management/team/handler',
+				data: msg,
+		}
+		$http(req).then(function successCallback(response) {
+			$rootScope.$broadcast('challengeNameAvailable:updated',response.data);
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
+
+
 	this.isExerciseNameAvailable = function(name){
 
 		var msg = {};
@@ -1044,7 +1186,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.name = name;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/rtfadmin/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1062,7 +1204,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.name = name;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1099,7 +1241,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/stats/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1127,7 +1269,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1155,7 +1297,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1183,7 +1325,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1210,7 +1352,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1243,7 +1385,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/reviewer/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1276,7 +1418,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1295,7 +1437,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.exercise = idExercise;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1318,7 +1460,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1409,7 +1551,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.password = pwd;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/admin/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1427,13 +1569,39 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 			console.log('ajax error');
 		});
 	}
+	this.updateUserStatus = function(username,status){
+		var msg = {};
+		msg.action = 'updateUserStatus';
+		msg.username = username;
+		msg.status = status;
+		var req = {
+				method: 'POST',
+				url: '/management/reviewer/handler',
+				data: msg,
+		}
+		$('.waitLoader').show();
+		$http(req).then(function successCallback(response) {
+			$('.waitLoader').hide();
+			if(response.data.result=="success"){
+				PNotify.removeAll();
+				notificationService.success('User status updated.');
+				$rootScope.$broadcast('userStatus:updated',response.data);
+			}
+			else{
+				PNotify.removeAll();
+				notificationService.notice('Updated failed, please try again.');
+			}
+		}, function errorCallback(response) {
+			console.log('ajax error');
+		});
+	}
 	this.unlockUserAccount = function(username){
 		var msg = {};
 		msg.action = 'unlockUserAccount';
 		msg.username = username;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/reviewer/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1493,7 +1661,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.action = 'getUsers';
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/stats/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1509,10 +1677,9 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.filter = filter;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/stats/handler',
 				data: msg,
 		}
-		$('#waitLoader').show();
 		$http(req).then(function successCallback(response) {
 			$rootScope.$broadcast('stats:updated',response.data);
 			$('#waitLoader').hide();
@@ -1526,7 +1693,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.action = 'getUserStats';
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/stats/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1541,7 +1708,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.action = 'getUserExercises';
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/stats/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1558,7 +1725,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.action = 'getTeamStats';
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/stats/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1576,7 +1743,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.username = usr;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/stats/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1594,7 +1761,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.name = teamName;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1611,7 +1778,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.username = usr;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/stats/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1626,7 +1793,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.action = 'getCompletedReviews';
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1640,7 +1807,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.action = 'getTeams';
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/stats/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1655,7 +1822,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.name = teamName;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/stats/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1670,7 +1837,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.name = decodeURIComponent(teamName);
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/stats/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1694,7 +1861,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1710,7 +1877,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.id = id
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1728,7 +1895,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.id = id
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1746,7 +1913,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.id = id
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 		}
 		$http(req).then(function successCallback(response) {
@@ -1763,7 +1930,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.obj = o;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1783,7 +1950,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.action = 'getAvailableUsersForTeam';
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
@@ -1805,7 +1972,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 				responseType: "blob"
 		}
@@ -1880,7 +2047,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 				responseType: "blob"
 		}
@@ -1912,7 +2079,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 				responseType: "blob"
 		}
@@ -1943,7 +2110,7 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 				responseType: "blob"
 		}
@@ -1980,14 +2147,13 @@ rtf.service('server',function($http,$timeout,$rootScope,notificationService,$int
 		msg.id = id;
 		var req = {
 				method: 'POST',
-				url: '/management/handler',
+				url: '/management/team/handler',
 				data: msg,
 		}
 		$('.waitLoader').show();
 
 		$http(req).then(function successCallback(response) {
 			$('.waitLoader').hide();
-
 			PNotify.removeAll();
 			notificationService.success('Exercise marked as cancelled.');
 			$rootScope.$broadcast('reviewCancelled:updated',response.data);
@@ -2026,20 +2192,25 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 		server.getUnreadNotifications();
 		server.getChallenges();
 
-		server.getUsers();
-		server.getGlobalStats([]);
-
-		server.getPendingReviews();
-		server.getCompletedReviews();
-		server.getAvailableExercises();
-		server.getRunningExercises();
-
-		server.getOrganizations();
-		server.getGateways();
-		server.getAWSRegions();
-
+		if(server.user.r != 3){
+			server.getUsers();
+			server.getGlobalStats([]);
+		}
+		if(server.user.r <= 3){
+			server.getPendingReviews();
+			server.getCompletedReviews();
+			server.getAvailableExercises();
+			server.getRunningExercises();
+		}
+		if(server.user.r <= 0){
+			server.getOrganizations();
+			server.getGateways();
+			server.getAWSRegions();
+		}
 	}
 	setInterval(function(){updateData()},100000)
+
+
 
 	$scope.logout = function(){
 		server.doUserLogout();
@@ -2091,6 +2262,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 					$http(ctokenReq).then(function successCallback(response) {
 						$rootScope.ctoken = response.data.ctoken;
 						server.getChallengeDetails(exId);
+
 					}, function errorCallback(response) {
 						console.log('ajax error');
 					});
@@ -2098,6 +2270,12 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 				else{
 					server.getChallengeDetails(exId);
 				}
+				$rootScope.showChallengeDetails = true;
+				$rootScope.showChallengesList = false;
+			}
+			else{
+				$rootScope.showChallengeDetails = false;
+				$rootScope.showChallengesList = true;
 			}
 			$rootScope.visibility.availableExercises = false;
 			$rootScope.visibility.review = false;
@@ -2111,6 +2289,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 			$rootScope.visibility.teams = false;
 			$rootScope.visibility.stats = false;
 			$rootScope.visibility.running = false;
+
 			$rootScope.visibility.challenges = true;
 			$(window).scrollTop(0);
 			break;
@@ -2330,7 +2509,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 				$rootScope.visibility.gateways = false;
 				$rootScope.visibility.running = false;
 				$rootScope.visibility.availableExercises = true;
-				if(Number.isInteger(parseInt(target[2])) && undefined==$rootScope.exerciseDetails.id){
+				if(Number.isInteger(parseInt(target[2])) && (undefined==$rootScope.exerciseDetails.id || $rootScope.exerciseDetails.id!=parseInt(target[2]))){
 					getExDetails(parseInt(target[2]));
 				}
 			}
@@ -2447,7 +2626,7 @@ rtf.controller('navigation',['$rootScope','$scope','server','$timeout','$http','
 rtf.factory('xhrInterceptor', ['$q','$rootScope', function($q, $rootScope) {
 	return {
 		'request': function(config) {
-			if((config.url == "/user/handler" || config.url == "/management/handler") && config.data.action !=undefined && config.data.action != "getUserCToken")
+			if((config.url == "/user/handler" || config.url == "/management/rtfadmin/handler" || config.url == "/management/reviewer/handler" ||config.url == "/management/stats/handler" ||config.url == "/management/admin/handler" ||config.url == "/management/team/handler") && config.data.action !=undefined && config.data.action != "getUserCToken")
 				config.data.ctoken = $rootScope.ctoken;
 			return config;
 		},
@@ -2535,7 +2714,7 @@ rtf.controller('organizations',['$scope','server','$filter',function($scope,serv
 
 	$scope.getReviewedDate = function(date){
 		if(null!=date && undefined != date)
-			return moment(date).format("MMM D, YYYY")
+			return moment(date).local().format("MMM D, YYYY")
 			else
 				return "N/A";
 	}
@@ -2810,7 +2989,7 @@ rtf.controller('gateways',['$scope','server','$filter',function($scope,server,$f
 }])
 
 
-rtf.controller('completedExercises',['$scope','server','$rootScope','$filter',function($scope,server,$rootScope,$filter){
+rtf.controller('completedExercises',['$scope','server','$rootScope','$filter','$location',function($scope,server,$rootScope,$filter,$location){
 	$scope.masterCompletedReviews = [];
 	$scope.hideCancelled = true;
 	$scope.filteredCompletedList = []; 
@@ -2827,6 +3006,16 @@ rtf.controller('completedExercises',['$scope','server','$rootScope','$filter',fu
 			itemsPerPage: 10,
 			fillLastPage: false
 	}
+	$scope.getIssueReportedStatus = function(item){
+
+		if(!item.issuesReported)
+			return "N/A";
+		if(item.issuesReported && item.issuesReportedAddressed)
+			return "Yes";
+		if(item.issuesReported && !item.issuesReportedAddressed)
+			return "No";
+
+	}
 	$scope.$on('userFeedback:updated', function(event,data) {
 		$scope.userFeedback = data.id;
 	});
@@ -2838,7 +3027,7 @@ rtf.controller('completedExercises',['$scope','server','$rootScope','$filter',fu
 
 	$scope.getReviewedDate = function(date){
 		if(null!=date && undefined != date)
-			return moment(date).format("MMM D, HH:mm")
+			return moment(date).local().format("MMM D, HH:mm (Z)")
 			else
 				return "N/A";
 	}
@@ -2867,17 +3056,33 @@ rtf.controller('completedExercises',['$scope','server','$rootScope','$filter',fu
 		}
 	};
 	$scope.getDatesInterval = function(start,end){
-		var out = moment(start).format("MMM D YYYY, HH:mm");
-		out += " - "+moment(end).format("HH:mm");
+		var out = moment(start).local().format("YYYY/MM/DD, HH:mm");
+		out += " - "+moment(end).local().format("HH:mm (Z)");
 		return out;
 	}
 	var statusClassMap = {
 			"REVIEWED": "table-success",
+			"AUTOREVIEWED":"table-primary",
+			"REVIEWED_MODIFIED":"table-info",
 			"CANCELLED": "table-warning"
 	}
 	$scope.getStatusClass = function(status) {
 		return statusClassMap[status]
 	};
+	$scope.getExerciseStatusString = function(status){
+		switch(status){
+		case "REVIEWED":
+			return "Reviewed"
+		case "AUTOREVIEWED":
+			return "Auto"
+		case "REVIEWED_MODIFIED":
+			return "Auto (Modified)"
+		case "CANCELLED":
+			return "Cancelled"
+
+		default: return "";
+		}
+	}
 	$scope.getStatusString = function(status){
 		switch(status){
 		case "1":
@@ -2919,11 +3124,115 @@ rtf.controller('completedExercises',['$scope','server','$rootScope','$filter',fu
 			$scope.showCompletedLogs = true;
 		}
 	}
+	$scope.vulnerabilityStatus = [{id:0, name:"Not Vulnerable"},{id:1, name:"Vulnerable"},{id:2, name:"Broken Functionality"},{id:4, name:"Not Addressed"},{id:3, name:"N/A"}]
+
+	$scope.complaintExerciseFlag = "";
+	$scope.scoreModifyExercise;
+	$scope.scoreModifyResult;
+
+	$scope.updatedResult = {};
+
+	$scope.openScoreEditModal = function(e,f){
+		$scope.scoreModifyExercise = e;
+		$scope.scoreModifyResult = f;
+		$('#scoringEditModal').modal('show');
+	}
+	$scope.updateScore = function(){
+		var obj = {};
+		obj.comment = $scope.updatedResult.comment;
+		obj.status  = $scope.updatedResult.status.id;
+		obj.score = $scope.updatedResult.score;
+		obj.id = $scope.updatedResult.id = $scope.scoreModifyExercise;
+		obj.name = $scope.updatedResult.name = $scope.scoreModifyResult.name;
+		server.updateScore(obj);
+	}
+
+	$scope.$on('scoringUpdated:updated', function(event,data) {	
+		server.getCompletedReviewDetails($scope.scoreModifyExercise);
+		$scope.complaintModalTextInput = "";
+		$scope.updatedResult.comment = "";
+		$scope.updatedResult.status = "";
+		$scope.updatedResult.score = "";
+	});
+
+	$scope.openCommentModal = function(e,f){
+		$scope.complaintExerciseId = e;
+		$scope.complaintExerciseFlag = f;
+		$('#scoringCommentModal').modal('show');
+	}
+
+	$scope.sendScoringComment = function(){
+		var obj = {};
+		obj.name = $scope.complaintExerciseFlag;
+		obj.text = $scope.complaintModalTextInput;
+		obj.id = $scope.complaintExerciseId;
+		server.addScoringComment(obj);
+		$('#scoringCommentModal').modal('hide');
+	}
+
+	$scope.$on('scoringCommentAdded:updated', function(event,data) {	
+		server.getCompletedReviewDetails($scope.complaintExerciseId);
+		$scope.complaintModalTextInput = "";
+	});
+
+	$scope.getQuestionName = function(resName){
+		if(undefined==resName || resName=="")
+			return;
+		for(var i in $scope.completedItemDetails.exercise.flags){
+			if($scope.completedItemDetails.exercise.flags.hasOwnProperty(i)){
+				for(var j in $scope.completedItemDetails.exercise.flags[i].flagList){
+					if($scope.completedItemDetails.exercise.flags[i].flagList.hasOwnProperty(j) && $scope.completedItemDetails.exercise.flags[i].flagList[j].selfCheckAvailable && $scope.completedItemDetails.exercise.flags[i].flagList[j].selfCheckName==resName){
+						return $scope.completedItemDetails.exercise.flags[i].title;
+					}
+				}
+			}
+		}
+	}
+	$scope.getQuestionMaxScore = function(resName){
+		if(undefined==resName || resName=="")
+			return;
+		for(var i in $scope.completedItemDetails.exercise.flags){
+			if($scope.completedItemDetails.exercise.flags.hasOwnProperty(i)){
+				for(var j in $scope.completedItemDetails.exercise.flags[i].flagList){
+					if($scope.completedItemDetails.exercise.flags[i].flagList.hasOwnProperty(j) && $scope.completedItemDetails.exercise.flags[i].flagList[j].selfCheckAvailable && $scope.completedItemDetails.exercise.flags[i].flagList[j].selfCheckName==resName){
+						return $scope.completedItemDetails.exercise.flags[i].flagList[j].maxScore;
+					}
+				}
+			}
+		}
+
+	}
+
+
 	$scope.$on('completedReviewDetails:updated', function(event,data) {
 
-
+		data.placements = [];
+		var offset = $('#showCompletedResults').offset();
+		$('html, body').animate({
+			scrollTop: offset.top - 50,
+			scrollLeft: offset.left
+		});
 
 		for(var i in data.results){
+			if(data.results[i].firstForFlag){
+				var tmpObj = {}
+				tmpObj.name = data.results[i].name;
+				tmpObj.placement = "1st place";
+				data.placements.push(tmpObj)
+			}
+			if(data.results[i].secondForFlag){
+				var tmpObj = {}
+				tmpObj.name = data.results[i].name;
+				tmpObj.placement = "2nd place";
+				data.placements.push(tmpObj)
+			}
+			if(data.results[i].thirdForFlag){
+				var tmpObj = {}
+				tmpObj.name = data.results[i].name;
+				tmpObj.placement = "3rd place";
+				data.placements.push(tmpObj)
+			}
+
 			switch(data.results[i].status){
 			case "VULNERABLE":
 				data.results[i].status = "Vulnerable"
@@ -2950,6 +3259,7 @@ rtf.controller('completedExercises',['$scope','server','$rootScope','$filter',fu
 				data.results[j] = {};
 				data.results[j].name = data.exercise.flags[j].title;
 				data.results[j].status = "N/A";
+				data.results[j].score = 0;
 				data.results[j].verified = false; 
 			}
 		}
@@ -2966,7 +3276,7 @@ rtf.controller('completedExercises',['$scope','server','$rootScope','$filter',fu
 
 		var tba = "";
 
-		JSZipUtils.getBinaryContent($scope.completedItemDetails.id,$rootScope.ctoken,'/management/handler','getReviewFile', function(err, data) {
+		JSZipUtils.getBinaryContent($scope.completedItemDetails.id,$rootScope.ctoken,'/management/team/handler','getReviewFile', function(err, data) {
 			if(err) {
 				throw err; // or handle err
 				$scope.completedZipError = true;
@@ -3018,14 +3328,6 @@ rtf.controller('completedExercises',['$scope','server','$rootScope','$filter',fu
 				}
 			});
 		});    
-		setTimeout(function(){
-			var offset = $('#showCompletedResults').offset();
-			$('html, body').animate({
-				scrollTop: offset.top - 50,
-				scrollLeft: offset.left
-			});
-		},800);
-
 	})
 
 	$scope.showCompletedDetailsFor = function(eId, feedback, index){
@@ -3037,6 +3339,8 @@ rtf.controller('completedExercises',['$scope','server','$rootScope','$filter',fu
 			$scope.userFeedback = "";
 		}
 		$scope.selectedCompletedRow = index;
+		$location.path("exercises/details/"+eId, false);
+
 	}
 }])
 rtf.controller('users',['$scope','server','$location','$rootScope','$filter',function($scope,server,$location,$rootScope,$filter){
@@ -3162,7 +3466,7 @@ rtf.controller('users',['$scope','server','$location','$rootScope','$filter',fun
 	$scope.newUser.forcePasswordChange = true;
 	$scope.newUser.organization = "";
 
-	$scope.availableUserRoles = [{ id:7, name:"User"},{ id:0, name: "Admin"}];
+	$scope.availableUserRoles = [{ id:7, name:"User"},{ id:4, name:"Monitor"},{ id:3, name:"Team Manager"},{ id:1, name:"Reviewer"},{ id:0, name: "Admin"},{ id:-1, name: "RTF Admin"}];
 
 	$scope.user = server.user;
 	$scope.countries = server.countries;
@@ -3438,11 +3742,28 @@ rtf.controller('users',['$scope','server','$location','$rootScope','$filter',fun
 		$rootScope.showUserList = true;
 	})
 
+	$scope.userAvailableStatus = ["ACTIVE","INACTIVE","INVITED","CONFIRM_EMAIL","LOCKED","REMOVED"];
+
+	$scope.updateUserStatus = function(){
+		server.updateUserStatus($scope.selectedUser,$scope.userDetails.status)
+	};
+
 	$scope.$on('userDetails:updated', function(event,data) {
 		switch(data.r){
-
+		case -1:
+			data.role = "RTF Admin";
+			break;
 		case 0:
-			data.role = "Admin";
+			data.role = "Organization Admin";
+			break;
+		case 1:
+			data.role = "Organization Reviewer";
+			break;
+		case 3:
+			data.role = "Team Manager";
+			break;
+		case 4:
+			data.role = "Organization Stats";
 			break;
 		case 7:
 			data.role = "User";
@@ -3466,8 +3787,6 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	$scope.availableRegions = [];
 	$rootScope.showExerciseList = true;
 	$rootScope.showExerciseDetails = false;
-	$scope.showList = true;
-	$scope.showDetails = false;
 	$scope.supportedAwsRegions = server.supportedAwsRegions;
 	$scope.definedGateways = server.definedGateways;
 	$scope.definedGatewaysRegions = server.definedGatewaysRegions;
@@ -3487,7 +3806,6 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	$scope.tmpNewExercise.infoList = [];
 	$scope.tmpNewExercise.topics = "";
 	$scope.tmpNewExercise.title = "";
-	$scope.tmpNewExercise.score = ""; 
 	$scope.tmpNewExercise.author = ""; 
 	$scope.tmpNewExercise.type = ""; 
 
@@ -3502,6 +3820,7 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	$scope.tmpRemFlag = {};
 	$scope.tmpRemFlag.selfCheckName = "";
 	$scope.tmpRemFlag.selfCheckAvailable = false;
+	$scope.tmpRemFlag.type = "";
 	$scope.tmpRemFlag.hint = "";
 	$scope.tmpRemFlag.hintAvailable  = false;
 	$scope.tmpRemFlag.instructions = "";
@@ -3510,6 +3829,9 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	$scope.tmpExpFlag.selfCheckAvailable = false;
 	$scope.tmpExpFlag.hint = "";
 	$scope.tmpExpFlag.hintAvailable  = false;
+	$scope.tmpExpFlag.hintScoreReduction = "";
+	$scope.tmpExpFlag.maxScore = "";
+	$scope.tmpExpFlag.type = "";
 	$scope.tmpExpFlag.instructions = "";
 
 	$scope.tmpInfoDescription = "";
@@ -3564,10 +3886,16 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	}
 
 
-	$scope.exerciseStatusList = ["AVAILABLE","UPDATED","COMING SOON","INACTIVE"]
+	$scope.exerciseStatusList = ["AVAILABLE","COMING SOON","INACTIVE"]
 	$scope.difficultyLevelList = ["Easy","Moderate","Hard"];
-	$scope.technologyList = ["Java","NodeJS","C/C++","ASP.NET","Python","Ruby","Golang"];
+	$scope.technologyList = ["Java","NodeJS",".NET","Python","Ruby","Go Lang"];
 	$scope.exerciseTypes = ["TRAINING","CHALLENGE","BOTH"]
+	$scope.flagTypes = ["REMEDIATION","EXPLOITATION","SECURE CODING","OTHER"]
+
+	$scope.showOptionalFlagInput = false;
+	$scope.showOptionalFlagForm = function(){
+		$scope.showOptionalFlagInput = true;
+	}
 
 	$scope.showAddExerciseModal = function(){
 		$scope.saveFlow = false;
@@ -3582,8 +3910,6 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 			switch(text){
 			case 'available':
 				return 0;
-			case 'updated':
-				return 1;
 			case 'coming soon':
 				return 2;
 			case 'inactive':
@@ -3593,11 +3919,6 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 
 	$scope.updateExercise = function(){
 
-		if(Object.keys($scope.tmpNewExercise.referenceFile).length==0) {
-			PNotify.removeAll();
-			notificationService.notice('Please provide a reference file.');
-			return;
-		}
 		if(Object.keys($scope.tmpNewExercise.solutionFile).length==0) {
 			PNotify.removeAll();
 			notificationService.notice('Please provide a solution file.');
@@ -3657,11 +3978,6 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		if($scope.tmpNewExercise.title == ""){
 			PNotify.removeAll();
 			notificationService.notice('Please provide exercise\'s title.');
-			return;
-		}
-		if($scope.tmpNewExercise.score == ""){
-			PNotify.removeAll();
-			notificationService.notice('Please provide exercise\'s score.');
 			return;
 		}
 		if($scope.tmpNewExercise.trophyTitle == ""){
@@ -3683,12 +3999,6 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 
 	$scope.addNewExercise = function(){
 
-
-		if(Object.keys($scope.tmpNewExercise.referenceFile).length==0) {
-			PNotify.removeAll();
-			notificationService.notice('Please provide a reference file.');
-			return;
-		}
 		if(Object.keys($scope.tmpNewExercise.solutionFile).length==0) {
 			PNotify.removeAll();
 			notificationService.notice('Please provide a solution file.');
@@ -3703,7 +4013,6 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 			PNotify.removeAll();
 			notificationService.notice('Please define at list one exercise flag.');
 			return;
-
 		}
 		if($scope.tmpNewExercise.difficulty == ""){
 			PNotify.removeAll();
@@ -3748,11 +4057,6 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		if($scope.tmpNewExercise.title == ""){
 			PNotify.removeAll();
 			notificationService.notice('Please provide exercise\'s title.');
-			return;
-		}
-		if($scope.tmpNewExercise.score == ""){
-			PNotify.removeAll();
-			notificationService.notice('Please provide exercise\'s score.');
 			return;
 		}
 		if($scope.tmpNewExercise.trophyTitle == ""){
@@ -3806,7 +4110,6 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 			$scope.tmpNewExercise.title = loadedJSON.title;
 			if(null!=$scope.tmpNewExercise.title)
 				$scope.isExerciseNameAvailable();
-			$scope.tmpNewExercise.score = loadedJSON.score;
 			$scope.tmpNewExercise.trophyTitle =loadedJSON.trophyTitle;  
 			$scope.tmpNewExercise.trophyDescription = loadedJSON.trophyDescription;
 			$scope.tmpNewExercise.infoList = loadedJSON.infoList;
@@ -3856,7 +4159,6 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 			$scope.tmpNewExercise.type = $rootScope.exerciseDetails.exerciseType;
 			$scope.tmpNewExercise.author = $rootScope.exerciseDetails.author;
 			$scope.tmpNewExercise.title = $rootScope.exerciseDetails.title;
-			$scope.tmpNewExercise.score = $rootScope.exerciseDetails.score;
 			$scope.tmpNewExercise.trophyTitle = $rootScope.exerciseDetails.trophy.name;  
 			$scope.tmpNewExercise.trophyDescription = $rootScope.exerciseDetails.trophy.description;
 			$scope.tmpNewExercise.infoList = $rootScope.exerciseDetails.info;
@@ -3868,7 +4170,7 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 				}
 			}	
 			$scope.tmpNewExercise.flags = $rootScope.exerciseDetails.flags;
-			for(var i in $scope.tmpNewExercise.flags){
+			/*for(var i in $scope.tmpNewExercise.flags){
 				if($scope.tmpNewExercise.flags.hasOwnProperty(i)){
 					for(var j in $scope.tmpNewExercise.flags[i].flagList){
 						if($scope.tmpNewExercise.flags[i].flagList.hasOwnProperty(j)){
@@ -3878,7 +4180,7 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 						}
 					}
 				}
-			}
+			}*/
 			$scope.tmpNewExercise.resources = [];
 			for(var i in $rootScope.exerciseDetails.resources){
 				if($rootScope.exerciseDetails.resources.hasOwnProperty(i)){
@@ -4015,10 +4317,12 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 					for(var j in exercise.flags[i].flagList){
 						if(exercise.flags[i].flagList.hasOwnProperty(j)){
 							try{
-								exercise.flags[i].flagList[j].hint = exercise.flags[i].flagList[j].hint.text;
 								delete exercise.flags[i].flagList[j]["$$hashKey"];
 								delete exercise.flags[i].flagList[j]["id"];
-							}catch(e){}
+								delete exercise.flags[i].flagList[j]["hint"]["id"];
+							}catch(e){
+								
+							}
 						}
 					}
 				}
@@ -4079,7 +4383,6 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		$scope.tmpNewExercise.resources = []
 		$scope.tmpNewExercise.topics = "";
 		$scope.tmpNewExercise.title = "";
-		$scope.tmpNewExercise.score = ""; 
 		$scope.tmpNewExercise.trophyTitle = ""; 
 		$scope.tmpNewExercise.trophyDescription = ""; 
 
@@ -4091,6 +4394,7 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		$scope.tmpRemFlag.selfCheckName = "";
 		$scope.tmpRemFlag.selfCheckAvailable = false;
 		$scope.tmpRemFlag.hint = "";
+		$scope.tmpRemFlag.type = "";
 		$scope.tmpRemFlag.hintAvailable  = false;
 		$scope.tmpRemFlag.instructions = "";
 		$scope.tmpExpFlag = {};
@@ -4099,6 +4403,9 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		$scope.tmpExpFlag.hint = "";
 		$scope.tmpExpFlag.hintAvailable  = false;
 		$scope.tmpExpFlag.instructions = "";
+		$scope.tmpExpFlag.hintScoreReduction = "";
+		$scope.tmpExpFlag.maxScore = "";
+		$scope.tmpExpFlag.type = "";
 		$scope.tmpInfoDescription = "";
 		$scope.tmpInfoFile = {};
 		$scope.tmpInfoTitle = "";
@@ -4126,7 +4433,6 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		$scope.tmpNewExercise.resources = []
 		$scope.tmpNewExercise.topics = "";
 		$scope.tmpNewExercise.title = "";
-		$scope.tmpNewExercise.score = ""; 
 		$scope.tmpNewExercise.trophyTitle = ""; 
 		$scope.tmpNewExercise.trophyDescription = ""; 
 
@@ -4140,12 +4446,16 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		$scope.tmpRemFlag.hint = "";
 		$scope.tmpRemFlag.hintAvailable  = false;
 		$scope.tmpRemFlag.instructions = "";
+		$scope.tmpRemFlag.type = "";
 		$scope.tmpExpFlag = {};
 		$scope.tmpExpFlag.selfCheckName = "";
 		$scope.tmpExpFlag.selfCheckAvailable = false;
 		$scope.tmpExpFlag.hint = "";
 		$scope.tmpExpFlag.hintAvailable  = false;
 		$scope.tmpExpFlag.instructions = "";
+		$scope.tmpExpFlag.hintScoreReduction = "";
+		$scope.tmpExpFlag.maxScore = "";
+		$scope.tmpExpFlag.type = "";
 		$scope.tmpInfoDescription = "";
 		$scope.tmpInfoFile = {};
 		$scope.tmpInfoTitle = "";
@@ -4172,7 +4482,6 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		$scope.tmpNewExercise.resources = []
 		$scope.tmpNewExercise.topics = "";
 		$scope.tmpNewExercise.title = "";
-		$scope.tmpNewExercise.score = ""; 
 		$scope.tmpNewExercise.trophyTitle = ""; 
 		$scope.tmpNewExercise.trophyDescription = ""; 
 
@@ -4186,12 +4495,16 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		$scope.tmpRemFlag.hint = "";
 		$scope.tmpRemFlag.hintAvailable  = false;
 		$scope.tmpRemFlag.instructions = "";
+		$scope.tmpRemFlag.type = "";
 		$scope.tmpExpFlag = {};
 		$scope.tmpExpFlag.selfCheckName = "";
 		$scope.tmpExpFlag.selfCheckAvailable = false;
 		$scope.tmpExpFlag.hint = "";
 		$scope.tmpExpFlag.hintAvailable  = false;
 		$scope.tmpExpFlag.instructions = "";
+		$scope.tmpExpFlag.hintScoreReduction = "";
+		$scope.tmpExpFlag.maxScore = "";
+		$scope.tmpExpFlag.type = "";
 		$scope.tmpInfoDescription = "";
 		$scope.tmpInfoFile = {};
 		$scope.tmpInfoTitle = "";
@@ -4248,14 +4561,19 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		obj1.hint = $scope.tmpRemFlag.hint;
 		obj1.hintAvailable = $scope.tmpRemFlag.hintAvailable;
 		obj1.instructions = $scope.tmpRemFlag.instructions;
-		obj1.type = "REMEDIATION";
+		obj1.type = $scope.tmpRemFlag.type;
+		obj2.optional = true;
 
 		obj2.selfCheckName = $scope.tmpExpFlag.selfCheckName;
 		obj2.selfCheckAvailable = $scope.tmpExpFlag.selfCheckAvailable;
 		obj2.hint = $scope.tmpExpFlag.hint;
 		obj2.hintAvailable = $scope.tmpExpFlag.hintAvailable;
+		obj2.hintScoreReduction = $scope.tmpExpFlag.hintScoreReduction;
 		obj2.instructions = $scope.tmpExpFlag.instructions;
-		obj2.type = "EXPLOITATION";
+		obj2.maxScore = $scope.tmpExpFlag.maxScore;
+		obj2.type = $scope.tmpExpFlag.type;
+		obj2.optional = false;
+
 
 		obj.flagList.push(obj1);
 		obj.flagList.push(obj2);
@@ -4269,10 +4587,14 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		$scope.tmpRemFlag.hint = "";
 		$scope.tmpRemFlag.hintAvailable  = false;
 		$scope.tmpRemFlag.instructions = "";
+		$scope.tmpRemFlag.type = "";
 		$scope.tmpExpFlag.selfCheckName = "";
+		$scope.tmpExpFlag.maxScore = "";
 		$scope.tmpExpFlag.selfCheckAvailable = false;
 		$scope.tmpExpFlag.hint = "";
 		$scope.tmpExpFlag.hintAvailable  = false;
+		$scope.tmpExpFlag.hintScoreReduction = "";
+		$scope.tmpExpFlag.type = "";
 		$scope.tmpExpFlag.instructions = "";
 		$scope.tmpFlagTitle = "";
 		$scope.tmpFlagCategory = "";
@@ -4281,10 +4603,13 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 
 
 	$scope.addNewFlagDialog = function(){
-		if($scope.newExerciseFlagList)
-			$scope.newExerciseFlagList = false;	
-		else
+		if($scope.newExerciseFlagList){
+			$scope.newExerciseFlagList = false;
+		}
+		else{
 			$scope.newExerciseFlagList = true;
+			$scope.showOptionalFlagInput = false;
+		}
 	}
 
 
@@ -4617,8 +4942,7 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 	}
 
 	$scope.backToList = function(){
-		$rootScope.showExerciseDetails = false;
-		$rootScope.showExerciseList = true;
+		window.history.go(-1);
 	}
 
 
@@ -4626,9 +4950,6 @@ rtf.controller('availableExercises',['$scope','server','$rootScope','$location',
 		switch(status){
 		case "0":
 			return "Available";
-			break;
-		case "1":
-			return "Updated";
 			break;
 		case "2":
 			return "Coming Soon";
@@ -4683,7 +5004,7 @@ rtf.controller('teams',['$scope','server','$rootScope','$location','$filter','no
 	$scope.masterMembersList = [];
 	$scope.filteredMembersList = [];
 
-	$scope.userObj = {};
+	$scope.userObj = [];
 	$scope.selectedUsersList = [];
 	$scope.userCheckToggle=function(s){
 		if($scope.selectedUsersList.indexOf(s)<0){
@@ -4785,14 +5106,16 @@ rtf.controller('teams',['$scope','server','$rootScope','$location','$filter','no
 		if(data.result!="error"){
 			$scope.getTeamMembers($rootScope.selectedTeam);
 			server.getChallenges();
-			server.getUsers();
-			server.getGlobalStats([]);
-
-			server.getPendingReviews();
-			server.getCompletedReviews();
-			server.getAvailableExercises();
-			server.getRunningExercises();
-
+			if($scope.user.r != 3){
+				server.getUsers();
+				server.getGlobalStats([]);
+			}
+			if($scope.user.r <= 3){
+				server.getPendingReviews();
+				server.getCompletedReviews();
+				server.getAvailableExercises();
+				server.getRunningExercises();
+			}	
 			$('#addUsersToTeamModal').modal('hide');
 		}
 
@@ -4818,17 +5141,19 @@ rtf.controller('teams',['$scope','server','$rootScope','$location','$filter','no
 	$scope.$on('deletedFromTeam:updated', function(event,data) {
 		if(data.result=="success"){
 			if($rootScope.visibility.teams)
-				$scope.getTeamMembers($rootScope.selectedTeam);
+				$scope.getTeamMembers($rootScope.selectedTeam)
 
-			server.getChallenges();
-			server.getUsers();
-			server.getGlobalStats([]);
-
-			server.getPendingReviews();
-			server.getCompletedReviews();
-			server.getAvailableExercises();
-			server.getRunningExercises();
-
+				server.getChallenges();
+			if($scope.user.r != 3){
+				server.getUsers();
+				server.getGlobalStats([]);
+			}
+			if($scope.user.r <= 3){
+				server.getPendingReviews();
+				server.getCompletedReviews();
+				server.getAvailableExercises();
+				server.getRunningExercises();
+			}	
 		}
 	})
 
@@ -4992,9 +5317,7 @@ rtf.controller('teams',['$scope','server','$rootScope','$location','$filter','no
 		return $scope.selectedTeamManagers.indexOf(idUser)>=0;
 	}
 	$scope.displayTeamList = function(){
-		$rootScope.showTeamMembers = false;
-		$rootScope.showTeamList = true;
-		$location.path("teams", false);
+		window.history.go(-1);
 	}
 	$scope.teamMembersData = [];
 	$scope.getTeamMembers = function(name){
@@ -5094,7 +5417,7 @@ rtf.controller('teams',['$scope','server','$rootScope','$location','$filter','no
 		$rootScope.showTeamMembers = true;
 	});
 }])
-rtf.controller('review',['$scope','server','$rootScope','$filter',function($scope,server,$rootScope,$filter){
+rtf.controller('review',['$scope','server','$rootScope','$filter','$location',function($scope,server,$rootScope,$filter,$location){
 	$scope.user = server.user;
 	$scope.showCodeDiff = false;
 	$scope.showLogs = false;
@@ -5113,6 +5436,8 @@ rtf.controller('review',['$scope','server','$rootScope','$filter',function($scop
 	$scope.updateFilteredList = function() {
 		$scope.filteredPendingList = $filter("filter")($rootScope.masterPendingReviews, $scope.query);
 	};
+
+
 
 	$scope.assessorScore = 0;
 	$scope.partialScores = {};
@@ -5185,6 +5510,9 @@ rtf.controller('review',['$scope','server','$rootScope','$filter',function($scop
 		server.getPendingReviews();
 		server.getCompletedReviews();
 	});
+
+
+
 	var remediationClassMap = {
 			"Remediated": "table-success",
 			"Vulnerable": "table-danger",
@@ -5197,7 +5525,9 @@ rtf.controller('review',['$scope','server','$rootScope','$filter',function($scop
 			"0": "table-success",
 			"1": "table-danger",
 			"2": "table-warning",
-			"4": "table-info"
+			"4": "table-info",
+			"3": "table-secondary",
+			"N/A": "table-secondary"
 	}
 	$scope.getStatusString = function(status){
 		switch(status){
@@ -5211,6 +5541,8 @@ rtf.controller('review',['$scope','server','$rootScope','$filter',function($scop
 			return "N/A"
 		case "4":
 			return "Not Addressed"
+
+
 
 		default: return status;
 		}
@@ -5245,15 +5577,17 @@ rtf.controller('review',['$scope','server','$rootScope','$filter',function($scop
 		}
 	};
 	$scope.getDatesInterval = function(start,end){
-		var out = moment(start).format("MMM D YYYY, HH:mm");
-		out += " - "+moment(end).format("HH:mm");
+		var out = moment(start).local().format("MMM D YYYY, HH:mm");
+		out += " - "+moment(end).local().format("HH:mm (Z)");
 		return out;
 	}
 
 	$scope.getResultsScoreClass = function(result,total) {
 		if(result==-1)
 			return scoreClassMap["pending"];
-		if(result==total)
+		if(result==-1)
+			return scoreClassMap["pending"];
+		if(result>(total-(total/10)))
 			return scoreClassMap["success"];
 		else if(result<(total/3))
 			return scoreClassMap["failure"];
@@ -5278,6 +5612,30 @@ rtf.controller('review',['$scope','server','$rootScope','$filter',function($scop
 		}
 	}
 
+	$scope.getQuestionName = function(resName){
+		for(var i in $scope.pendingItemDetails.exercise.flags){
+			if($scope.pendingItemDetails.exercise.flags.hasOwnProperty(i)){
+				for(var j in $scope.pendingItemDetails.exercise.flags[i].flagList){
+					if($scope.pendingItemDetails.exercise.flags[i].flagList.hasOwnProperty(j) && $scope.pendingItemDetails.exercise.flags[i].flagList[j].selfCheckAvailable && $scope.pendingItemDetails.exercise.flags[i].flagList[j].selfCheckName==resName){
+						return $scope.pendingItemDetails.exercise.flags[i].title;
+					}
+				}
+			}
+		}
+	}
+	$scope.getQuestionMaxScore = function(resName){
+		for(var i in $scope.pendingItemDetails.exercise.flags){
+			if($scope.pendingItemDetails.exercise.flags.hasOwnProperty(i)){
+				for(var j in $scope.pendingItemDetails.exercise.flags[i].flagList){
+					if($scope.pendingItemDetails.exercise.flags[i].flagList.hasOwnProperty(j) && $scope.pendingItemDetails.exercise.flags[i].flagList[j].selfCheckAvailable && $scope.pendingItemDetails.exercise.flags[i].flagList[j].selfCheckName==resName){
+						return $scope.pendingItemDetails.exercise.flags[i].flagList[j].maxScore;
+					}
+				}
+			}
+		}
+
+	}
+
 
 
 	$scope.$on('pendingReviewDetails:updated', function(event,data) {
@@ -5288,7 +5646,44 @@ rtf.controller('review',['$scope','server','$rootScope','$filter',function($scop
 			scrollLeft: offset.left
 		});
 
+		if(data.results.length == 0){
+
+			for(var j in data.exercise.flags){
+				if(data.exercise.flags.hasOwnProperty(j)){
+					for(var i in data.exercise.flags[j].flagList){
+						if(data.exercise.flags[j].flagList.hasOwnProperty(i) && data.exercise.flags[j].flagList[i].selfCheckAvailable){
+							data.results[j] = {};
+							data.results[j].name = data.exercise.flags[j].flagList[i].selfCheckName;
+							data.results[j].status = "NOT_AVAILABLE";
+							data.results[j].verified = false; 
+						}
+					}
+				}
+
+			}
+		}
+
+		data.placements = [];
+
 		for(var i in data.results){
+			if(data.results[i].firstForFlag){
+				var tmpObj = {}
+				tmpObj.name = data.results[i].name;
+				tmpObj.placement = "1st place";
+				data.placements.push(tmpObj)
+			}
+			if(data.results[i].secondForFlag){
+				var tmpObj = {}
+				tmpObj.name = data.results[i].name;
+				tmpObj.placement = "2nd place";
+				data.placements.push(tmpObj)
+			}
+			if(data.results[i].thirdForFlag){
+				var tmpObj = {}
+				tmpObj.name = data.results[i].name;
+				tmpObj.placement = "3rd place";
+				data.placements.push(tmpObj)
+			}
 			switch(data.results[i].status){
 			case "VULNERABLE":
 				data.results[i].status = "Vulnerable"
@@ -5307,15 +5702,7 @@ rtf.controller('review',['$scope','server','$rootScope','$filter',function($scop
 					break;
 			}
 		}
-		if(data.results.length == 0){
-			data.results = [];
-			for(var j in data.exercise.flags){
-				data.results[j] = {};
-				data.results[j].name = data.exercise.flags[j].title;
-				data.results[j].status = "N/A";
-				data.results[j].verified = false; 
-			}
-		}
+
 		$scope.showCodeDiff = false;
 		$scope.showLogs = false;
 		$scope.pendingItemDetails = data;
@@ -5327,60 +5714,63 @@ rtf.controller('review',['$scope','server','$rootScope','$filter',function($scop
 
 
 		var tba = "";
-
-		JSZipUtils.getBinaryContent($scope.pendingItemDetails.id,$rootScope.ctoken,'/management/handler','getReviewFile', function(err, data) {
-			if(err) {
-				throw err; // or handle err
-				$scope.zipError = true;
-			}
-
-			JSZip.loadAsync(data).then(function(zip) {
-				for(file in zip.files){
-					if(file.indexOf('sourceDiff.txt')>-1){
-						zip.file(file).async("string").then(function success(content) {
-							var diffString = content;
-							if(diffString==""){
-								$scope.emptyDiff = true;
-								$('#targetDiv').empty()
-								return;
-							}
-							try{
-								var diff2htmlUi = new Diff2HtmlUI({diff : diffString });
-								diff2htmlUi.draw( '#targetDiv', {
-									inputFormat : 'diff',
-									showFiles : true,
-									matching : 'lines'
-								});
-								diff2htmlUi.highlightCode('#targetDiv');
-							} catch(err){
-							}
-						})                        
-					}
-					else if(file.indexOf('.log')>-1){
-						zip.file(file).async("string").then(function success(content) {
-							var resultString = content;
-							if(resultString=="" && tba==""){
-								$scope.emptyLog = true;
-								$('#rtfLogText').empty()
-								return;
-							}
-							rtfLog = resultString;
-							var datas = rtfLog.split("\n");
-							for (var i = 0; i < datas.length; i++) {
-								if (datas[i] !== "") {
-									tba += '<li class="list-group-item">' + htmlEncode(datas[i]) + '</li>';
-								}
-							}
-							$('#rtfLogText').append(tba);
-							var diff2htmlUi = new Diff2HtmlUI();
-							diff2htmlUi.highlightCode('#rtfLogText');
-							diff2htmlUi.highlightCode('.list-group-item');
-						});   
-					}
+		try{
+			JSZipUtils.getBinaryContent($scope.pendingItemDetails.id,$rootScope.ctoken,'/management/team/handler','getReviewFile', function(err, data) {
+				if(err) {
+					throw err; // or handle err
+					$scope.zipError = true;
 				}
+				try{
+					JSZip.loadAsync(data).then(function(zip) {
+						for(file in zip.files){
+							if(file.indexOf('sourceDiff.txt')>-1){
+								zip.file(file).async("string").then(function success(content) {
+									var diffString = content;
+									if(diffString==""){
+										$scope.emptyDiff = true;
+										$('#targetDiv').empty()
+										return;
+									}
+									try{
+										var diff2htmlUi = new Diff2HtmlUI({diff : diffString });
+										diff2htmlUi.draw( '#targetDiv', {
+											inputFormat : 'diff',
+											showFiles : true,
+											matching : 'lines'
+										});
+										diff2htmlUi.highlightCode('#targetDiv');
+									} catch(err){
+									}
+								})                        
+							}
+							else if(file.indexOf('.log')>-1){
+								zip.file(file).async("string").then(function success(content) {
+									var resultString = content;
+									if(resultString=="" && tba==""){
+										$scope.emptyLog = true;
+										$('#rtfLogText').empty()
+										return;
+									}
+									rtfLog = resultString;
+									var datas = rtfLog.split("\n");
+									for (var i = 0; i < datas.length; i++) {
+										if (datas[i] !== "") {
+											tba += '<li class="list-group-item">' + htmlEncode(datas[i]) + '</li>';
+										}
+									}
+									$('#rtfLogText').append(tba);
+									var diff2htmlUi = new Diff2HtmlUI();
+									diff2htmlUi.highlightCode('#rtfLogText');
+									diff2htmlUi.highlightCode('.list-group-item');
+								});   
+							}
+						}
+					});
+				}catch(err){}
 			});
-		});    
+		}catch(e){}
 	})
+
 
 	$scope.showDetailsFor = function(eId, index){
 		$scope.assessorStatus = {};
@@ -5390,6 +5780,8 @@ rtf.controller('review',['$scope','server','$rootScope','$filter',function($scop
 		$scope.reviewForm.$setPristine();
 		server.getPendingReviewDetails(eId);
 		$scope.selectedResultRow = index;
+		$location.path("review/details/"+eId, false);
+
 	};
 }]);
 rtf.controller('stats',['$scope','server',function($scope,server){
@@ -5894,23 +6286,375 @@ rtf.controller('runningExercises',['$scope','server','$rootScope','$location','$
 
 
 }]);
-rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter',function($scope,server,$rootScope,$location,$filter){
+rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter','$interval',function($scope,server,$rootScope,$location,$filter,$interval){
 
+	$scope.user = server.user;
+	$scope.availableUserRoles = [{ id:7, name:"User"},{ id:4, name:"Monitor"},{ id:3, name:"Team Manager"},{ id:1, name:"Reviewer"},{ id:0, name: "Admin"},{ id:-1, name: "RTF Admin"}];
+	$scope.countries = server.countries;
 	$scope.selectedChallenge = "";
 	$scope.filteredChallengesList = [];
 	$scope.masterChallengesList = [];
 	$rootScope.showChallengesList = true;
 	$rootScope.showChallengeDetails = false;
-	$scope.showList = true;
-	$scope.showDetails = false;
+	$scope.challengeNameAvailable = true;
+	$scope.userObj = [];
+	$scope.exerciseObj = [];
+	$scope.selectedExerciseList = [];
+	$scope.selectedUsersList = [];
+
+	var tmpChallengeToRemove = -1;
+	$scope.tmpChallengeToBeRemovedName = "";
+	$scope.removeChallengeModal = function(id,name){
+		tmpChallengeToRemove = id;
+		$scope.tmpChallengeToBeRemovedName = name
+		$('#removeChallengeModal').modal('show');
+	}
+	$scope.removeChallenge = function(){
+		server.removeChallenge(tmpChallengeToRemove);
+		tmpChallengeToRemove = -1;
+		$('#removeChallengeModal').modal('hide');
+	}
+
+	$scope.getChallengeUserScore = function(user){
+		return "";
+	}
+	$scope.getChallengeUserRunExercises = function(user){
+		return "";
+	}
+
+
+
 	$scope.getChallengeDetails = function(exId){
 		server.getChallengeDetails(exId);
 	}
+	$scope.scoringModes = [0,1,2];
+	$scope.usersInSelectedOrg = [];
+	$scope.tmpNewChallenge = {};
+	$scope.saveFlow = false;
+
+	$scope.filteredAvailableExercisesList = [];
+	$scope.masterAvailableExercisesList = [];
+	$scope.exercisesForOrgs = [];
+
+	$scope.getExerciseStatusString = function(status){
+		switch(status){
+		case "0":
+			return "Available";
+			break;
+		case "2":
+			return "Coming Soon";
+			break;
+		case "3":
+			return "Inactive";
+			break;
+		default:
+			return "N/A";
+		}
+	}
+
+
+	$scope.updateAvailableExercisesFilteredList = function() {
+		$scope.filteredTeamsList = $filter("filter")($scope.masterAvailableExercisesList, $scope.queryAvailableExercises);
+	};
+	$scope.availableExercisestableconfig = {
+			itemsPerPage: 8,
+			fillLastPage: false
+	}
+	$scope.$on('availableExercises:updated', function(event,data) {
+		$scope.masterAvailableExercisesList = data.exercises;
+		$scope.exercisesForOrgs = data.orgs;
+
+		$scope.exerciseObj = [];
+		$scope.selectedExerciseList = [];
+
+		if($scope.tmpNewChallenge.organization && $scope.tmpNewChallenge.organization.id){
+			for(var i in $scope.masterAvailableExercisesList){
+				if($scope.masterAvailableExercisesList[i].hasOwnProperty('id') && !$scope.getExerciseEnabledForOrgText($scope.tmpNewChallenge.organization.id,$scope.masterAvailableExercisesList[i].id)){
+					$scope.masterAvailableExercisesList.remove(i);
+				}
+				else if($scope.masterAvailableExercisesList[i].hasOwnProperty('exerciseType') && $scope.masterAvailableExercisesList[i].exerciseType == 'TRAINING'){
+					$scope.masterAvailableExercisesList.remove(i);
+				}
+			}
+			for(var i in  $rootScope.challengeDetails.exercises){
+				if( $rootScope.challengeDetails.exercises[i].hasOwnProperty('id')){
+					for(var j in $scope.masterAvailableExercisesList){
+						if( $scope.masterAvailableExercisesList[j].hasOwnProperty('id') && $scope.masterAvailableExercisesList[j].id == $rootScope.challengeDetails.exercises[i].id){
+							$scope.selectedExerciseList.push($scope.masterAvailableExercisesList[j].id)
+							$scope.masterAvailableExercisesList[j].isChecked = true;
+						}
+					}
+
+				}
+			}
+			$scope.filteredAvailableExercisesList = $scope.masterAvailableExercisesList;
+		}
+	});
+
+	$scope.getExerciseTitleFromId = function(id){
+		for(var i in $scope.masterAvailableExercisesList){
+			if( $scope.masterAvailableExercisesList[i].id == id){
+				return $scope.masterAvailableExercisesList[i].title
+			}
+		}
+		return "Exercise "+id;
+	}
+
+	$scope.getScoringModeString = function(code){
+		switch(parseInt(code)){
+		case 0:
+			return "Automated Only";
+		case 2:
+			return "Automated + Manual";
+		default: 
+			return "";
+		}
+	}
+
+	$scope.getUserRoleString = function(id){
+		for(var i in $scope.availableUserRoles){
+			if($scope.availableUserRoles.hasOwnProperty(i)){
+				if($scope.availableUserRoles[i].id==id)
+					return $scope.availableUserRoles[i].name;
+			}
+		}
+		return id;
+	}
+
+
+
+	$scope.userCheckToggle=function(s){
+		if(s.isChecked === true){
+			s.isChecked === false;
+		}else{
+			s.isChecked === true;
+		}
+		if($scope.selectedUsersList.indexOf(s.user)<0){
+			$scope.selectedUsersList.push(s.user);
+		}
+		else{
+			var idx = $scope.selectedUsersList.indexOf(s.user);
+			$scope.selectedUsersList.remove(idx,idx);
+		}
+	}
+
+	$scope.exerciseCheckToggle=function(s){
+		if(s.isChecked === true){
+			s.isChecked === false;
+		}else{
+			s.isChecked === true;
+		}
+		if($scope.selectedExerciseList.indexOf(s.id)<0){
+			$scope.selectedExerciseList.push(s.id);
+		}
+		else{
+			var idx = $scope.selectedExerciseList.indexOf(s.id);
+			$scope.selectedExerciseList.remove(idx,idx);
+		}
+	}
+
+	$scope.clear = function(){
+		$scope.tmpNewChallenge = {};
+		$scope.tmpNewChallenge.startDate = "";
+		$scope.tmpNewChallenge.endDate = "";
+		$scope.tmpNewChallenge.name = "";
+		$scope.tmpNewChallenge.details = "";
+		$scope.tmpNewChallenge.users = [];
+		$scope.tmpNewChallenge.exercises = [];
+		$scope.tmpNewChallenge.organization = "";
+		$scope.tmpNewChallenge.scoringMode = "";
+		$scope.masterUsersList = [];
+		$scope.filteredUsersList = [];
+		$scope.userObj = [];
+		$scope.exerciseObj = [];
+		$scope.selectedUsersList = [];
+		$scope.selectedExerciseList = [];
+		$scope.filteredAvailableExercisesList = [];
+		$scope.masterAvailableExercisesList = [];
+		$scope.exercisesForOrgs = [];
+	}
+
+	$scope.addNewChallenge = function(){
+		$('#addNewChallengeModal').modal('hide');
+		var obj = cloneObj($scope.tmpNewChallenge)
+		try{
+			obj.endDate = moment.utc(obj.endDate).format('ddd, D MMM YYYY HH:mm:ss z');
+			obj.startDate = moment.utc(obj.startDate).format('ddd, D MMM YYYY HH:mm:ss z');
+
+		}catch(e){}
+		obj.users = $scope.selectedUsersList;
+		obj.exercises = $scope.selectedExerciseList;
+		obj.idOrg = obj.organization.id
+		delete obj.organization
+		server.addChallenge(obj);
+	}
+
+	$scope.$on('addChallenge:updated', function(event,data) {
+		server.getChallenges();
+		$scope.clear();
+		$scope.saveFlow = false;
+	})
+	$scope.$on('challengeRemoved:updated', function(event,data) {
+		server.getChallenges();
+		$scope.saveFlow = false;
+	})
+	$scope.$on('challengeUpdated:updated', function(event,data) {
+		server.getChallenges();
+		$scope.getChallengeDetails($rootScope.challengeDetails.id)
+		$scope.clear();
+		$scope.saveFlow = false;
+	})
+
+	$scope.updateChallengeModal = function(){
+		$scope.saveFlow = true;
+
+		$scope.tmpNewChallenge = {};
+		$scope.tmpNewChallenge.organization = $rootScope.challengeDetails.organization;
+		$scope.getUsersExercisesInOrg();
+		$scope.tmpNewChallenge.id = $rootScope.challengeDetails.id;
+		$scope.tmpNewChallenge.startDate = moment(moment($rootScope.challengeDetails.startDate).local().format());
+		$scope.tmpNewChallenge.endDate = moment(moment($rootScope.challengeDetails.endDate).local().format());
+		$scope.tmpNewChallenge.name = $rootScope.challengeDetails.name;
+		$scope.tmpNewChallenge.details = $rootScope.challengeDetails.details;
+		$scope.tmpNewChallenge.scoringMode = $rootScope.challengeDetails.scoring;
+		$scope.tmpNewChallenge.firstPlace = $rootScope.challengeDetails.firstInFlag;
+		$scope.tmpNewChallenge.secondPlace = $rootScope.challengeDetails.secondInFlag;
+		$scope.tmpNewChallenge.thirdPlace = $rootScope.challengeDetails.thirdInFlag;
+		$scope.tmpNewChallenge.users = [];
+		$scope.tmpNewChallenge.exercises = [];
+
+		$('#addNewChallengeModal').modal('show');
+	}
+
+	$scope.updateChallenge = function(){
+
+		$('#addNewChallengeModal').modal('hide');
+		var obj = cloneObj($scope.tmpNewChallenge)
+		try{
+			obj.endDate = moment.utc(obj.endDate).format('ddd, D MMM YYYY HH:mm:ss z');
+			obj.startDate = moment.utc(obj.startDate).format('ddd, D MMM YYYY HH:mm:ss z');
+
+		}catch(e){}
+		obj.users = $scope.selectedUsersList;
+		obj.exercises = $scope.selectedExerciseList;
+		delete obj.organization		
+		server.updateChallenge(obj);
+	}
+
+	$scope.isChallengeNameAvailable = function(name){
+		if($scope.saveFlow && name == $rootScope.challengeDetails.name){
+			return true;
+		}
+		server.isChallengeNameAvailable($scope.tmpNewChallenge.name);
+	}
+	$scope.$on('challengeNameAvailable:updated', function(event,data) {
+		$scope.challengeNameAvailable = data.result;
+	})
+
+	$scope.$on('challengeAdded:updated', function(event,data) {
+		$scope.tmpNewChallenge = {};
+		$scope.tmpNewChallenge.startDate = "";
+		$scope.tmpNewChallenge.endDate = "";
+		$scope.tmpNewChallenge.name = "";
+		$scope.tmpNewChallenge.details = "";
+		$scope.tmpNewChallenge.users = [];
+		$scope.tmpNewChallenge.exercises = [];
+		$scope.tmpNewChallenge.organization = "";
+		$scope.tmpNewChallenge.scoringMode = "";
+		$scope.masterUsersList = [];
+		$scope.filteredUsersList = [];
+	});
+
+	$rootScope.getDateInCurrentTimezone = function(date,format){
+		if(date==null)
+			return "N/A"
+			return moment(date).local().format(format);
+	}
+
+	$scope.getExerciseEnabledForOrgText = function(orgId,exId){
+		if(undefined == orgId || undefined == exId)
+			return false;
+		for(var i in $scope.exercisesForOrgs){
+			if ($scope.exercisesForOrgs[i].hasOwnProperty("organization") && $scope.exercisesForOrgs[i].organization.id==orgId){
+				for(var j in $scope.exercisesForOrgs[i].exercises){
+					if($scope.exercisesForOrgs[i].exercises[j].id==exId){
+						return true;
+					}
+				}
+				return false;
+			}
+		}
+		return false;
+	}
+
+	$scope.changeOrganization = function(){
+
+		$scope.userObj = [];
+		$scope.exerciseObj = [];
+		$scope.selectedUsersList = [];
+		$scope.selectedExerciseList = [];
+		$scope.getUsersExercisesInOrg();
+
+	}
+
+	$scope.getUsersExercisesInOrg = function(){
+
+		if(!$scope.tmpNewChallenge.organization || !$scope.tmpNewChallenge.organization.id)
+			return;
+		server.getUsersInOrg($scope.tmpNewChallenge.organization)
+		server.getAvailableExercises();
+
+	}
+
+	$scope.masterUsersList = [];
+	$scope.filteredUsersList = []; 
+
+	$scope.$on('usersInOrg:updated', function(event,data) {
+		$scope.masterUsersList = data;
+		$scope.filteredUsersList = $filter("filter")($scope.masterUsersList, $scope.query);
+
+		$scope.userObj = [];
+		$scope.selectedUsersList = [];
+
+		for(var i in  $rootScope.challengeDetails.users){
+			if( $rootScope.challengeDetails.users[i].hasOwnProperty('user')){
+				for(var j in $scope.masterUsersList){
+					if( $scope.masterUsersList[j].hasOwnProperty('user') && $scope.masterUsersList[j].user == $rootScope.challengeDetails.users[i].user){
+						$scope.selectedUsersList.push($scope.masterUsersList[j].user)
+						$scope.masterUsersList[j].isChecked = true;
+					}
+				}
+
+			}
+		}
+
+	});	
+	$scope.usertableconfig = {
+			itemsPerPage: 5,
+			fillLastPage: false
+	}
+	$scope.updateFilteredList = function() {
+		$scope.filteredUsersList = $filter("filter")($scope.masterUsersList, $scope.query);
+	};
+
+
+
+	$scope.addNewChallengeModal = function(){
+		if($scope.saveFlow){
+			$scope.clear();
+			$scope.saveFlow = false;
+		}
+		$('#addNewChallengeModal').modal('show');
+	}
 
 	$rootScope.challengeDetails = [];
+	$scope.challengeResults = {};
+
+	var challengeUpdateTimer = null;
 	$scope.$on('challengeDetails:updated', function(event,data) {
 		data.flags = [];
 		data.theads = [];
+
 
 		for (var property in data.exercises) {
 			if (data.exercises.hasOwnProperty(property)) {
@@ -5927,34 +6671,54 @@ rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter
 		}
 
 		var remediated = 0; 
-		var runFlags = 0;
+		data.runFlags = 0;
+		data.challengeRunningExercises=0;
+		data.challengeRunExercises = 0;
 		for(var i=0;i<data.runExercises.length;i++){
+			if(data.runExercises[i].status=="RUNNING"){
+				data.challengeRunningExercises++;
+			}
+			else{
+				data.challengeRunExercises++;
+			}
 			for(var j=0;j<data.runExercises[i].results.length;j++){
-				runFlags++;
+				data.runFlags++;
 				if(data.runExercises[i].results[j].status == "0"){
 					remediated++;
 				}
 			}
 		}
-
-		data.remediation = remediated/runFlags * 100;
+		if(remediated==0 || data.runFlags == 0)
+			data.remediation = 0;
+		else
+			data.remediation = remediated/data.runFlags * 100;
 		$scope.challengeTableConfig = {
 				itemsPerPage: 20,
 				fillLastPage: false
 		}
 		$rootScope.challengeDetails = data;
+		$rootScope.challengeDetails.lastRefreshed = new Date();
+		$rootScope.challengeDetails.teams = [];
+
 		for(var u in $rootScope.challengeDetails.users){
 			if ($rootScope.challengeDetails.users.hasOwnProperty(u)){
-				$rootScope.challengeDetails.users[u].runExercises = 0;
-				$rootScope.challengeDetails.users[u].score = 0;
+				if(undefined!=$rootScope.challengeDetails.users[u].team && $rootScope.challengeDetails.teams.indexOf($rootScope.challengeDetails.users[u].team.name)<0){
+					$rootScope.challengeDetails.teams.push($rootScope.challengeDetails.users[u].team.name)
+				}
+				$scope.challengeResults[$rootScope.challengeDetails.users[u].user] = {}
+				$rootScope.challengeDetails.users[u].challengeRunFlags = 0;
+				$rootScope.challengeDetails.users[u].challengeRunExercises = 0;
+				$rootScope.challengeDetails.users[u].challengeScore = 0;
 				for(var e in $rootScope.challengeDetails.runExercises){
 					if($rootScope.challengeDetails.runExercises.hasOwnProperty(e) && $rootScope.challengeDetails.runExercises[e].user.user==$rootScope.challengeDetails.users[u].user){
+						$rootScope.challengeDetails.users[u].challengeRunExercises++;
 						for(var r in $rootScope.challengeDetails.runExercises[e].results){
 							if($rootScope.challengeDetails.runExercises[e].results.hasOwnProperty(r)){
-								if($rootScope.challengeDetails.runExercises[e].results[r].status=="0"){
-									$rootScope.challengeDetails.users[u].score++;
+								$scope.challengeResults[$rootScope.challengeDetails.users[u].user][$rootScope.challengeDetails.runExercises[e].results[r].name] = $rootScope.challengeDetails.runExercises[e].results[r];
+								if($rootScope.challengeDetails.runExercises[e].results[r].status=="0" && Number.isInteger($rootScope.challengeDetails.runExercises[e].results[r].score)){
+									$rootScope.challengeDetails.users[u].challengeScore += $rootScope.challengeDetails.runExercises[e].results[r].score;
 								}
-								$rootScope.challengeDetails.users[u].runExercises++;
+								$rootScope.challengeDetails.users[u].challengeRunFlags++;
 							} 
 						}
 					}
@@ -5964,35 +6728,107 @@ rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter
 		$rootScope.showChallengeDetails = true;
 		$rootScope.showChallengesList = false;
 		$location.path("challenges/details/"+$rootScope.challengeDetails.id, false);
+		if(challengeUpdateTimer==null )
+			challengeUpdateTimer = $interval(function(){triggerChallengeUpdate($rootScope.challengeDetails.id)},10000)
+
 	});
 
-	$scope.getExerciseIdForFlag = function(flag){
+	function triggerChallengeUpdate(id){
+		if($rootScope.visibility.challenges && $rootScope.showChallengeDetails && id == $rootScope.challengeDetails.id){
+			$scope.getChallengeDetails(id);
+		}
+		else{
+			$interval.cancel(challengeUpdateTimer);
+			challengeUpdateTimer = null;
+		}
+	}
+
+	$scope.getExerciseIdForFlag = function(usr,flag){
+		var sf = getSelfCheckFromFlag(flag);
+		if(sf=="")
+			return "";
 		var runExercises = $rootScope.challengeDetails.runExercises;
 		for (var ex=0;ex<runExercises.length;ex++) {
 			for(var res=0;res<runExercises[ex]["results"].length;res++){
-				if (runExercises[ex]["results"][res].name==flag) {
+				if (runExercises[ex]["results"][res].name==sf) {
 					return runExercises[ex].id
 				}
 			}			
 		}
 	}
-
-	$scope.getChallengeResultFor = function(usr,flag){
-		var runExercises = $rootScope.challengeDetails.runExercises;
-		var status = "-1";
-		//loop1:
-		for (var ex=0;ex<runExercises.length;ex++) {
-			if(runExercises[ex]["user"].user==usr) {
-				for(var res=0;res<runExercises[ex]["results"].length;res++){
-					if (runExercises[ex]["results"][res].name==flag) {
-						status = runExercises[ex]["results"][res].status;
-						break;
+	function getSelfCheckFromFlag(flag){
+		for(var f in $rootScope.challengeDetails.flags){
+			if($rootScope.challengeDetails.flags.hasOwnProperty(f) && $rootScope.challengeDetails.flags[f].title==flag){
+				for(var q in $rootScope.challengeDetails.flags[f].flagList){
+					if($rootScope.challengeDetails.flags[f].flagList.hasOwnProperty(q) && $rootScope.challengeDetails.flags[f].flagList[q].selfCheckAvailable==true){
+						return $rootScope.challengeDetails.flags[f].flagList[q].selfCheckName;
 					}
 				}
 			}
 		}
+		return "";
+	}
+
+	$scope.getClassPlacementInChallenge= function(usr,name){
+		if($scope.challengeResults[usr]==undefined || $scope.challengeResults[usr][name]==undefined)
+			return false;
+		else if($scope.challengeResults[usr][name]['firstForFlag']){
+			return "goldPlacement";
+		}
+		else if($scope.challengeResults[usr][name]['secondForFlag']){
+			return "silverPlacement";
+		}
+		else if($scope.challengeResults[usr][name]['thirdForFlag']){
+			return "bronzePlacement";
+		}
+		return "";
+	}
+	$scope.getPlacementInChallenge = function(usr,name){
+		if($scope.challengeResults[usr]==undefined || $scope.challengeResults[usr][name]==undefined)
+			return false;
+		else if($scope.challengeResults[usr][name]['firstForFlag']){
+			return "1st";
+		}
+		else if($scope.challengeResults[usr][name]['secondForFlag']){
+			return "2nd";
+		}
+		else if($scope.challengeResults[usr][name]['thirdForFlag']){
+			return "3rd";
+		}
+		return "";
+	}
+
+	$scope.isPlacedInChallenge = function(usr,name){
+		if($scope.challengeResults[usr]==undefined || $scope.challengeResults[usr][name]==undefined)
+			return false;
+		else if($scope.challengeResults[usr][name]['firstForFlag']){
+			return true;
+		}
+		else if($scope.challengeResults[usr][name]['secondForFlag']){
+			return true;
+		}
+		else if($scope.challengeResults[usr][name]['thirdForFlag']){
+			return true;
+		}
+		return false;
+	}
+
+	$scope.getChallengeResultFor = function(usr,flag){
+		var sf = getSelfCheckFromFlag(flag);
+
+		if(sf=="")
+			return "N/A";
+		var status = "-1";
+		//loop1:
+		try{
+			var status = $scope.challengeResults[usr][sf].status
+		}catch(e){
+			status = "-1";
+		}
 
 		switch(status){
+		case undefined:
+			return "Not Started"
 		case "-1":
 			return "Not Started"
 		case "1":
@@ -6010,8 +6846,6 @@ rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter
 		var status = $scope.getChallengeResultFor(user,flag);
 
 		switch(status){
-		case "-1":
-			return ""
 		case "Vulnerable":
 			return "table-danger"
 		case "Not Vulnerable":
@@ -6020,7 +6854,7 @@ rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter
 			return "table-warning"
 		case "Not Addressed":
 			return "table-info"
-		default: return "N/A"
+		default: return "table-light"
 		};
 
 
@@ -6029,6 +6863,7 @@ rtf.controller('challenges',['$scope','server','$rootScope','$location','$filter
 	$scope.backToList = function(){
 		$rootScope.showChallengeDetails = false;
 		$rootScope.showChallengesList = true;
+		$location.path("challenges", false);
 	}
 
 

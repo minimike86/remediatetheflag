@@ -60,9 +60,9 @@
 
 					<div id="navbar" class="navbar-collapse collapse height35">
 						<ul class="nav navbar-nav exerciseNavbar height35">
-							<li class="dropdown"><a title="exercise-info" class="dropdown-toggle"
-								role="button" aria-haspopup="true" aria-expanded="false">Exercise
-									Info<span class="caret"></span>
+							<li class="dropdown"><a title="exercise-info"
+								class="dropdown-toggle" role="button" aria-haspopup="true"
+								aria-expanded="false">Exercise Info<span class="caret"></span>
 							</a>
 								<ul class="dropdown-menu">
 									<li ng-repeat="topic in exerciseDetails.info">
@@ -89,8 +89,8 @@
 									</li>
 								</ul></li>
 							<li class="dropdown"><a class="dropdown-toggle"
-								title="exercise-flags" role="button" aria-haspopup="true" aria-expanded="false">Exercise
-									Flags <span class="caret"></span>
+								title="exercise-flags" role="button" aria-haspopup="true"
+								aria-expanded="false">Exercise Flags <span class="caret"></span>
 							</a>
 								<ul class="dropdown-menu">
 									<li>
@@ -98,7 +98,7 @@
 											<div ng-show="asNotStarted">
 												<p class="lead alertPLead">To check the remediation
 													status, start the Application Server in the RTF exercise.
-													Reference the 'Exercise Information' tab for instructions.</p>
+													Reference the 'Exercise Info' tab for instructions.</p>
 											</div>
 											<div class="panel-group" id="accordion">
 												<div ng-repeat="flag in exerciseDetails.flags"
@@ -117,6 +117,7 @@
 																		<th>Type</th>
 																		<th>Instructions</th>
 																		<th>Required</th>
+																		<th>Max Score</th>
 																		<th class="center">Hint</th>
 																		<th class="center">Check result</th>
 																		<th></th>
@@ -125,9 +126,10 @@
 																<tbody>
 																	<tr ng-repeat="f in flag.flagList" class="spaceUnder">
 																		<td class="w10">{{f.type}}</td>
-																		<td class="w60">{{f.instructions}}</td>
+																		<td class="w50">{{f.instructions}}</td>
 																		<td class="w10">{{f.type=='EXPLOITATION' &&
 																			"Optional" || "Required"}}</td>
+																		<td class="w7 center">{{f.maxScore || "-"}}</td>
 																		<td class="w10 center">
 																			<button ng-show="f.hintAvailable"
 																				ng-click="getHintModal(f.id)"
@@ -165,21 +167,95 @@
 
 								</ul></li>
 
-							<li class="dropdown"><a title="exercise-reference" class="dropdown-toggle"
-								role="button" aria-haspopup="true" aria-expanded="false">Exercise
-									Reference <span class="caret"></span>
+							<li ng-show="exerciseDetails.referenceFileAvailable" class="dropdown"><a title="exercise-reference"
+								class="dropdown-toggle" role="button" aria-haspopup="true"
+								aria-expanded="false">Exercise Reference <span class="caret"></span>
 							</a>
-								<ul class="dropdown-menu paddingTop0" >
-									<li>
-									<iframe id="referenceIframe" ng-src="{{viewerUrl| trustUrl}}"></iframe>
-									
-									</li>
+								<ul class="dropdown-menu paddingTop0">
+									<li><iframe id="referenceIframe"
+											ng-src="{{viewerUrl| trustUrl}}"></iframe></li>
 
+								</ul></li>
+							<li class="dropdown" ng-show="isChallenge"><a
+								title="exercise-challenge" class="dropdown-toggle" role="button"
+								aria-haspopup="true" aria-expanded="false">Challenge<span
+									class="caret"></span>
+							</a>
+								<ul class="dropdown-menu paddingTop0">
+									<li>
+										<div class="container">
+											<div class="row">
+												<div class="col-md-12 center">
+													<div class="row center">
+														<h4 class="center">Challenge Table</h4>
+														<table class="table table-hover left" at-table
+															at-list="challengeUsers" at-config="challengeTableConfig">
+															<thead>
+
+															</thead>
+															<tbody>
+																<tr>
+																	<td at-attribute="user" at-sortable at-title="User">{{item.user}}</td>
+																	<td at-initial-sorting="desc"
+																		at-attribute="challengeScore" at-sortable
+																		at-title="Score">{{item.challengeScore}}</td>
+																	<td at-attribute="challengeRunExercises" at-sortable
+																		at-title="Run Exercises">{{(item.challengeRunExercises)}}</td>
+																	<td at-attribute="challengeRunFlags" at-sortable
+																		at-title="Run Flags">{{(item.challengeRunFlags)}}</td>
+																	<td at-attribute="team.name" at-sortable
+																		at-title="Team">{{item.team.name}}</td>
+																	<td at-attribute="country.name" at-sortable
+																		at-title="Country">{{item.country.name}}</td>
+
+
+																</tr>
+															</tbody>
+														</table>
+														<p>
+															<small>Last refreshed at
+																{{getDateInCurrentTimezone(challengeDetails.lastRefreshed,'HH:mm
+																(Z) on MMM D YYYY')}}</small>
+														</p>
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-12 center">
+													<h4 class="center">Challenge Results</h4>
+													<table class="table" id="challengeResults">
+														<thead>
+															<tr>
+																<th></th>
+																<th class="width185 bold italics centered"
+																	ng-repeat="t in challengeDetails.theads">{{t.name}}</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr ng-repeat="u in challengeDetails.users">
+																<td class="italics">{{u.user}}</td>
+
+																<td class="centered font12"
+																	ng-class="getClassForChallengeResult(u.user,f.name)"
+																	ng-repeat="f in challengeDetails.theads"><span>{{getChallengeResultFor(u.user,f.name)}}</span></td>
+															</tr>
+														</tbody>
+													</table>
+													<p class="center">
+														<small>Last refreshed at
+															{{getDateInCurrentTimezone(challengeDetails.lastRefreshed,'HH:mm
+															(Z) on MMM D YYYY')}}</small>
+													</p>
+												</div>
+											</div>
+										</div>
+									</li>
 								</ul></li>
 						</ul>
 						<div class="exerciseButtons">
-							<span class="badge" id="cdown">{{countdown}}</span> <a
-								ng-click="stopExercise()" class="btn btn-xs btn-success">Mark
+							<span ng-show="isChallenge" class="badge" id="exerciseScoreBadge">Exercise
+								Score: {{exerciseScore || 0}}</span> <span class="badge" id="cdown">{{countdown}}</span>
+							<a ng-click="stopExercise()" class="btn btn-xs btn-success">Mark
 								Completed</a> <a ng-click="backToRTF()"
 								class="btn marginLeft10  btn-xs btn-primary">Back to RTF</a>
 						</div>
@@ -241,6 +317,56 @@
 	<div class="waitLoader"></div>
 	<script src="/assets/js/libu.min.js"></script>
 	<script src="/assets/js/pdf.js"></script>
+
 	<script src="/user/js/exercise.js"></script>
+	<!--Matomo-->
+	<script type="text/javascript">
+		var _paq = _paq || [];
+		_paq
+				.push([ "setDocumentTitle",
+						document.domain + "/" + document.title ]);
+		_paq.push([ "setCookieDomain", "*.remediatetheflag.com" ]);
+		_paq.push([ "setDomains",
+				[ "*.remediatetheflag.com", "*.remediatetheflag.net" ] ]);
+		_paq.push([ "enableCrossDomainLinking" ]);
+		_paq.push([ 'trackPageView' ]);
+		_paq.push([ 'enableLinkTracking' ]);
+		(function() {
+			var u = "https://analytics.remediatetheflag.com/piwik/";
+			_paq.push([ 'setTrackerUrl', u + 'piwik.php' ]);
+			_paq.push([ 'setSiteId', '1' ]);
+			var d = document, g = d.createElement('script'), s = d
+					.getElementsByTagName('script')[0];
+			g.type = 'text/javascript';
+			g.async = true;
+			g.defer = true;
+			g.src = u + 'piwik.js';
+			s.parentNode.insertBefore(g, s);
+		})();
+		var currentUrl = location.href;
+		window.addEventListener('hashchange', function() {
+			_paq.push([ 'setReferrerUrl', currentUrl ]);
+			currentUrl = '' + window.location.hash.substr(1);
+			_paq.push([ 'setCustomUrl', currentUrl ]);
+			_paq.push([ 'setDocumentTitle',
+					'RTF - ' + window.location.hash.substr(1) ]);
+			_paq.push([ 'deleteCustomVariables', 'page' ]);
+			_paq.push([ 'setGenerationTimeMs', 0 ]);
+			_paq.push([ 'trackPageView' ]);
+			var content = document.getElementsByTagName('body')[0];
+			_paq.push([ 'MediaAnalytics::scanForMedia', content ]);
+			_paq.push([ 'FormAnalytics::scanForForms', content ]);
+			_paq.push([ 'trackContentImpressionsWithinNode', content ]);
+			_paq.push([ 'enableLinkTracking' ]);
+		});
+	</script>
+	<noscript>
+		<p>
+			<img
+				src="https://analytics.remediatetheflag.com/piwik/piwik.php?idsite=1&amp;rec=1"
+				style="border: 0;" alt="" />
+		</p>
+	</noscript>
+	<!--EndMatomo-->
 </body>
 </html>
