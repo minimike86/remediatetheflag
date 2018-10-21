@@ -115,9 +115,6 @@ Resources:
                 #ECS Service Autoscaling, Min/Max number of concurrent tasks for Global Service
                 DesiredCount: 1
                 MaxCount: 4
-                #Replace AWS Key ID/Secret information, reference Github for required permissions
-                AwsKeyID: REPLACE-AWS-KEY-ID
-                AwsSecretKey: REPLACE-AWS-SECRET-KEY
                 #Replace Passwords, match them in the other services in this template
                 GuacRTFAdminUserPassword: REPLACE-GUAC-ADMIN-PASSWORD
                 MysqlGlobalUserPassword: REPLACE-MYSQL-GLOBAL-PASSWORD

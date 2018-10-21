@@ -27,12 +27,6 @@
     ECSServiceAutoScalingRoleARN:
       Description: The ECS service auto scaling role ARN
       Type: String
-    AwsKeyID:
-      Description: AWS Key ID
-      Type: String
-    AwsSecretKey:
-      Description: AWS Secrety Key
-      Type: String
     GuacRTFAdminUserPassword:
       Description: Guacamole rtfadmin User password
       Type: String
@@ -68,10 +62,73 @@
           - ContainerName: global
             ContainerPort: 80
             TargetGroupArn: !Ref TargetGroup
+    GlobalTaskRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: !Sub ${AWS::StackName}-ECS-WEBAPP-ROLE
+        Path: /
+        AssumeRolePolicyDocument: |
+            {
+                "Statement": [{
+                    "Sid": "",
+                    "Effect": "Allow",
+                    "Principal": { "Service": [ "ecs-tasks.amazonaws.com" ]},
+                    "Action": "sts:AssumeRole"
+                }]
+            }
+        Policies: 
+            - PolicyName: !Sub ${AWS::StackName}-ecs-task-global-policy
+              PolicyDocument: 
+                {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Action": [
+                        "cloudwatch:GetMetricStatistics"
+                      ],
+                      "Effect": "Allow",
+                      "Resource": "*"
+                    },
+                    {
+                      "Action": [
+                        "logs:CreateLogStream"
+                      ],
+                      "Effect": "Allow",
+                      "Resource": "*"
+                    },
+                    {
+                      "Action": [
+                        "ecs:DeregisterTaskDefinition",
+                        "ecs:DescribeClusters",
+                        "ecs:DescribeTaskDefinition",
+                        "ecs:DescribeTasks",
+                        "ecs:DescribeContainerInstances",
+                        "ecs:ListTaskDefinitions",
+                        "ecs:ListTasks",
+                        "ecs:ListClusters",
+                        "ecs:RegisterTaskDefinition",
+                        "ecs:RunTask",
+                        "ecs:StopTask"
+                      ],
+                      "Effect": "Allow",
+                      "Resource": "*"
+                    },
+                    {
+                      "Action": [
+                        "ec2:DescribeInstances",
+                        "ec2:StopInstances",
+                        "ec2:TerminateInstances"
+                      ],
+                      "Effect": "Allow",
+                      "Resource": "*"
+                    }
+                  ]
+                }
     TaskDefinition:
       Type: 'AWS::ECS::TaskDefinition'
       Properties:
         Family: global
+        TaskRoleArn: !Ref GlobalTaskRole
         ContainerDefinitions:
           - EntryPoint:
               - /ecs-task-kite
@@ -100,10 +157,6 @@
                 Value: true
               - Name: DOMAIN
                 Value: !Ref GlobalHostname
-              - Name: AWS_ACCESS_KEY_ID
-                Value: !Ref AwsKeyID
-              - Name: AWS_SECRET_KEY
-                Value: !Ref AwsSecretKey
               - Name: GUAC_RTFADMIN_PASSWORD
                 Value: !Ref GuacRTFAdminUserPassword
               - Name: MYSQL_GLOBAL_PASSWORD
