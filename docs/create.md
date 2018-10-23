@@ -7,7 +7,6 @@
 
       * Vulnerable App / Java EE
         Download the source for the [existing exercise](https://bitbucket.org/remediatetheflag/rtf-docker-templates/src/3fdf01d7d4b2aec5bc4fe97cf464315417abf356/RTF-Docker-VApp/?at=master) (Dockerfile + filesystem), integrate your changes (e.g. add new classes, web page, etc) and build a new image.
-      * VulnerableChat / NodeJS
 
     - integrate a new vulnerable application for an already supported technology stack
 
@@ -28,8 +27,8 @@
     * After adding additional dependencies and exercise's files, build the docker image.
 
         ```
-      cd /path/to/docker/image
-      docker build . -t newRTFExercise:latest
+        cd /path/to/docker/image
+        docker build . -t newRTFExercise:latest
         ```
 
 3. **Run container**
@@ -157,11 +156,11 @@
       docker push 1234567891234.dkr.ecr.us-east-2.amazonaws.com/remediatetheflag/exercise:newRTFExercise-latest
       ```
 
-
+    At this point, follow step 7 in the [configuration guide](https://github.com/sk4ddy/remediatetheflag/blob/master/docs/configure.md) to register the exercise on your RTF regional Gateways.
 
 ### RTF Agent & Automated Checker
 
-  When requesting the real-time status of the remediation of a vulnerability or to collect logs and code diff, the RTF Portal issues a request to the RTF Gateway where the exercise is running to check the results or collect the artefacts. The RTF Gateway then issues a request to the RTF Agent running in the container of the RTF Exercise.
+ When requesting the real-time status of the remediation of a vulnerability or to collect logs and code diff, the RTF Portal issues a request to the RTF Gateway where the exercise is running to check the results or collect the artefacts. The RTF Gateway then issues a request to the RTF Agent running in the container of the RTF Exercise.
 
   ![tests_flow](img/tests_flow.png)
 

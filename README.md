@@ -21,7 +21,7 @@ Candidates manually find, exploit, and manually remediate the code of a vulnerab
 - Run vulnerable exercises in docker containers running in a sandboxed environment in the cloud
 - Provide users *in seconds* with a turn-key development environment already configured with selected exercise
 - Exercise focus on exploitation/remediation or secure coding and target the most common application security issues
-- User is provided with automated results checker to increase engagement
+- User is provided with automated results during the exercise to increase engagement
 - Deployable on AWS through CloudFormation, scales horizontally and vertically
 - Setup and Manage Organizations, Teams and Users
 - Get Stats at Organization, Region, Team and User level to quickly identify gaps 
@@ -80,8 +80,8 @@ The platform allows to add new exercises, and technologies and target any specif
     * ~~Complete Exercise update / import / export use case~~
     * Change Containers Secrets Injection Strategy (SOPS?)
     * ~~Drop Capabilities for Linux Containers (drop NET_RAW, add NET_ADMIN for iptables support)~~
-    * Create IAM User for Programmatic Access in CloudFormation
-    * Reduce assigned permissions for Programmatic Access
+    * ~~Create IAM User for Programmatic Access in CloudFormation~~
+    * ~~Reduce assigned permissions for Programmatic Access~~
     * Improve Documentation
     * Definition End-to-end test strategy 
     * Automated EC2 scale out in Exercises Instances (the AWS EC2 Scaling service, upon scale in terminates instances even if there are running containers)
@@ -97,18 +97,19 @@ The platform allows to add new exercises, and technologies and target any specif
 
 ### Recent Changes ###
 
+  - Removed AWS Access Keys requirement, implemented IAM role for Portal container.
   - Completed Challenges flows
   - Automated Region selection based on ping time
   - Completed Exercise Update/Import/Export flows
   - Completed User update use case
-- Completed Organization update use case
-- Completed Reference and Solution documents for existing exercise
-- Published existing exercises as importable JSON
-- Turned Portal-App into Maven project. 
-- Simplified IAM roles for Portal App
-- Configured Capabilities for Linux Containers (NET_ADMIN for iptables instead of privileged)
-- Updated RTF-Java-VApp-Exercise and RTF-Java Base docker images (better performances, bug fixes)
-- UX enhancements when running exercises (now it's all in one tab)
+  - Completed Organization update use case
+  - Completed Reference and Solution documents for existing exercise
+  - Published existing exercises as importable JSON
+  - Turned Portal-App into Maven project. 
+  - Simplified IAM roles for Portal App
+  - Configured Capabilities for Linux Containers (NET_ADMIN for iptables instead of privileged)
+  - Updated RTF-Java-VApp-Exercise and RTF-Java Base docker images (better performances, bug fixes)
+  - UX enhancements when running exercises (now it's all in one tab)
 
 
 
