@@ -19,65 +19,63 @@
 5. **Import and tweak AWS CloudFormation template**
     On the AWS console, browse to CloudFormation. You will need to import, tweak and run the [RTF master template](https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-template.yaml). This will automatically create the RTF infrastructure and deploy all services. Reference the [tutorial](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-using-console-create-stack-template.html).
 
-       - Click on "Create New Stack"
+   - Click on "Create New Stack"
 
-       - Select "Specify an Amazon S3 Template Url" and enter the RTF public template:
+   - Select "Specify an Amazon S3 Template Url" and enter the RTF public template:
 
-         ```
-         https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-template.yaml
-         ```
+     ```
+     https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-template.yaml
+     ```
 
-         ![select_template](img/select_template.png)
+     ![select_template](img/select_template.png)
 
-       - Click on "View/Edit template in Designer"
+   - Click on "View/Edit template in Designer"
 
-       - Tweak the templated editing these items to match your configuration:
+   - Tweak the templated editing these items to match your configuration:
 
-          ```
-          ALB:
-           #Replace with AWS ACM TLS Certificate ARN (From Step 3)
-           LoadBalancerCertificateArn: arn:aws:elasticloadbalancing:us-west-2:123456789012:certificate/50dc6c495c0c9188/f2f7dc8efc522ab2
-          ServicesECS:
-           #Choose EC2 Instance Type to run RTF-Services (https://aws.amazon.com/ec2/instance-types/)
-           InstanceType: t2.medium
-           #EC2 Autoscaling Min/Max Instances to launch in the RTF Services ECS Cluster
-           MinClusterSize: 1
-           MaxClusterSize: 4
-          ExercisesECS:
-            #Choose EC2 Instance Type to run RTF-Exercises, more memory = more concurrent RTF exercises (https://aws.amazon.com/ec2/instance-types/)
-           InstanceType: m4.large
-            #EC2 Autoscaling Min/Max Instances to launch in the RTF Exercises ECS Cluster, more memory = more concurrent RTF exercises
-           MinClusterSize: 1
-           MaxClusterSize: 4
-          MysqlService:
-           #Replace Passwords, match them in the other services in this template
-           GuacRTFAdminUserPassword: REPLACE-GUAC-ADMIN-PASSWORD
-           GlobalRTFAdminUserPassword: REPLACE-GLOBAL-ADMIN-PASSWORD
-           MysqlGlobalUserPassword: REPLACE-MYSQL-GLOBAL-PASSWORD
-           MysqlGuacUserPassword: REPLACE-MYSQL-GUAC-PASSWORD
-           MysqlRootUserPassword: REPLACE-MYSQL-ROOT-PASSWORD
-          GlobalService:
-           #ECS Service Autoscaling, Min/Max number of concurrent ECS tasks (Docker containers) for the RTF-Global (Portal) Service
-           DesiredCount: 1
-           MaxCount: 4
-           #Replace Passwords, match them in the other services in this template
-           GuacRTFAdminUserPassword: REPLACE-GUAC-ADMIN-PASSWORD
-           MysqlGlobalUserPassword: REPLACE-MYSQL-GLOBAL-PASSWORD
-           GatewayAgentPassword: REPLACE-GATEWAY-AGENT-PASSWORD
-           #Choose hostname for RTF deployment (e.g remediatetheflag.net)
-           GlobalHostname: REPLACE-PORTAL-FQDN
-          GatewayService:
-           #ECS Service Autoscaling, Min/Max number of concurrent ECS tasks (Docker containers) for Gateway Service
-           DesiredCount: 1
-           MaxCount: 4
-           #Choose hostname for the RTF Gateway deployment (e.g emea.remediatetheflag.net)
-           GatewayHostname: REPLACE-GATEWAY-FQDN
-           #Replace Passwords, match them in the other services in this template
-           MysqlGuacUserPassword: REPLACE-MYSQL-GUAC-PASSWORD
-           GatewayAgentPassword: REPLACE-GATEWAY-AGENT-PASSWORD
-          ```
-
-          
+    ```
+    ALB:
+     #Replace with AWS ACM TLS Certificate ARN (From Step 3)
+     LoadBalancerCertificateArn: arn:aws:elasticloadbalancing:us-west-2:123456789012:certificate/50dc6c495c0c9188/f2f7dc8efc522ab2
+    ServicesECS:
+     #Choose EC2 Instance Type to run RTF-Services (https://aws.amazon.com/ec2/instance-types/)
+     InstanceType: t2.medium
+     #EC2 Autoscaling Min/Max Instances to launch in the RTF Services ECS Cluster
+     MinClusterSize: 1
+     MaxClusterSize: 4
+    ExercisesECS:
+      #Choose EC2 Instance Type to run RTF-Exercises, more memory = more concurrent RTF exercises (https://aws.amazon.com/ec2/instance-types/)
+     InstanceType: m4.large
+      #EC2 Autoscaling Min/Max Instances to launch in the RTF Exercises ECS Cluster, more memory = more concurrent RTF exercises
+     MinClusterSize: 1
+     MaxClusterSize: 4
+    MysqlService:
+     #Replace Passwords, match them in the other services in this template
+     GuacRTFAdminUserPassword: REPLACE-GUAC-ADMIN-PASSWORD
+     GlobalRTFAdminUserPassword: REPLACE-GLOBAL-ADMIN-PASSWORD
+     MysqlGlobalUserPassword: REPLACE-MYSQL-GLOBAL-PASSWORD
+     MysqlGuacUserPassword: REPLACE-MYSQL-GUAC-PASSWORD
+     MysqlRootUserPassword: REPLACE-MYSQL-ROOT-PASSWORD
+    GlobalService:
+     #ECS Service Autoscaling, Min/Max number of concurrent ECS tasks (Docker containers) for the RTF-Global (Portal) Service
+     DesiredCount: 1
+     MaxCount: 4
+     #Replace Passwords, match them in the other services in this template
+     GuacRTFAdminUserPassword: REPLACE-GUAC-ADMIN-PASSWORD
+     MysqlGlobalUserPassword: REPLACE-MYSQL-GLOBAL-PASSWORD
+     GatewayAgentPassword: REPLACE-GATEWAY-AGENT-PASSWORD
+     #Choose hostname for RTF deployment (e.g remediatetheflag.net)
+     GlobalHostname: REPLACE-PORTAL-FQDN
+    GatewayService:
+     #ECS Service Autoscaling, Min/Max number of concurrent ECS tasks (Docker containers) for Gateway Service
+     DesiredCount: 1
+     MaxCount: 4
+     #Choose hostname for the RTF Gateway deployment (e.g emea.remediatetheflag.net)
+     GatewayHostname: REPLACE-GATEWAY-FQDN
+     #Replace Passwords, match them in the other services in this template
+     MysqlGuacUserPassword: REPLACE-MYSQL-GUAC-PASSWORD
+     GatewayAgentPassword: REPLACE-GATEWAY-AGENT-PASSWORD
+    ```
 
 6. **Run AWS CloudFormation template**
 
