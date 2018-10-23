@@ -33,7 +33,7 @@
 
        - Tweak the templated editing these items to match your configuration:
 
-          ```yaml
+          ```
           ALB:
            #Replace with AWS ACM TLS Certificate ARN (From Step 3)
            LoadBalancerCertificateArn: arn:aws:elasticloadbalancing:us-west-2:123456789012:certificate/50dc6c495c0c9188/f2f7dc8efc522ab2
