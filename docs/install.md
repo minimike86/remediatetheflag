@@ -77,7 +77,9 @@
            GatewayAgentPassword: REPLACE-GATEWAY-AGENT-PASSWORD
           ```
 
-11. **Run AWS CloudFormation template**
+          
+
+6. **Run AWS CloudFormation template**
 
       - Click on "Create Stack", then click on "Next", 
 
@@ -109,7 +111,7 @@ The RTF Gateway mediates the access to an RTF Exercise running in an ECS cluster
 
   
 
-It's possible to deploy additional Regional Clusters/Gateways using the public CloudFormation [regional template](https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-template-regional-gateway.yaml). Tweak the configuration of the template referencing the instructions in the [Installation](install.md) section (steps 11-12). A valid domain and TLS certificate ARN are required before running the template.
+It's possible to deploy additional Regional Clusters/Gateways using the public CloudFormation [regional template](https://s3-eu-west-1.amazonaws.com/rtf-public-templates/rtf-template-regional-gateway.yaml). Tweak the configuration of the template referencing the instructions in the [Installation](install.md) section (steps 5-6). A valid domain and TLS certificate ARN are required before running the template.
 
 - Run the CloudFormation template in a different region from the main RTF deployment, the template configures the following:
     - RTF ECS Exercise Cluster: runs RTF Exercises
@@ -118,8 +120,7 @@ It's possible to deploy additional Regional Clusters/Gateways using the public C
       * RTF Gateway: mediates access to the RTF Exercises run in the ECS Exercise cluster.
 
       - RTF Database (ephemeral): provides database for RTF Gateway, data is temporary.
-
-        - Application Load Balancer (ALB) to route the traffic to the RTF Gateway, exposes 80 and 443.
+      - Application Load Balancer (ALB) to route the traffic to the RTF Gateway, exposes 80 and 443.
 - After creation, <u>modify the DNS entry for the hostname of the new RTF Gateway with the Application Load Balancer URL</u>, reference the instructions in the [Installation](install.md) section (step 6) of the documentation.
 - To enable the newly deployed RTF Exercise Cluster you need to <u>onboard the RTF Gateway in the management console of the RTF Portal</u>, reference the instructions in the [Configuration](configure.md) (step 4) section of the documentation .
 
