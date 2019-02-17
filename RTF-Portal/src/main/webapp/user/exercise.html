@@ -1,0 +1,372 @@
+<!-- 
+ *  
+ * REMEDIATE THE FLAG
+ * Copyright 2018 - Andrea Scaduto 
+ * remediatetheflag@gmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Remediate The Flag">
+<meta name="author" content="sk4ddy">
+<title>Remediate the Flag - Exercise</title>
+<link rel="icon" type="image/png" sizes="32x32"
+	href="/assets/img/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96"
+	href="/assets/img/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16"
+	href="/assets/img/favicon-16x16.png">
+<link href="/assets/css/lib.css" rel="stylesheet">
+<link href="/assets/css/style.css" rel="stylesheet">
+<link href="/assets/css/exercise.css" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/viewer.css">
+<link rel="resource" type="application/l10n"
+	href="/assets/css/locale.properties">
+</head>
+<body>
+	<div ng-app="rtfNg">
+		<div class="ng-cloak" id="exercise" ng-controller="exercise">
+			<nav
+				class="navbar navbar-default navbar-fixed-top height35 borderBottom2">
+				<div id="navContainer" class="container">
+					<div class="navbar-header">
+						<a class="navbar-brand rtfLogo height35" href="">RTF.</a>
+						<button type="button" class="navbar-toggle collapsed"
+							data-toggle="collapse" data-target="#navbar"
+							aria-expanded="false" aria-controls="navbar">
+							<span class="sr-only">Toggle navigation</span> <span
+								class="icon-bar"></span> <span class="icon-bar"></span> <span
+								class="icon-bar"></span>
+						</button>
+						<a class="navbar-brand exerciseNavBrand height35" href="">{{exerciseName}}</a>
+
+					</div>
+
+					<div id="navbar" class="navbar-collapse collapse height35">
+						<ul class="nav navbar-nav exerciseNavbar height35">
+							<li class="dropdown"><a title="exercise-info"
+								class="dropdown-toggle" role="button" aria-haspopup="true"
+								aria-expanded="false">Exercise Info<span class="caret"></span>
+							</a>
+								<ul class="dropdown-menu">
+									<li ng-repeat="topic in exerciseDetails.info">
+
+										<div class="panel panel-default">
+											<div class="panel-heading">
+												<h4 class="panel-title">
+													<a data-toggle="collapse" data-target="#{{topic.id}}"
+														href="" class="collapsed"> {{topic.title}} </a>
+												</h4>
+											</div>
+											<div id="{{topic.id}}" class="panel-collapse collapse in">
+												<div class="panel-body">
+													<div class="row">
+														<div class="col-md-12">
+															<p>{{topic.description}}</p>
+															<img class="pictureH320"
+																ng-src="/user/image?type=exerciseInfo&id={{topic.id}}">
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</li>
+								</ul></li>
+							<li class="dropdown"><a class="dropdown-toggle"
+								title="exercise-flags" role="button" aria-haspopup="true"
+								aria-expanded="false">Exercise Flags <span class="caret"></span>
+							</a>
+								<ul class="dropdown-menu">
+									<li>
+										<div class="left">
+											<div ng-show="asNotStarted">
+												<p class="lead alertPLead">To check the remediation
+													status, start the Application Server in the RTF exercise.
+													Reference the 'Exercise Info' tab for instructions.</p>
+											</div>
+											<div class="panel-group" id="accordion">
+												<div ng-repeat="flag in exerciseDetails.flags"
+													class="panel panel-default">
+													<div class="panel-heading">
+														<h4 class="panel-title">
+															<a data-toggle="collapse" data-target="#{{flag.id}}"
+																href=""> {{flag.title}} </a>
+														</h4>
+													</div>
+													<div id="{{flag.id}}" class="panel-collapse collapse in">
+														<div class="panel-body">
+															<table>
+																<thead class="theadSpace">
+																	<tr>
+																		<th>Type</th>
+																		<th>Instructions</th>
+																		<th>Required</th>
+																		<th>Max Score</th>
+																		<th class="center">Hint</th>
+																		<th class="center">Check result</th>
+																		<th></th>
+																	</tr>
+																</thead>
+																<tbody>
+																	<tr ng-repeat="f in flag.flagList" class="spaceUnder">
+																		<td class="w10">{{f.type}}</td>
+																		<td class="w50">{{f.instructions}}</td>
+																		<td class="w10">{{f.type=='EXPLOITATION' &&
+																			"Optional" || "Required"}}</td>
+																		<td class="w7 center">{{f.maxScore || "-"}}</td>
+																		<td class="w10 center">
+																			<button ng-show="f.hintAvailable"
+																				ng-click="getHintModal(f.id)"
+																				class="btn btn-sm btn-info outline">Show
+																				Hint</button>
+																		</td>
+																		<td class="w10" ng-show="!f.selfCheckName"></td>
+																		<td
+																			ng-show="f.selfCheckName && !isAvailable(f.selfCheckStatus)"
+																			class="center w10">
+																			<button ng-click="refreshResults(exerciseDetails.id)"
+																				class="btn btn-sm btn-info outline refreshResults">Refresh
+																				Result</button>
+
+																		</td>
+																		<td
+																			ng-class="isAvailable(f.selfCheckStatus) && getRemedationTableClassFromSelfCheckName(f.selfCheckStatus)"
+																			class="w10" ng-show="isAvailable(f.selfCheckStatus)">{{getSelfChekResult(f.selfCheckStatus)}}</td>
+																		<td class="w10">
+																			<button ng-show="isAvailable(f.selfCheckStatus)"
+																				ng-click="refreshResults(exerciseDetails.id)"
+																				class="btn btn-sm btn-info outline refreshResults">Refresh</button>
+																		</td>
+																	</tr>
+																</tbody>
+															</table>
+														</div>
+													</div>
+												</div>
+											</div>
+
+										</div>
+
+									</li>
+
+								</ul></li>
+
+							<li ng-show="exerciseDetails.referenceFileAvailable" class="dropdown"><a title="exercise-reference"
+								class="dropdown-toggle" role="button" aria-haspopup="true"
+								aria-expanded="false">Exercise Reference <span class="caret"></span>
+							</a>
+								<ul class="dropdown-menu paddingTop0">
+									<li><iframe id="referenceIframe"
+											ng-src="{{viewerUrl| trustUrl}}"></iframe></li>
+
+								</ul></li>
+							<li class="dropdown" ng-show="isChallenge"><a
+								title="exercise-challenge" class="dropdown-toggle" role="button"
+								aria-haspopup="true" aria-expanded="false">Challenge<span
+									class="caret"></span>
+							</a>
+								<ul class="dropdown-menu paddingTop0">
+									<li>
+										<div class="container">
+											<div class="row">
+												<div class="col-md-12 center">
+													<div class="row center">
+														<h4 class="center">Challenge Table</h4>
+														<table class="table table-hover left" at-table
+															at-list="challengeUsers" at-config="challengeTableConfig">
+															<thead>
+
+															</thead>
+															<tbody>
+																<tr>
+																	<td at-attribute="user" at-sortable at-title="User">{{item.user}}</td>
+																	<td at-initial-sorting="desc"
+																		at-attribute="challengeScore" at-sortable
+																		at-title="Score">{{item.challengeScore}}</td>
+																	<td at-attribute="challengeRunExercises" at-sortable
+																		at-title="Run Exercises">{{(item.challengeRunExercises)}}</td>
+																	<td at-attribute="challengeRunFlags" at-sortable
+																		at-title="Run Flags">{{(item.challengeRunFlags)}}</td>
+																	<td at-attribute="team.name" at-sortable
+																		at-title="Team">{{item.team.name}}</td>
+																	<td at-attribute="country.name" at-sortable
+																		at-title="Country">{{item.country.name}}</td>
+
+
+																</tr>
+															</tbody>
+														</table>
+														<p>
+															<small>Last refreshed at
+																{{getDateInCurrentTimezone(challengeDetails.lastRefreshed,'HH:mm
+																(Z) on MMM D YYYY')}}</small>
+														</p>
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-12 center">
+													<h4 class="center">Challenge Results</h4>
+													<table class="table" id="challengeResults">
+														<thead>
+															<tr>
+																<th></th>
+																<th class="width185 bold italics centered"
+																	ng-repeat="t in challengeDetails.theads">{{t.name}}</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr ng-repeat="u in challengeDetails.users">
+																<td class="italics">{{u.user}}</td>
+
+																<td class="centered font12"
+																	ng-class="getClassForChallengeResult(u.user,f.name)"
+																	ng-repeat="f in challengeDetails.theads"><span>{{getChallengeResultFor(u.user,f.name)}}</span></td>
+															</tr>
+														</tbody>
+													</table>
+													<p class="center">
+														<small>Last refreshed at
+															{{getDateInCurrentTimezone(challengeDetails.lastRefreshed,'HH:mm
+															(Z) on MMM D YYYY')}}</small>
+													</p>
+												</div>
+											</div>
+										</div>
+									</li>
+								</ul></li>
+						</ul>
+						<div class="exerciseButtons">
+							<span ng-show="isChallenge" class="badge" id="exerciseScoreBadge">Exercise
+								Score: {{exerciseScore || 0}}</span> <span class="badge" id="cdown">{{countdown}}</span>
+							<a ng-click="stopExercise()" class="btn btn-xs btn-success">Mark
+								Completed</a> <a ng-click="backToRTF()"
+								class="btn marginLeft10  btn-xs btn-primary">Back to RTF</a>
+						</div>
+					</div>
+
+					<!--/.nav-collapse -->
+				</div>
+			</nav>
+			<div id="iframeDiv">
+				<iframe ng-src="{{guacFullUrl | trustUrl}}" id="exerciseIframe"></iframe>
+			</div>
+
+			<div id="hintReceivedModal" class="modal fade" tabindex="-1"
+				role="dialog">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title">Hint</h4>
+						</div>
+						<div class="modal-body">
+							<p class="lead">{{hintData.text}}</p>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default"
+								data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="getHintModal" class="modal fade" tabindex="-1" role="dialog">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title">Hint</h4>
+						</div>
+						<div class="modal-body">
+							<p class="lead">Each hint has an impact on the final score.</p>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default"
+								data-dismiss="modal">Close</button>
+							<button type="button" ng-click="getHint()"
+								class="btn btn-primary">Get Hint</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<div class="waitLoader"></div>
+	<script src="/assets/js/libu.min.js"></script>
+	<script src="/assets/js/pdf.js"></script>
+
+	<script src="/user/js/exercise.js"></script>
+	<!--Matomo-->
+	<script type="text/javascript">
+		var _paq = _paq || [];
+		_paq
+				.push([ "setDocumentTitle",
+						document.domain + "/" + document.title ]);
+		_paq.push([ "setCookieDomain", "*.remediatetheflag.com" ]);
+		_paq.push([ "setDomains",
+				[ "*.remediatetheflag.com", "*.remediatetheflag.net" ] ]);
+		_paq.push([ "enableCrossDomainLinking" ]);
+		_paq.push([ 'trackPageView' ]);
+		_paq.push([ 'enableLinkTracking' ]);
+		(function() {
+			var u = "https://analytics.remediatetheflag.com/piwik/";
+			_paq.push([ 'setTrackerUrl', u + 'piwik.php' ]);
+			_paq.push([ 'setSiteId', '1' ]);
+			var d = document, g = d.createElement('script'), s = d
+					.getElementsByTagName('script')[0];
+			g.type = 'text/javascript';
+			g.async = true;
+			g.defer = true;
+			g.src = u + 'piwik.js';
+			s.parentNode.insertBefore(g, s);
+		})();
+		var currentUrl = location.href;
+		window.addEventListener('hashchange', function() {
+			_paq.push([ 'setReferrerUrl', currentUrl ]);
+			currentUrl = '' + window.location.hash.substr(1);
+			_paq.push([ 'setCustomUrl', currentUrl ]);
+			_paq.push([ 'setDocumentTitle',
+					'RTF - ' + window.location.hash.substr(1) ]);
+			_paq.push([ 'deleteCustomVariables', 'page' ]);
+			_paq.push([ 'setGenerationTimeMs', 0 ]);
+			_paq.push([ 'trackPageView' ]);
+			var content = document.getElementsByTagName('body')[0];
+			_paq.push([ 'MediaAnalytics::scanForMedia', content ]);
+			_paq.push([ 'FormAnalytics::scanForForms', content ]);
+			_paq.push([ 'trackContentImpressionsWithinNode', content ]);
+			_paq.push([ 'enableLinkTracking' ]);
+		});
+	</script>
+	<noscript>
+		<p>
+			<img
+				src="https://analytics.remediatetheflag.com/piwik/piwik.php?idsite=1&amp;rec=1"
+				style="border: 0;" alt="" />
+		</p>
+	</noscript>
+	<!--EndMatomo-->
+</body>
+</html>

@@ -1,0 +1,288 @@
+ #  
+ # REMEDIATE THE FLAG
+ # Copyright 2018 - Andrea Scaduto 
+ # remediatetheflag@gmail.com
+ # 
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ # 
+ #     http://www.apache.org/licenses/LICENSE-2.0
+ # 
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ # 
+
+Description: |
+  RTF-Gateway Service
+Parameters:
+  VPC:
+    Description: The VPC that the ECS cluster is deployed to
+    Type: 'AWS::EC2::VPC::Id'
+  Cluster:
+    Description: ECS Cluster ID that this service should run on
+    Type: String
+  DesiredCount:
+    Description: Number of instances of this task to run across the cluster
+    Type: Number
+    Default: 1
+  MaxCount:
+    Description: Maximum number of instances of this task to be run across the cluster
+    Type: Number
+    Default: 4
+  ListenerHTTP:
+    Description: The Application Load Balancer HTTP listener to register with
+    Type: String
+  ListenerHTTPS:
+    Description: The Application Load Balancer HTTPS listener to register with
+    Type: String
+  GatewayHostname:
+    Description: >-
+      The hostname to register the RTF-Gateway with the Application Load Balancer
+    Type: String
+    Default: /
+  ECSServiceAutoScalingRoleARN:
+    Description: The ECS service auto scaling role ARN
+    Type: String
+  MysqlGuacUserPassword:
+    Description: Mysql Guacamole user password
+    Type: String
+  GatewayAgentPassword:
+      Description: Gateway Agent user password
+      Type: String
+  KiteImage:
+    Description: ECR Image Address for AWS-ECS-Kite
+    Type: String
+  GatewayImage:
+    Description: ECR Image Address for RTF-Gateway
+    Type: String
+  RTFMySQL:
+    Description: Reference to MySQL Service
+    Type: String
+Resources:
+  Service:
+    Type: 'AWS::ECS::Service'
+    DependsOn: ListenerRuleHTTP
+    Properties:
+      Cluster: !Ref Cluster
+      Role: !Ref ServiceRole
+      DesiredCount: !Ref DesiredCount
+      TaskDefinition: !Ref TaskDefinition
+      ServiceName: gateway
+      LoadBalancers:
+        - ContainerName: gateway
+          ContainerPort: 80
+          TargetGroupArn: !Ref TargetGroup
+  TaskDefinition:
+    Type: 'AWS::ECS::TaskDefinition'
+    Properties:
+      Family: gateway
+      ContainerDefinitions:
+        - EntryPoint:
+            - /ecs-task-kite
+          Command:
+            - '-name=mysql'
+            - '-service=mysql'
+            - !Sub '-cluster=${Cluster}'
+          Memory: 100
+          MemoryReservation: 15
+          Image: !Ref KiteImage
+          Essential: true
+          Name: mysql-gw-kite
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref 'AWS::StackName'
+              awslogs-region: !Ref 'AWS::Region'
+        - PortMappings:
+            - HostPort: 0
+              Protocol: tcp
+              ContainerPort: 80
+          Environment:
+            - Name: ELB
+              Value: 'true'
+            - Name: MYSQL_GUAC_PASSWORD
+              Value: !Ref MysqlGuacUserPassword
+            - Name: GATEWAY_AGENT_PASSWORD
+              Value: !Ref GatewayAgentPassword
+            - Name: DOMAIN
+              Value: !Ref GatewayHostname
+          Memory: 6000
+          MemoryReservation: 785
+          Image: !Ref GatewayImage
+          Essential: true
+          Links:
+            - 'mysql-gw-kite:mysqlhost'
+          Name: gateway
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref 'AWS::StackName'
+              awslogs-region: !Ref 'AWS::Region'
+  CloudWatchLogsGroup:
+    Type: 'AWS::Logs::LogGroup'
+    Properties:
+      LogGroupName: !Ref 'AWS::StackName'
+      RetentionInDays: 30
+  TargetGroup:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties:
+      Name: rtf-gateway
+      VpcId: !Ref VPC
+      Port: 80
+      Protocol: HTTP
+      Matcher:
+        HttpCode: 200
+      HealthCheckIntervalSeconds: 10
+      TargetGroupAttributes:
+        - Key: stickiness.enabled 
+          Value: true
+      HealthCheckPath: /rtf/hservlet
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+  ListenerRuleHTTP:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Properties:
+      ListenerArn: !Ref ListenerHTTP
+      Priority: 1
+      Conditions:
+        - Field: host-header
+          Values:
+            - !Ref GatewayHostname
+      Actions:
+        - TargetGroupArn: !Ref TargetGroup
+          Type: forward
+  ListenerRuleHTTPS:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Properties:
+      ListenerArn: !Ref ListenerHTTPS
+      Priority: 1
+      Conditions:
+        - Field: host-header
+          Values:
+            - !Ref GatewayHostname
+      Actions:
+        - TargetGroupArn: !Ref TargetGroup
+          Type: forward
+  ServiceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub 'RTF-ECS-Gateway-Role-${AWS::StackName}'
+      Path: /
+      AssumeRolePolicyDocument: |
+        {
+            "Statement": [{
+                "Effect": "Allow",
+                "Principal": { "Service": [ "ecs.amazonaws.com" ]},
+                "Action": [ "sts:AssumeRole" ]
+            }]
+        }
+      Policies:
+        - PolicyName: ecs-gateway-policy
+          PolicyDocument: |
+            {
+                "Statement": [{
+                    "Effect": "Allow",
+                    "Action": [
+                      "ec2:AuthorizeSecurityGroupIngress",
+                      "ec2:Describe*",
+                      "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+                      "elasticloadbalancing:Describe*",
+                      "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+                      "elasticloadbalancing:DeregisterTargets",
+                      "elasticloadbalancing:DescribeTargetGroups",
+                      "elasticloadbalancing:DescribeTargetHealth",
+                      "elasticloadbalancing:RegisterTargets",
+                      "ecs:Describe*",
+                      "ecs:List*"
+                      ],
+                     "Resource": "*"
+                }]
+            }
+  GatewayServiceScalableTarget:
+    Type: 'AWS::ApplicationAutoScaling::ScalableTarget'
+    Properties:
+      MaxCapacity: !Ref MaxCount
+      MinCapacity: !Ref DesiredCount
+      ResourceId: !Join 
+        - /
+        - - service
+          - !Ref Cluster
+          - !GetAtt 
+            - Service
+            - Name
+      RoleARN: !Ref ECSServiceAutoScalingRoleARN
+      ScalableDimension: 'ecs:service:DesiredCount'
+      ServiceNamespace: ecs
+  GatewayServiceScaleOutPolicy:
+    Type: 'AWS::ApplicationAutoScaling::ScalingPolicy'
+    Properties:
+      PolicyName: GatewayServiceScaleOutPolicy
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref GatewayServiceScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ChangeInCapacity
+        Cooldown: 1800
+        MetricAggregationType: Average
+        StepAdjustments:
+          - MetricIntervalLowerBound: 0
+            ScalingAdjustment: 1
+  GatewayServiceScaleInPolicy:
+    Type: 'AWS::ApplicationAutoScaling::ScalingPolicy'
+    Properties:
+      PolicyName: GatewayServiceScaleInPolicy
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref GatewayServiceScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ChangeInCapacity
+        Cooldown: 1800
+        MetricAggregationType: Average
+        StepAdjustments:
+          - MetricIntervalUpperBound: 0
+            ScalingAdjustment: -1
+  GatewayMemoryScaleOutAlarm:
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      AlarmName: GatewayMemoryScaleOutAlarm
+      AlarmDescription: Alarm if memory utilization greater than 85%
+      Namespace: AWS/ECS
+      MetricName: MemoryUtilization
+      Dimensions:
+        - Name: ClusterName
+          Value: !Ref Cluster
+        - Name: ServiceName
+          Value: !GetAtt 
+            - Service
+            - Name
+      Statistic: Maximum
+      Period: '60'
+      EvaluationPeriods: '3'
+      Threshold: '85'
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref GatewayServiceScaleOutPolicy
+  GatewayMemoryScaleInAlarm:
+    Type: 'AWS::CloudWatch::Alarm'
+    Properties:
+      AlarmName: GatewayMemoryScaleInAlarm
+      AlarmDescription: Alarm if MemoryUtilization less than 30%
+      Namespace: AWS/ECS
+      MetricName: MemoryUtilization
+      Dimensions:
+        - Name: ClusterName
+          Value: !Ref Cluster
+        - Name: ServiceName
+          Value: !GetAtt 
+            - Service
+            - Name
+      Statistic: Maximum
+      Period: '60'
+      EvaluationPeriods: '10'
+      Threshold: '30'
+      ComparisonOperator: LessThanThreshold
+      AlarmActions:
+        - !Ref GatewayServiceScaleInPolicy

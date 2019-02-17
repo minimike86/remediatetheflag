@@ -1,0 +1,91 @@
+ #  
+ # REMEDIATE THE FLAG
+ # Copyright 2018 - Andrea Scaduto 
+ # remediatetheflag@gmail.com
+ # 
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ # 
+ #     http://www.apache.org/licenses/LICENSE-2.0
+ # 
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ # 
+
+Description: >
+    RTF-LoadBalancer for RTF-Global and RTF-Gateway
+Parameters:
+    EnvironmentName:
+        Description: An environment name that will be prefixed to resource names
+        Type: String
+        Default: RTF-ALB
+    VPC:
+        Type: AWS::EC2::VPC::Id
+        Description: VPC the Application Load Balancer should be deployed to
+    Subnets:
+        Description: Subnets the Application Load Balancer should be deployed to
+        Type: List<AWS::EC2::Subnet::Id>
+    SecurityGroup:
+        Description: Security Group to apply to the Application Load Balancer
+        Type: AWS::EC2::SecurityGroup::Id
+    LoadBalancerCertificateArn:
+        Description: ARN of HTTPS Certificate
+        Type: String
+Resources:
+    LoadBalancer:
+        Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+        Properties:
+            Name: !Ref EnvironmentName
+            Subnets: !Ref Subnets
+            SecurityGroups: 
+                - !Ref SecurityGroup
+            Tags: 
+                - Key: Name
+                  Value: !Ref EnvironmentName
+    LoadBalancerListenerHTTP:
+        Type: AWS::ElasticLoadBalancingV2::Listener
+        Properties:
+            LoadBalancerArn: !Ref LoadBalancer
+            Port: 80
+            Protocol: HTTP 
+            DefaultActions: 
+                - Type: forward
+                  TargetGroupArn: !Ref DefaultTargetGroup 
+    LoadBalancerListenerHTTPS:
+        Type: AWS::ElasticLoadBalancingV2::Listener
+        Properties:
+            Certificates:
+                - CertificateArn: !Ref LoadBalancerCertificateArn
+            LoadBalancerArn: !Ref LoadBalancer
+            Port: 443
+            Protocol: HTTPS 
+            DefaultActions: 
+                - Type: forward
+                  TargetGroupArn: !Ref DefaultTargetGroup 
+    # We define a default target group here, as this is a mandatory Parameters
+    # when creating an Application Load Balancer Listener. This is not used, instead
+    # a target group is created per-service in each service template.
+    DefaultTargetGroup:
+        Type: AWS::ElasticLoadBalancingV2::TargetGroup
+        Properties:
+            Name: !Sub ${EnvironmentName}-default
+            VpcId: !Ref VPC
+            Port: 80
+            Protocol: HTTP
+Outputs:
+    LoadBalancer:
+        Description: A reference to the Application Load Balancer
+        Value: !Ref LoadBalancer
+    LoadBalancerUrl:
+        Description: The URL of the ALB
+        Value: !GetAtt LoadBalancer.DNSName
+    ListenerHTTP:
+        Description: A reference to a port 80 listener
+        Value: !Ref LoadBalancerListenerHTTP  
+    ListenerHTTPS:
+        Description: A reference to a port 443 listener
+        Value: !Ref LoadBalancerListenerHTTPS

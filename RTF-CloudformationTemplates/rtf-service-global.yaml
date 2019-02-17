@@ -1,0 +1,365 @@
+ #  
+ # REMEDIATE THE FLAG
+ # Copyright 2018 - Andrea Scaduto 
+ # remediatetheflag@gmail.com
+ # 
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ # 
+ #     http://www.apache.org/licenses/LICENSE-2.0
+ # 
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ # 
+
+  Description: >
+    RTF-Global Service
+  Parameters:
+    VPC:
+      Description: The VPC that the ECS cluster is deployed to
+      Type: 'AWS::EC2::VPC::Id'
+    Cluster:
+      Description: ECS Cluster ID that this service should run on
+      Type: String
+    ExerciseCluster:
+      Description : ECS Cluster for running exercises
+      Type: String
+    DesiredCount:
+      Description: Number of instances of this task to run across
+      Type: Number
+      Default: 1
+    MaxCount:
+      Description: Maximum number of instances of this task to be run across cluster
+      Type: Number
+      Default: 4
+    ListenerHTTP:
+      Description: The Application Load Balancer HTTP listener to register with
+      Type: String
+    ListenerHTTPS:
+      Description: The Application Load Balancer HTTPS listener to register with
+      Type: String
+    ECSServiceAutoScalingRoleARN:
+      Description: The ECS service auto scaling role ARN
+      Type: String
+    GuacRTFAdminUserPassword:
+      Description: Guacamole rtfadmin User password
+      Type: String
+    MysqlGlobalUserPassword:
+      Description: Mysql global user password
+      Type: String
+    GatewayAgentPassword:
+      Description: Gateway Agent user password
+      Type: String
+    KiteImage:
+      Description: ECR Image Address for AWS-ECS-Kite
+      Type: String
+    GlobalImage:
+      Description: ECR Image Address for RTF-Global
+      Type: String
+    GlobalHostname:
+      Description: Hostname for Global service
+      Type: String
+    RTFMySQL:
+      Description: Reference to MySQL Service
+      Type: String
+  Resources:
+    Service:
+      Type: 'AWS::ECS::Service'
+      DependsOn: ListenerRuleHTTP
+      Properties:
+        Cluster: !Ref Cluster
+        Role: !Ref ServiceRole
+        DesiredCount: !Ref DesiredCount
+        TaskDefinition: !Ref TaskDefinition
+        ServiceName: global
+        LoadBalancers:
+          - ContainerName: global
+            ContainerPort: 80
+            TargetGroupArn: !Ref TargetGroup
+    GlobalTaskRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: !Sub ${AWS::StackName}-ECS-WEBAPP-ROLE
+        Path: /
+        AssumeRolePolicyDocument: |
+            {
+                "Statement": [{
+                    "Sid": "",
+                    "Effect": "Allow",
+                    "Principal": { "Service": [ "ecs-tasks.amazonaws.com" ]},
+                    "Action": "sts:AssumeRole"
+                }]
+            }
+        Policies: 
+            - PolicyName: !Sub ${AWS::StackName}-ecs-task-global-policy
+              PolicyDocument: 
+                {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Action": [
+                        "cloudwatch:GetMetricStatistics"
+                      ],
+                      "Effect": "Allow",
+                      "Resource": "*"
+                    },
+                    {
+                      "Action": [
+                        "logs:CreateLogStream"
+                      ],
+                      "Effect": "Allow",
+                      "Resource": "*"
+                    },
+                    {
+                      "Action": [
+                        "ecs:DeregisterTaskDefinition",
+                        "ecs:DescribeClusters",
+                        "ecs:DescribeTaskDefinition",
+                        "ecs:DescribeTasks",
+                        "ecs:DescribeContainerInstances",
+                        "ecs:ListTaskDefinitions",
+                        "ecs:ListTasks",
+                        "ecs:ListClusters",
+                        "ecs:RegisterTaskDefinition",
+                        "ecs:RunTask",
+                        "ecs:StopTask"
+                      ],
+                      "Effect": "Allow",
+                      "Resource": "*"
+                    },
+                    {
+                      "Action": [
+                        "ec2:DescribeInstances",
+                        "ec2:StopInstances",
+                        "ec2:TerminateInstances"
+                      ],
+                      "Effect": "Allow",
+                      "Resource": "*"
+                    }
+                  ]
+                }
+    TaskDefinition:
+      Type: 'AWS::ECS::TaskDefinition'
+      Properties:
+        Family: global
+        TaskRoleArn: !Ref GlobalTaskRole
+        ContainerDefinitions:
+          - EntryPoint:
+              - /ecs-task-kite
+            PortMappings: []
+            Command:
+              - '-name=mysql'
+              - '-service=mysql'
+              - !Sub "-cluster=${Cluster}"
+            Memory: 100
+            MemoryReservation: 15
+            VolumesFrom: []
+            Image: !Ref KiteImage
+            Essential: true
+            Name: mysql-global-kite
+            LogConfiguration:
+              LogDriver: awslogs
+              Options:
+                awslogs-group: !Ref 'AWS::StackName'
+                awslogs-region: !Ref 'AWS::Region'
+          - PortMappings:
+              - HostPort: 0
+                Protocol: tcp
+                ContainerPort: 80
+            Environment:
+              - Name: ELB
+                Value: true
+              - Name: DOMAIN
+                Value: !Ref GlobalHostname
+              - Name: GUAC_RTFADMIN_PASSWORD
+                Value: !Ref GuacRTFAdminUserPassword
+              - Name: MYSQL_GLOBAL_PASSWORD
+                Value: !Ref MysqlGlobalUserPassword
+              - Name: GATEWAY_AGENT_PASSWORD
+                Value: !Ref GatewayAgentPassword
+              - Name: RTF_EXERCISE_CLUSTER
+                Value: !Ref ExerciseCluster
+            Memory: 6000
+            MemoryReservation: 785
+            Image: !Ref GlobalImage
+            Essential: true
+            Links:
+              - 'mysql-global-kite:mysqlhost'
+            Name: global
+            LogConfiguration:
+              LogDriver: awslogs
+              Options:
+                awslogs-group: !Ref 'AWS::StackName'
+                awslogs-region: !Ref 'AWS::Region'
+    CloudWatchLogsGroup:
+      Type: 'AWS::Logs::LogGroup'
+      Properties:
+        LogGroupName: !Ref 'AWS::StackName'
+        RetentionInDays: 30
+    TargetGroup:
+      Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+      Properties:
+        Name: rtf-global
+        VpcId: !Ref VPC
+        Port: 80
+        Protocol: HTTP
+        TargetGroupAttributes:
+          - Key: stickiness.enabled 
+            Value: true
+        Matcher:
+          HttpCode: 200-399
+        HealthCheckIntervalSeconds: 10
+        HealthCheckPath: /hservlet/handler
+        HealthCheckProtocol: HTTP
+        HealthCheckTimeoutSeconds: 5
+        HealthyThresholdCount: 2
+    ListenerRuleHTTP:
+      Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+      Properties:
+        ListenerArn: !Ref ListenerHTTP
+        Priority: 2
+        Conditions:
+        - Field: path-pattern
+          Values: 
+            - /*
+        Actions:
+          - TargetGroupArn: !Ref TargetGroup
+            Type: forward
+    ListenerRuleHTTPS:
+      Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+      Properties:
+        ListenerArn: !Ref ListenerHTTPS
+        Priority: 2
+        Conditions:
+        - Field: path-pattern
+          Values: 
+            - /*
+        Actions:
+          - TargetGroupArn: !Ref TargetGroup
+            Type: forward
+    ServiceRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        RoleName: !Sub 'RTF-ECS-Global-Role-${AWS::StackName}'
+        Path: /
+        AssumeRolePolicyDocument: |
+          {
+              "Statement": [{
+                  "Effect": "Allow",
+                  "Principal": { "Service": [ "ecs.amazonaws.com" ]},
+                  "Action": [ "sts:AssumeRole" ]
+              }]
+          }
+        Policies:
+          - PolicyName: ecs-global-policy
+            PolicyDocument:
+              Version: 2012-10-17
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - 'ec2:AuthorizeSecurityGroupIngress'
+                    - 'ec2:Describe*'
+                    - 'elasticloadbalancing:DeregisterInstancesFromLoadBalancer'
+                    - 'elasticloadbalancing:Describe*'
+                    - 'elasticloadbalancing:RegisterInstancesWithLoadBalancer'
+                    - 'elasticloadbalancing:DeregisterTargets'
+                    - 'elasticloadbalancing:DescribeTargetGroups'
+                    - 'elasticloadbalancing:DescribeTargetHealth'
+                    - 'elasticloadbalancing:RegisterTargets'
+                    - 'ec2:StopInstances'
+                    - 'ec2:TerminateInstances'
+                    - 'ecs:Describe*'
+                    - 'ecs:List*'
+                    - 'ecs:RunTask'
+                    - 'ecs:StartTask'
+                    - 'ecs:StopTask'
+                    - 'cloudwatch:GetMetricStatistics'
+                    - 'cloudwatch:ListMetrics'
+                  Resource: '*'
+    GlobalServiceScalableTarget:
+      Type: 'AWS::ApplicationAutoScaling::ScalableTarget'
+      Properties:
+        MaxCapacity: !Ref MaxCount
+        MinCapacity: !Ref DesiredCount
+        ResourceId: !Join 
+          - /
+          - - service
+            - !Ref Cluster
+            - !GetAtt 
+              - Service
+              - Name
+        RoleARN: !Ref ECSServiceAutoScalingRoleARN
+        ScalableDimension: 'ecs:service:DesiredCount'
+        ServiceNamespace: ecs
+    GlobalServiceScaleOutPolicy:
+      Type: 'AWS::ApplicationAutoScaling::ScalingPolicy'
+      Properties:
+        PolicyName: GlobalServiceScaleOutPolicy
+        PolicyType: StepScaling
+        ScalingTargetId: !Ref GlobalServiceScalableTarget
+        StepScalingPolicyConfiguration:
+          AdjustmentType: ChangeInCapacity
+          Cooldown: 1800
+          MetricAggregationType: Average
+          StepAdjustments:
+            - MetricIntervalLowerBound: 0
+              ScalingAdjustment: 1
+    GlobalServiceScaleInPolicy:
+      Type: 'AWS::ApplicationAutoScaling::ScalingPolicy'
+      Properties:
+        PolicyName: GlobalServiceScaleInPolicy
+        PolicyType: StepScaling
+        ScalingTargetId: !Ref GlobalServiceScalableTarget
+        StepScalingPolicyConfiguration:
+          AdjustmentType: ChangeInCapacity
+          Cooldown: 1800
+          MetricAggregationType: Average
+          StepAdjustments:
+            - MetricIntervalUpperBound: 0
+              ScalingAdjustment: -1
+    GlobalMemoryScaleOutAlarm:
+      Type: 'AWS::CloudWatch::Alarm'
+      Properties:
+        AlarmName: GlobalMemoryScaleOutAlarm
+        AlarmDescription: Alarm if memory utilization greater than 85%
+        Namespace: AWS/ECS
+        MetricName: MemoryUtilization
+        Dimensions:
+          - Name: ClusterName
+            Value: !Ref Cluster
+          - Name: ServiceName
+            Value: !GetAtt 
+              - Service
+              - Name
+        Statistic: Maximum
+        Period: '60'
+        EvaluationPeriods: '3'
+        Threshold: '85'
+        ComparisonOperator: GreaterThanThreshold
+        AlarmActions:
+          - !Ref GlobalServiceScaleOutPolicy
+    GlobalMemoryScaleInAlarm:
+      Type: 'AWS::CloudWatch::Alarm'
+      Properties:
+        AlarmName: GlobalMemoryScaleInAlarm
+        AlarmDescription: Alarm if MemoryUtilization less than 30%
+        Namespace: AWS/ECS
+        MetricName: MemoryUtilization
+        Dimensions:
+          - Name: ClusterName
+            Value: !Ref Cluster
+          - Name: ServiceName
+            Value: !GetAtt 
+              - Service
+              - Name
+        Statistic: Maximum
+        Period: '60'
+        EvaluationPeriods: '10'
+        Threshold: '30'
+        ComparisonOperator: LessThanThreshold
+        AlarmActions:
+          - !Ref GlobalServiceScaleInPolicy

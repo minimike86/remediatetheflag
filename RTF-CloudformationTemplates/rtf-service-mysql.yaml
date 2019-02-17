@@ -1,0 +1,121 @@
+ #  
+ # REMEDIATE THE FLAG
+ # Copyright 2018 - Andrea Scaduto 
+ # remediatetheflag@gmail.com
+ # 
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ # 
+ #     http://www.apache.org/licenses/LICENSE-2.0
+ # 
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ # 
+ 
+Description: >
+  RTF-MySQL Service
+Parameters:
+  VPC:
+    Description: The VPC that the ECS cluster is deployed to
+    Type: 'AWS::EC2::VPC::Id'
+  Cluster:
+    Description: Please provide the ECS Cluster ID that this service should run on
+    Type: String
+  DesiredCount:
+    Description: How many instances of this task should we run across our cluster?
+    Type: Number
+    Default: 1
+  MountPoint:
+    Description: The Linux mount point for the EFS volume
+    Type: String
+    MinLength: '1'
+    Default: efs
+  GuacRTFAdminUserPassword:
+    Description: Guacamole rtfadmin Password
+    Type: String
+  GlobalRTFAdminUserPassword:
+    Description: Portal admin Password
+    Type: String
+  MysqlGlobalUserPassword:
+    Description: Mysql Global User Password
+    Type: String
+  MysqlGuacUserPassword:
+    Description: Mysql Guacuamole User Password
+    Type: String
+  MysqlRootUserPassword:
+    Description: Mysql Root Password
+    Type: String
+  MysqlImage:
+    Description: ECR Image Address for RTF-Mysql
+    Type: String
+Resources:
+  Service:
+    Type: 'AWS::ECS::Service'
+    Properties:
+      Cluster: !Ref Cluster
+      DesiredCount: !Ref DesiredCount
+      TaskDefinition: !Ref TaskDefinition
+      ServiceName: mysql
+  MySQLWaitHandle: 
+    Type: "AWS::CloudFormation::WaitConditionHandle"
+  WaitCondition: 
+    Type: "AWS::CloudFormation::WaitCondition"
+    DependsOn: "Service"
+    Properties: 
+      Handle: 
+        Ref: "MySQLWaitHandle"
+      Timeout: "600"
+      Count: 1
+  TaskDefinition:
+    Type: 'AWS::ECS::TaskDefinition'
+    Properties:
+      Family: mysql-efs
+      ContainerDefinitions:
+        - Name: mysql
+          Essential: true
+          PortMappings:
+            - HostPort: 0
+              Protocol: tcp
+              ContainerPort: 3306
+          Environment:
+            - Name: GUAC_RTFADMIN_PASSWORD
+              Value: !Ref GuacRTFAdminUserPassword
+            - Name: GLOBAL_ADMIN_PASSWORD
+              Value: !Ref GlobalRTFAdminUserPassword
+            - Name: MYSQL_GLOBAL_PASSWORD
+              Value: !Ref MysqlGlobalUserPassword
+            - Name: MYSQL_GUAC_PASSWORD
+              Value: !Ref MysqlGuacUserPassword
+            - Name: MYSQL_ROOT_PASSWORD
+              Value: !Ref MysqlRootUserPassword
+            - Name: SIGNAL_URL
+              Value: !Ref MySQLWaitHandle
+          MountPoints:
+            - ContainerPath: /var/lib/mysql
+              SourceVolume: efs
+          Memory: 2000
+          MemoryReservation: 800
+          Image: !Ref MysqlImage
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref 'AWS::StackName'
+              awslogs-region: !Ref 'AWS::Region'
+      Volumes:
+        - Name: efs
+          Host:
+            SourcePath: !Sub "/${MountPoint}"
+  CloudWatchLogsGroup:
+    Type: 'AWS::Logs::LogGroup'
+    Properties:
+      LogGroupName: !Ref 'AWS::StackName'
+      RetentionInDays: 30
+  
+Outputs:
+  MySQLService:
+    Description: A reference to MySQL Service
+    Value: !Ref Service

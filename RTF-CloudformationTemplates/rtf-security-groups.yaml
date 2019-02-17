@@ -1,0 +1,118 @@
+ #  
+ # REMEDIATE THE FLAG
+ # Copyright 2018 - Andrea Scaduto 
+ # remediatetheflag@gmail.com
+ # 
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ # 
+ #     http://www.apache.org/licenses/LICENSE-2.0
+ # 
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ # 
+
+Description: >
+  RTF-SecurityGroups
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+    Default: RTF-SecurityGroups
+  VPC:
+    Type: 'AWS::EC2::VPC::Id'
+    Description: VPC the security groups should be deployed to
+Resources:
+  LoadBalancerSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VPC
+      GroupDescription: Security group for access to the load balancer that sits in front of ECS
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-LoadBalancers'
+  ServicesSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VPC
+      GroupDescription: Security group for access to the RTF services and the tasks/containers
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-Services'
+  ExercisesSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VPC
+      GroupDescription: Security group for access to the RTF exercises tasks/containers 
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-Exercises'
+  LoadBalancerSecurityGroupIngress1:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties: 
+      GroupId:
+          Fn::GetAtt:
+          - LoadBalancerSecurityGroup
+          - GroupId
+      CidrIp: 0.0.0.0/0
+      IpProtocol: tcp
+      FromPort: '80'
+      ToPort: '80'
+  LoadBalancerSecurityGroupIngress2:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties: 
+      GroupId:
+          Fn::GetAtt:
+          - LoadBalancerSecurityGroup
+          - GroupId
+      CidrIp: 0.0.0.0/0
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'  
+  ServicesSecurityGroupIngress1:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties: 
+        GroupId:
+          Fn::GetAtt:
+          - ServicesSecurityGroup
+          - GroupId
+        SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
+        IpProtocol: tcp
+        FromPort: '32768'
+        ToPort: '60999'
+  ServicesSecurityGroupIngress2:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties: 
+        GroupId:
+          Fn::GetAtt:
+          - ServicesSecurityGroup
+          - GroupId
+        SourceSecurityGroupId: !Ref ServicesSecurityGroup
+        IpProtocol: tcp
+        FromPort: '2049'
+        ToPort: '2049'
+  ExercisesSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties: 
+      GroupId:
+        Fn::GetAtt:
+        - ExercisesSecurityGroup
+        - GroupId
+      SourceSecurityGroupId: !Ref ServicesSecurityGroup
+      IpProtocol: tcp
+      FromPort: '32768'
+      ToPort: '60999'
+Outputs:
+  LoadBalancerSecurityGroup:
+    Description: A reference to the security group for Load Balancers
+    Value: !Ref LoadBalancerSecurityGroup
+  ServicesSecurityGroup:
+    Description: A reference to the security group for RTF Services
+    Value: !Ref ServicesSecurityGroup
+  ExercisesSecurityGroup:
+    Description: A reference to the security group for RTF Exercises
+    Value: !Ref ExercisesSecurityGroup

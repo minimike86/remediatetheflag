@@ -1,0 +1,116 @@
+<!-- 
+ *  
+ * REMEDIATE THE FLAG
+ * Copyright 2018 - Andrea Scaduto 
+ * remediatetheflag@gmail.com
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Remediate The Flag">
+<meta name="author" content="sk4ddy">
+<title>Remediate the Flag - Error Page</title>
+<link rel="icon" type="image/png" sizes="32x32"
+	href="/assets/img/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96"
+	href="/assets/img/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16"
+	href="/assets/img/favicon-16x16.png">
+<link href="/assets/css/lib.css" rel="stylesheet">
+<link href="/assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+	<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="index.html">RTF.</a>
+			</div>
+		</div>
+	</div>
+	<div id="service">
+		<div class="container serviceContainer">
+			<div class="row centered serviceInnerContainer col-md-12">
+				<div class="col-md-6 col-md-offset-3">
+					<h1>500 - Error</h1>
+					<h4>Oops! Something went wrong.</h4>
+					<h5>
+						Back to <a href="/">homepage</a>.
+					</h5>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- *****************************************************************************************************************
+	 FOOTER
+	 ***************************************************************************************************************** -->
+	<div id="footerwrap">
+			<div class="container">
+			<p class="center">RTF - 2018</p>
+			</div>
+		</div>
+	<script src="/assets/js/jquery.min.js"></script>
+ <script>
+    $(document).ready(function(){
+        function responsiveView() {
+            var win = $(window).height();
+            var n = parseInt($('.navbar').css('height').replace('px',''))
+            var f = parseInt($('#footerwrap').css('height').replace('px',''))
+            $('.serviceContainer').css('height',(win - n - f + 10)+"px");
+        }
+        responsiveView();
+        $(window).on('load', responsiveView);
+        $(window).on('resize', responsiveView); 
+    })      
+    </script>
+    	<!--Matomo-->
+	<script type="text/javascript">
+	  var _paq = _paq || [];
+	  _paq.push(["setDocumentTitle", document.domain + "/" + document.title]);
+	  _paq.push(["setCookieDomain", "*.remediatetheflag.com"]);
+	  _paq.push(["setDomains", ["*.remediatetheflag.com","*.remediatetheflag.net"]]);
+	  _paq.push(["enableCrossDomainLinking"]);
+	  _paq.push(['trackPageView']);
+	  _paq.push(['enableLinkTracking']);
+	  (function() {
+	    var u="https://analytics.remediatetheflag.com/piwik/";
+	    _paq.push(['setTrackerUrl', u+'piwik.php']);
+	    _paq.push(['setSiteId', '1']);
+	    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+	    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+	  })();
+	  var currentUrl = location.href;
+	  window.addEventListener('hashchange', function() {
+	      _paq.push(['setReferrerUrl', currentUrl]);
+	       currentUrl = '' + window.location.hash.substr(1);
+	      _paq.push(['setCustomUrl', currentUrl]);
+	      _paq.push(['setDocumentTitle', 'RTF - '+ window.location.hash.substr(1)]);
+	      _paq.push(['deleteCustomVariables', 'page']); 
+	      _paq.push(['setGenerationTimeMs', 0]);
+	      _paq.push(['trackPageView']);
+	      var content = document.getElementsByTagName('body')[0];
+	      _paq.push(['MediaAnalytics::scanForMedia', content]);
+	      _paq.push(['FormAnalytics::scanForForms', content]);
+	      _paq.push(['trackContentImpressionsWithinNode', content]);
+	      _paq.push(['enableLinkTracking']);
+	  });
+	</script>
+	<noscript><p><img src="https://analytics.remediatetheflag.com/piwik/piwik.php?idsite=1&amp;rec=1" style="border:0;" alt="" /></p></noscript>
+	<!--EndMatomo-->
+</body>
+</html>
